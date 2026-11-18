@@ -209,6 +209,8 @@ input[type=range]{width:100%;accent-color:var(--accent);height:28px}
 .anim .climb{animation:climb 5s ease-in-out infinite}
 @keyframes busgo{0%{transform:translateX(-90px)}100%{transform:translateX(360px)}}
 .anim .bus{animation:busgo 6s linear infinite}
+@keyframes grow2{0%{transform:scaleY(0)}60%,100%{transform:scaleY(1)}}
+.anim .grow2{transform-box:fill-box;transform-origin:bottom center;animation:grow2 1.8s ease-out both}
 footer{margin-top:36px;font-size:12.5px;color:var(--muted);border-top:2px dashed var(--line);padding-top:14px}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 @media print{
@@ -226,7 +228,7 @@ footer{margin-top:36px;font-size:12.5px;color:var(--muted);border-top:2px dashed
 <header>
   <div class="eyebrow">Learning series · Book 2</div>
   <h1>Software Laws, mapped</h1>
-  <p>57 laws and principles of software engineering as a building: code on the ground floor, decisions on the roof. Six floors are open: code, quality, scale (with live calculators), architecture, time and people. The top floor (decisions) is under construction.</p>
+  <p>57 laws and principles of software engineering as a building: code on the ground floor, decisions on the roof. All seven floors are open, from code on the ground floor to decisions at the top.</p>
 </header>
 
 <nav class="tabs" role="tablist" aria-label="Views">
@@ -263,7 +265,7 @@ const PARTS={
  I:{n:"I",name:"Architecture & Complexity",short:"Architecture",floor:"3",c:"p1",built:true,laws:["Gall’s Law","Leaky Abstractions","Tesler’s Law","CAP Theorem","Hyrum’s Law","Second-System Effect","Fallacies of Distributed Computing","Unintended Consequences"]},
  III:{n:"III",name:"Time, Estimation & Planning",short:"Time",floor:"4",c:"p3",built:true,laws:["Hofstadter’s Law","Parkinson’s Law","Ninety-Ninety Rule","Goodhart’s Law","Gilb’s Law","Knuth’s Optimisation Principle"]},
  II:{n:"II",name:"People, Teams & Organisations",short:"People",floor:"5",c:"p2",built:true,laws:["Conway’s Law","Brooks’s Law","Dunbar’s Number","Ringelmann Effect","Price’s Law","Putt’s Law","Peter Principle","Inverse Conway Manoeuvre","Bus Factor","Dilbert Principle"]},
- VII:{n:"VII",name:"Decision-Making & Biases",short:"Decisions",floor:"6",c:"p7",laws:["Occam’s Razor","Hanlon’s Razor","Sunk Cost Fallacy","Dunning–Kruger","Confirmation Bias","First Principles","Pareto Principle","Lindy Effect","Hype Cycle","Amara’s Law","Planning Fallacy","Survivorship Bias","Chesterton’s Fence"]}
+ VII:{n:"VII",name:"Decision-Making & Biases",short:"Decisions",floor:"6",c:"p7",built:true,laws:["Occam’s Razor","Hanlon’s Razor","Sunk Cost Fallacy","Dunning–Kruger","Confirmation Bias","First Principles","Pareto Principle","Lindy Effect","Hype Cycle","Amara’s Law","Planning Fallacy","Survivorship Bias","Chesterton’s Fence"]}
 };
 const ORDER=["VII","II","III","I","V","IV","VI"]; /* top to bottom */
 /* Super Thinking cross-links (book 1) */
@@ -293,6 +295,7 @@ const FIELD={
  learn:["Learning","h4",'<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5V5.5"/>'],
  sport:["Sport","h3",'<circle cx="12" cy="12" r="8.5"/><path d="M6 6.5c2.8 2.3 2.8 8.7 0 11M18 6.5c-2.8 2.3-2.8 8.7 0 11"/>'],
  history:["History","h6",'<path d="M3 9l9-5 9 5M5 9v9M9.5 9v9M14.5 9v9M19 9v9M3 20h18"/>'],
+ law:["Law & justice","h1",'<path d="M12 4v16M8 20h8M5 7h14M5 7l-3 6a3 3 0 0 0 6 0zM19 7l-3 6a3 3 0 0 0 6 0z"/>'],
  transport:["Transport","h4",'<rect x="4" y="6" width="16" height="10" rx="2"/><circle cx="8" cy="18" r="1.8"/><circle cx="16" cy="18" r="1.8"/><path d="M4 11h16"/>']
 };
 
@@ -1764,6 +1767,390 @@ LAWS.push(
  rel:[["name","Peter Principle"],["name","Putt’s Law"]],
  cheat:{ask:"Is this promotion about the role, or moving a problem?",bend:"It’s satire, not most companies."}}
 );
+/* ================= FLOOR 6 · PART VII ================= */
+const strip=(panels,foot,footCol="var(--h6)")=>`<svg viewBox="0 0 340 196" role="img" aria-label="Three-panel story">${panels.map(([title,body],i)=>{const x=6+i*112;return `<rect x="${x}" y="8" width="104" height="150" rx="10" fill="var(--surface)" stroke="var(--ink)" stroke-width="2"/><text x="${x+52}" y="26" text-anchor="middle" font-size="10.5" font-weight="800">${i+1}. ${title}</text>${body(x)}`;}).join("")}<text x="170" y="184" text-anchor="middle" font-size="10.5" font-weight="800" style="fill:${footCol}">${foot}</text></svg>`;
+function picOccam(){
+  const C=[["Nightly backup overlaps","the reporting job",1,"good"],["Leap-second bug plus","a rare CPU flaw",4,"bad"],["Foreign attackers inside","the load balancer",5,"bad"]];
+  return `<svg viewBox="0 0 340 206" role="img" aria-label="Three explanations for a slowdown, ranked by how many assumptions each needs">
+   <text x="10" y="18" font-size="12" font-weight="800">Production is slow at 3 a.m. Why?</text>
+   <text x="330" y="18" text-anchor="end" font-size="9.5" font-weight="800" style="fill:var(--muted)">assumptions needed</text>
+   ${C.map(([a,b,n,c],i)=>{const y=32+i*52;let d="";for(let k=0;k<n;k++)d+=`<circle cx="${318-k*16}" cy="${y+22}" r="6" fill="color-mix(in srgb,var(--${c}) 35%,var(--surface))" stroke="var(--${c})" stroke-width="1.6"/>`;
+    return `<rect x="8" y="${y}" width="324" height="44" rx="10" fill="color-mix(in srgb,var(--${c}) ${c==="good"?14:6}%,var(--surface))" stroke="var(--${c})" stroke-width="${c==="good"?2.6:1.4}"/>
+     <text x="20" y="${y+19}" font-size="11.5" font-weight="800">${a}</text><text x="20" y="${y+34}" font-size="11.5" font-weight="800">${b}</text>${d}`;}).join("")}
+   <text x="20" y="200" font-size="11" font-weight="800" style="fill:var(--good)">↑ start with the boring one</text></svg>`;
+}
+function picHanlon(){
+  return strip([["Missed handover",x=>`${fig(x+34,66,"var(--h2)")}<rect x="${x+56}" y="70" width="34" height="26" rx="3" fill="var(--surface)" stroke="var(--ink)" stroke-width="1.5"/><path d="M${x+60} 78h26M${x+60} 86h18" stroke="var(--muted)" stroke-width="2"/><path d="M${x+60} 64 l26 36 M${x+86} 64 l-26 36" stroke="var(--bad)" stroke-width="2.4"/><text x="${x+52}" y="140" text-anchor="middle" font-size="9.5" style="fill:var(--muted)">the notes never came</text>`],
+   ["“On purpose!”",x=>`${fig(x+30,74,"var(--h2)")}<ellipse cx="${x+70}" cy="58" rx="28" ry="18" fill="color-mix(in srgb,var(--bad) 12%,var(--surface))" stroke="var(--bad)" stroke-width="1.6"/><circle cx="${x+44}" cy="76" r="3" fill="none" stroke="var(--bad)"/><path d="M${x+60} 52 l-4 -8 l6 4 M${x+80} 52 l4 -8 l-6 4" stroke="var(--bad)" stroke-width="2" fill="none"/><text x="${x+70}" y="64" text-anchor="middle" font-size="10" font-weight="800" style="fill:var(--bad)">sabotage!</text><text x="${x+52}" y="140" text-anchor="middle" font-size="9.5" style="fill:var(--muted)">the tempting story</text>`],
+   ["Actually…",x=>`${fig(x+30,70,"var(--h3)")}${[0,1,2,3,4].map(k=>`<rect x="${x+54+k*2}" y="${110-k*12}" width="38" height="10" rx="2" fill="var(--surface)" stroke="var(--ink)" stroke-width="1.3"/>`).join("")}<text x="${x+72}" y="54" text-anchor="middle" font-size="10" font-weight="800">200 emails</text><text x="${x+52}" y="140" text-anchor="middle" font-size="9.5" style="fill:var(--muted)">buried, not betrayed</text>`]],
+   "a mistake is far likelier than malice");
+}
+function picSunk(){
+  return `<svg viewBox="0 0 340 206" role="img" aria-label="Money already spent is gone; only future costs and value should decide">
+   <defs><pattern id="skh" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="7" stroke="var(--line)" stroke-width="3"/></pattern><marker id="skA" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0 0L8 4L0 8z" fill="var(--ink)"/></marker></defs>
+   <rect x="8" y="40" width="118" height="110" rx="10" fill="url(#skh)" stroke="var(--muted)" stroke-width="2" stroke-dasharray="5 4"/>
+   <text x="67" y="76" text-anchor="middle" font-size="12" font-weight="800" style="fill:var(--muted)">Already spent</text>
+   <text x="67" y="98" text-anchor="middle" font-size="20" font-weight="700" style="fill:var(--muted);font-family:var(--font-d)">£2M</text><text x="67" y="114" text-anchor="middle" font-size="11" font-weight="800" style="fill:var(--muted)">18 months</text>
+   <text x="67" y="136" text-anchor="middle" font-size="10" font-weight="800" style="fill:var(--muted)">gone either way</text>
+   <path d="M140 20 V186" stroke="var(--ink)" stroke-width="2.5" stroke-dasharray="2 4"/><text x="140" y="14" text-anchor="middle" font-size="11" font-weight="800">TODAY</text>
+   <path d="M146 95 C170 95 170 60 196 60" fill="none" stroke="var(--ink)" stroke-width="2" marker-end="url(#skA)"/>
+   <path d="M146 95 C170 95 170 132 196 132" fill="none" stroke="var(--ink)" stroke-width="2" marker-end="url(#skA)"/>
+   <rect x="200" y="38" width="132" height="46" rx="10" fill="color-mix(in srgb,var(--h4) 12%,var(--surface))" stroke="var(--h4)" stroke-width="2"/>
+   <text x="266" y="57" text-anchor="middle" font-size="11.5" font-weight="800">Finish it</text><text x="266" y="74" text-anchor="middle" font-size="10">£1.5M more · value unsure</text>
+   <rect x="200" y="110" width="132" height="46" rx="10" fill="color-mix(in srgb,var(--h3) 12%,var(--surface))" stroke="var(--h3)" stroke-width="2"/>
+   <text x="266" y="129" text-anchor="middle" font-size="11.5" font-weight="800">Stop or switch</text><text x="266" y="146" text-anchor="middle" font-size="10">£0.4M · value known</text>
+   <text x="266" y="186" text-anchor="middle" font-size="10.5" font-weight="800" style="fill:var(--good)">compare only these two</text></svg>`;
+}
+function picDunning(){
+  const X=i=>70+i*80,Y=v=>170-v*1.4,act=[12,37,62,87],per=[60,62,68,74];
+  const line=a=>a.map((v,i)=>(i?"L":"M")+X(i)+" "+Y(v)).join("");
+  return `<svg viewBox="0 0 340 214" role="img" aria-label="Self-rated skill stays high across all groups, while tested skill rises steeply">
+   <path d="M40 16 V170 H326" fill="none" stroke="var(--muted)" stroke-width="1.5"/>
+   ${[0,50,100].map(v=>`<text x="34" y="${Y(v)+3}" text-anchor="end" font-size="9" style="fill:var(--muted)">${v}</text><line x1="40" x2="326" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)"/>`).join("")}
+   <path d="${line(per)}" fill="none" stroke="var(--h6)" stroke-width="3"/>${per.map((v,i)=>`<circle cx="${X(i)}" cy="${Y(v)}" r="4.5" fill="var(--h6)"/>`).join("")}
+   <path d="${line(act)}" fill="none" stroke="var(--h2)" stroke-width="3"/>${act.map((v,i)=>`<circle cx="${X(i)}" cy="${Y(v)}" r="4.5" fill="var(--h2)"/>`).join("")}
+   <text x="66" y="${Y(60)-26}" font-size="10.5" font-weight="800" style="fill:var(--h6)">how good they think they are</text>
+   <text x="322" y="${Y(36)}" text-anchor="end" font-size="10.5" font-weight="800" style="fill:var(--h2)">how good they are (tested)</text>
+   <path d="M${X(0)} ${Y(56)} V${Y(16)}" stroke="var(--bad)" stroke-width="2" stroke-dasharray="3 3"/><text x="${X(0)+6}" y="${Y(43)}" font-size="9.5" font-weight="800" style="fill:var(--bad)">overestimate</text>
+   ${["lowest","2nd","3rd","top"].map((l,i)=>`<text x="${X(i)}" y="186" text-anchor="middle" font-size="10" font-weight="700">${l}</text>`).join("")}
+   <text x="183" y="204" text-anchor="middle" font-size="10" style="fill:var(--muted)">tested-skill group (quarters) · percentile scores</text></svg>`;
+}
+function picConfirm(){
+  const ev=[["fits my view","good"],["doesn’t fit","bad"],["fits my view","good"],["doesn’t fit","bad"],["fits my view","good"]];
+  return `<svg viewBox="0 0 340 210" role="img" aria-label="Evidence that fits a belief is kept; evidence that doesn't is dismissed">
+   <defs><marker id="cfA" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0 0L8 4L0 8z" fill="var(--muted)"/></marker></defs>
+   <text x="56" y="16" text-anchor="middle" font-size="11.5" font-weight="800">New evidence</text>
+   ${ev.map(([t,c],i)=>{const y=26+i*30;return `<rect class="${c==="bad"?"cfout":""}" x="6" y="${y}" width="100" height="22" rx="11" fill="color-mix(in srgb,var(--${c}) 14%,var(--surface))" stroke="var(--${c})" stroke-width="1.6"/><text x="56" y="${y+15}" text-anchor="middle" font-size="10" font-weight="700">${c==="good"?"✓":"✗"} ${t}</text><path d="M110 ${y+11} L146 100" stroke="var(--muted)" stroke-width="1.2" marker-end="url(#cfA)"/>`;}).join("")}
+   <circle cx="170" cy="100" r="24" fill="color-mix(in srgb,var(--h5) 16%,var(--surface))" stroke="var(--h5)" stroke-width="2.4"/>
+   <text x="170" y="96" text-anchor="middle" font-size="9.5" font-weight="800">my</text><text x="170" y="108" text-anchor="middle" font-size="9.5" font-weight="800">belief</text>
+   <path d="M196 92 L232 62" stroke="var(--good)" stroke-width="2.4"/><path d="M196 110 L232 150" stroke="var(--bad)" stroke-width="2.4" stroke-dasharray="4 3"/>
+   <rect x="236" y="34" width="98" height="56" rx="10" fill="color-mix(in srgb,var(--good) 14%,var(--surface))" stroke="var(--good)" stroke-width="2"/>
+   <text x="285" y="56" text-anchor="middle" font-size="11" font-weight="800">noticed and</text><text x="285" y="71" text-anchor="middle" font-size="11" font-weight="800">remembered</text>
+   <rect x="236" y="128" width="98" height="44" rx="10" fill="color-mix(in srgb,var(--bad) 8%,var(--surface))" stroke="var(--bad)" stroke-width="1.6" stroke-dasharray="4 3"/>
+   <text x="285" y="148" text-anchor="middle" font-size="10.5" font-weight="800" style="fill:var(--bad)">explained</text><text x="285" y="162" text-anchor="middle" font-size="10.5" font-weight="800" style="fill:var(--bad)">away</text>
+   <text x="170" y="200" text-anchor="middle" font-size="10.5" font-weight="800" style="fill:var(--h5)">the belief filters the evidence, not the other way round</text></svg>`;
+}
+function picFirst(){
+  return `<svg viewBox="0 0 340 200" role="img" aria-label="Reasoning by analogy accepts the market price; first principles splits it into materials and process">
+   <text x="10" y="20" font-size="12" font-weight="800" style="fill:var(--muted)">By analogy</text>
+   <rect x="10" y="30" width="320" height="34" rx="8" fill="color-mix(in srgb,var(--muted) 14%,var(--surface))" stroke="var(--muted)" stroke-width="1.8"/>
+   <text x="170" y="52" text-anchor="middle" font-size="11.5" font-weight="800">“Rockets cost what rockets cost.”</text>
+   <text x="10" y="96" font-size="12" font-weight="800" style="fill:var(--good)">From first principles</text>
+   <rect x="10" y="106" width="22" height="34" rx="4" fill="color-mix(in srgb,var(--h3) 40%,var(--surface))" stroke="var(--h3)" stroke-width="2"/>
+   <rect x="32" y="106" width="298" height="34" rx="4" fill="color-mix(in srgb,var(--h4) 16%,var(--surface))" stroke="var(--h4)" stroke-width="2"/>
+   <text x="181" y="128" text-anchor="middle" font-size="11.5" font-weight="800">process, assembly, one-off use</text>
+   <path d="M21 144 v10 h16" fill="none" stroke="var(--h3)" stroke-width="1.6"/><text x="40" y="158" font-size="10.5" font-weight="800" style="fill:var(--h3)">raw materials: a small slice</text>
+   <text x="170" y="188" text-anchor="middle" font-size="10.5" font-weight="800" style="fill:var(--good)">the big slice is where to look for savings</text></svg>`;
+}
+function picPareto(){
+  const v=[45,35,4,3,3,3,2,2,2,1],X0=40,W=26;let cum=0,pts=[];
+  const bars=v.map((n,i)=>{cum+=n;pts.push([X0+i*W+W/2,170-cum*1.4]);return `<rect class="grow2" style="animation-delay:${i*.12}s" x="${X0+i*W+3}" y="${170-n*1.4*2}" width="${W-6}" height="${n*1.4*2}" rx="3" fill="color-mix(in srgb,var(--${i<2?"h1":"h2"}) ${i<2?34:16}%,var(--surface))" stroke="var(--${i<2?"h1":"h2"})" stroke-width="1.5"/>`;}).join("");
+  return `<svg viewBox="0 0 340 214" role="img" aria-label="Bug reports by module: two of ten modules account for 80 percent">
+   <path d="M${X0} 16 V170 H${X0+10*W}" fill="none" stroke="var(--muted)" stroke-width="1.5"/>${bars}
+   <path d="${pts.map((p,i)=>(i?"L":"M")+p[0]+" "+p[1].toFixed(1)).join("")}" fill="none" stroke="var(--ink)" stroke-width="2"/>${pts.map(p=>`<circle cx="${p[0]}" cy="${p[1].toFixed(1)}" r="2.6" fill="var(--ink)"/>`).join("")}
+   <line x1="${X0}" x2="${X0+10*W}" y1="${170-80*1.4}" y2="${170-80*1.4}" stroke="var(--h1)" stroke-dasharray="4 4"/>
+   <text x="${X0+10*W+4}" y="${170-80*1.4+4}" font-size="10" font-weight="800" style="fill:var(--h1)">80%</text>
+   <text x="${X0+4*W}" y="30" font-size="10" font-weight="800">running total</text>
+   <text x="${X0+W}" y="188" text-anchor="middle" font-size="10" font-weight="800" style="fill:var(--h1)">2 of 10 modules</text>
+   <text x="${X0+6*W}" y="188" text-anchor="middle" font-size="10" style="fill:var(--muted)">the other 8</text>
+   <text x="170" y="208" text-anchor="middle" font-size="10" style="fill:var(--muted)">bug reports by module, biggest first</text></svg>`;
+}
+function picLindy(){
+  const T=[["Unix",57],["Email",55],["SQL",52],["HTTP",35],["Last month’s framework",0.1]],S=1.8,X0=128;
+  return `<svg viewBox="0 0 340 214" role="img" aria-label="Technologies that have lasted longest are likely to keep lasting">
+   <rect x="${X0}" y="8" width="12" height="10" rx="2" fill="color-mix(in srgb,var(--h3) 40%,var(--surface))" stroke="var(--h3)"/><text x="${X0+16}" y="17" font-size="10" font-weight="800">years so far</text>
+   <rect x="${X0+100}" y="8" width="12" height="10" rx="2" fill="none" stroke="var(--h3)" stroke-dasharray="3 2"/><text x="${X0+116}" y="17" font-size="10" font-weight="800">likely to last</text>
+   ${T.map(([n,a],i)=>{const y=30+i*34,w=Math.max(a*S,2);return `<text x="${X0-8}" y="${y+15}" text-anchor="end" font-size="${n.length>10?9.5:11}" font-weight="800">${n}</text>
+    <rect x="${X0}" y="${y}" width="${w}" height="20" rx="3" fill="color-mix(in srgb,var(--h3) 40%,var(--surface))" stroke="var(--h3)" stroke-width="1.4"/>
+    <rect x="${X0+w}" y="${y}" width="${w}" height="20" rx="3" fill="none" stroke="var(--h3)" stroke-width="1.4" stroke-dasharray="4 3"/>
+    ${a<1?`<text x="${X0+12}" y="${y+15}" font-size="10" font-weight="800" style="fill:var(--bad)">weeks, perhaps</text>`:`<text x="${X0+w-4}" y="${y+14}" text-anchor="end" font-size="9.5" font-weight="800">${a}</text>`}`;}).join("")}
+   <text x="170" y="206" text-anchor="middle" font-size="10" style="fill:var(--muted)">a rough guide: age so far ≈ likely remaining life</text></svg>`;
+}
+function picHype(){
+  return `<svg viewBox="0 0 340 206" role="img" aria-label="Hype cycle: trigger, peak of inflated expectations, trough, slope, plateau">
+   <path d="M30 16 V170 H330" fill="none" stroke="var(--muted)" stroke-width="1.5"/>
+   <text x="24" y="24" text-anchor="end" font-size="9" style="fill:var(--muted)">hype</text>
+   <path class="drawn" d="M32 166 C60 160 70 30 92 30 C116 30 124 150 150 150 C190 150 210 112 250 104 S310 98 328 98" fill="none" stroke="var(--h5)" stroke-width="3.5" stroke-linecap="round"/>
+   ${[[42,186,"1 Trigger","start"],[100,24,"2 Peak of inflated expectations","start"],[150,166,"3 Trough of disillusionment","middle"],[232,132,"4 Slope of enlightenment","middle"],[322,88,"5 Plateau of productivity","end"]].map(([x,y,t,a])=>`<text x="${x}" y="${y}" text-anchor="${a}" font-size="10" font-weight="800">${t}</text>`).join("")}
+   <circle cx="92" cy="30" r="5" fill="var(--bad)"/><circle cx="150" cy="150" r="5" fill="var(--h4)"/><circle cx="328" cy="98" r="5" fill="var(--good)"/>
+   <text x="322" y="186" text-anchor="end" font-size="10" style="fill:var(--muted)">time →</text></svg>`;
+}
+function picAmara(){
+  const X=t=>40+t*2.86;let ex="",ac="",gap1="",gap2="";
+  const E=t=>130-95*(1-Math.exp(-t/14)),A=t=>150-125/(1+Math.exp(-(t-60)/11));
+  for(let t=0;t<=100;t+=4){ex+=(t?"L":"M")+X(t).toFixed(1)+" "+E(t).toFixed(1);ac+=(t?"L":"M")+X(t).toFixed(1)+" "+A(t).toFixed(1);}
+  return `<svg viewBox="0 0 340 206" role="img" aria-label="Expected impact rises fast then flattens; actual impact starts slow then overtakes it">
+   <path d="M40 16 V160 H326" fill="none" stroke="var(--muted)" stroke-width="1.5"/>
+   <text x="34" y="24" text-anchor="end" font-size="9" style="fill:var(--muted)">impact</text>
+   <path class="drawn" d="${ex}" fill="none" stroke="var(--h6)" stroke-width="3" stroke-dasharray="7 4"/>
+   <path class="drawn" d="${ac}" fill="none" stroke="var(--h3)" stroke-width="3.2"/>
+   <text x="${X(36)}" y="${E(36)-10}" font-size="10.5" font-weight="800" style="fill:var(--h6)">what people expect</text>
+   <text x="${X(100)}" y="${A(100)-8}" text-anchor="end" font-size="10.5" font-weight="800" style="fill:var(--h3)">what actually happens</text>
+   <text x="${X(30)}" y="112" text-anchor="middle" font-size="10" font-weight="800" style="fill:var(--bad)">overestimated</text><text x="${X(30)}" y="125" text-anchor="middle" font-size="9.5" style="fill:var(--bad)">short run</text>
+   <text x="${X(86)}" y="70" text-anchor="middle" font-size="10" font-weight="800" style="fill:var(--h2)">underestimated</text><text x="${X(86)}" y="83" text-anchor="middle" font-size="9.5" style="fill:var(--h2)">long run</text>
+   <text x="${X(0)}" y="176" font-size="9.5" style="fill:var(--muted)">year 0</text><text x="${X(100)}" y="176" text-anchor="end" font-size="9.5" style="fill:var(--muted)">year 10+</text></svg>`;
+}
+function picPlanning(){
+  const X=w=>40+w*35,past=[3,4,5,5,6];
+  return `<svg viewBox="0 0 340 200" role="img" aria-label="An inside-view estimate of two weeks versus five similar past projects that took three to six weeks">
+   <path d="M40 120 H320" stroke="var(--muted)" stroke-width="1.5"/>
+   ${[0,1,2,3,4,5,6,7,8].map(w=>`<line x1="${X(w)}" y1="120" x2="${X(w)}" y2="126" stroke="var(--muted)"/><text x="${X(w)}" y="140" text-anchor="middle" font-size="9.5" style="fill:var(--muted)">${w}</text>`).join("")}
+   <text x="180" y="156" text-anchor="middle" font-size="10" style="fill:var(--muted)">weeks</text>
+   <path d="M${X(2)} 20 V114" stroke="var(--h6)" stroke-width="2.5"/><path d="M${X(2)-6} 106 l6 8 l6 -8" fill="none" stroke="var(--h6)" stroke-width="2.5"/>
+   <text x="${X(2)-6}" y="18" text-anchor="end" font-size="10.5" font-weight="800" style="fill:var(--h6)">inside view:</text><text x="${X(2)-6}" y="31" text-anchor="end" font-size="10.5" font-weight="800" style="fill:var(--h6)">“2 weeks”</text>
+   ${past.map((w,i)=>{const dup=past.slice(0,i).filter(x=>x===w).length;return `<circle cx="${X(w)}" cy="${108-dup*16}" r="7" fill="color-mix(in srgb,var(--h2) 30%,var(--surface))" stroke="var(--h2)" stroke-width="2"/>`;}).join("")}
+   <path d="M${X(5)} 60 V114" stroke="var(--h2)" stroke-width="2" stroke-dasharray="4 3"/>
+   <text x="${X(5)+8}" y="54" font-size="10.5" font-weight="800" style="fill:var(--h2)">outside view: the last</text><text x="${X(5)+8}" y="67" font-size="10.5" font-weight="800" style="fill:var(--h2)">five similar projects</text>
+   <text x="170" y="186" text-anchor="middle" font-size="10.5" font-weight="800">start from the outside view, then adjust</text></svg>`;
+}
+function picSurvivor(){
+  const hole=(x,y)=>`<circle cx="${x}" cy="${y}" r="3.2" fill="var(--bad)"/>`;
+  return `<svg viewBox="0 0 340 214" role="img" aria-label="Returning bombers had bullet holes on wings, body and tail but not engines: armour the engines">
+   <path d="M170 18 C178 18 180 30 180 46 V150 L206 176 H134 L160 150 V46 C160 30 162 18 170 18z" fill="color-mix(in srgb,var(--ink) 8%,var(--surface))" stroke="var(--ink)" stroke-width="2"/>
+   <path d="M160 70 L30 104 V118 L160 102 Z M180 70 L310 104 V118 L180 102 Z" fill="color-mix(in srgb,var(--ink) 8%,var(--surface))" stroke="var(--ink)" stroke-width="2"/>
+   ${[[110,82],[128,78]].map(([x,y])=>`<ellipse cx="${x}" cy="${y+8}" rx="9" ry="14" fill="color-mix(in srgb,var(--good) 25%,var(--surface))" stroke="var(--good)" stroke-width="2.4"/>`).join("")}
+   ${[[212,82],[230,78]].map(([x,y])=>`<ellipse cx="${x}" cy="${y+8}" rx="9" ry="14" fill="color-mix(in srgb,var(--good) 25%,var(--surface))" stroke="var(--good)" stroke-width="2.4"/>`).join("")}
+   ${[[50,104],[62,108],[78,100],[262,100],[280,106],[296,108],[166,60],[174,84],[168,120],[172,138],[150,170],[188,170],[160,166]].map(([x,y])=>hole(x,y)).join("")}
+   <text x="30" y="148" font-size="10.5" font-weight="800" style="fill:var(--bad)">● holes on planes</text><text x="30" y="161" font-size="10.5" font-weight="800" style="fill:var(--bad)">that came back</text>
+   <text x="312" y="62" text-anchor="end" font-size="10.5" font-weight="800" style="fill:var(--good)">no holes on engines</text><text x="312" y="75" text-anchor="end" font-size="10.5" font-weight="800" style="fill:var(--good)">→ armour these</text>
+   <text x="170" y="204" text-anchor="middle" font-size="10" style="fill:var(--muted)">planes hit in the engines never made it back to be counted</text></svg>`;
+}
+function picChesterton(){
+  const fence=(x,dash)=>`<g stroke="var(--h4)" stroke-width="2.6" ${dash?'stroke-dasharray="4 4" opacity=".6"':""}><path d="M${x+14} 108 V78 M${x+52} 108 V78 M${x+90} 108 V78 M${x+8} 86 H${x+96} M${x+8} 100 H${x+96}"/></g>`;
+  const cow=(x,y)=>`<ellipse cx="${x}" cy="${y}" rx="13" ry="8" fill="var(--surface)" stroke="var(--ink)" stroke-width="1.6"/><circle cx="${x+14}" cy="${y-5}" r="5" fill="var(--surface)" stroke="var(--ink)" stroke-width="1.6"/><circle cx="${x-3}" cy="${y-1}" r="2.5" fill="var(--ink)"/><path d="M${x-8} ${y+7}v6M${x+7} ${y+7}v6" stroke="var(--ink)" stroke-width="1.6"/>`;
+  return strip([["A fence",x=>`${fence(x,false)}<path d="M${x+6} 112 H${x+98}" stroke="var(--h3)" stroke-width="3"/><text x="${x+52}" y="140" text-anchor="middle" font-size="9.5" style="fill:var(--muted)">no one knows why</text>`],
+   ["“Pointless!”",x=>`${fence(x,true)}${fig(x+52,52,"var(--h2)")}<text x="${x+52}" y="140" text-anchor="middle" font-size="9.5" style="fill:var(--muted)">so it’s removed</text>`],
+   ["Oh. That’s why.",x=>`${cow(x+30,96)}${cow(x+68,110)}<path d="M${x+6} 124 H${x+98}" stroke="var(--muted)" stroke-width="6"/><path d="M${x+10} 124 H${x+94}" stroke="var(--surface)" stroke-width="1.5" stroke-dasharray="6 6"/><text x="${x+52}" y="146" text-anchor="middle" font-size="9.5" style="fill:var(--muted)">cows on the road</text>`]],
+   "find out why it’s there before you remove it");
+}
+Object.assign(GL,{
+ occam:'<path d="M3 17L17 3l4 4L7 21z"/><path d="M7 13l4 4"/>',
+ hanlon:'<path d="M4 5h16v11H9l-5 4z"/><path d="M10 9a2 2 0 1 1 2.5 1.9c-.3.2-.5.5-.5.9M12 13.5v.2"/>',
+ sunk:'<path d="M12 3v10M8 9l4 4 4-4"/><path d="M3 17q3-2 6 0t6 0 6 0M3 21q3-2 6 0t6 0 6 0"/>',
+ dunning:'<path d="M3 20l6-12 4 6 2-3 6 9z"/>',
+ confirm:'<circle cx="10" cy="10" r="6.5"/><path d="M15 15l6 6M7.5 10l2 2 3.5-4"/>',
+ firstp:'<rect x="3" y="14" width="18" height="6" rx="1"/><rect x="6" y="8" width="12" height="6" rx="1"/><rect x="9" y="3" width="6" height="5" rx="1"/>',
+ pareto:'<path d="M4 20V4M8 20V9M12 20v-6M16 20v-3M20 20v-2"/>',
+ lindy:'<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5V5.5"/>',
+ hype:'<path d="M2 18c3 0 4-14 7-14s3 12 6 12 4-4 7-4"/>',
+ amara:'<path d="M3 17C8 6 12 8 21 9"/><path d="M3 19c8 0 12-4 18-15" stroke-dasharray="3 2"/>',
+ planning:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+ survivor:'<path d="M12 2v20M4 10l8 2 8-2M8 20l4-2 4 2"/>',
+ chesterton:'<path d="M5 21V7l2-3 2 3v14M15 21V7l2-3 2 3v14M3 11h18M3 17h18"/>'
+});
+LAWS.push(
+{id:"occam",part:"VII",name:"Occam’s Razor",sub:"The simplest explanation first",gl:"occam",st:["oz","Occam’s razor"],
+ one:"When several explanations fit, start with the one that needs the fewest assumptions.",
+ origin:"William of Ockham, 14th century",
+ pic:picOccam,cap:"Exotic causes are exciting. The boring one is usually right.",
+ q:"What’s the simplest explanation that fits all the facts?",
+ steps:[["List the candidates","Every cause that could explain it."],["Count the assumptions","What else must be true for each?"],["Check the simplest first","Before chasing exotic causes."],["Move on if ruled out","Then try the next simplest."]],
+ b5:"practice",
+ before:"Production is slow at 3 a.m.\nThe team spends two days investigating a possible attack and a rare CPU bug.",
+ whyB:"The exciting theories got checked first.",
+ after:"First check what else runs at 3 a.m.: the nightly backup overlaps the reporting job.\nReschedule one; fixed in an hour.",
+ whyA:"The boring explanation, checked first.",
+ ex:[["tech","Logins fail right after a certificate renewal? Check the certificate before suspecting attackers."],["health","Doctors learn “hoofbeats mean horses, not zebras”: common causes first."],["home","Car won’t start on a frosty morning: check the battery before the engine."],["science","A sun-centred solar system explained the planets with far fewer add-ons than the old model."]],
+ bend:[["Occam picks a starting point","Simplest first."],["But it isn’t proof","Sometimes it really is complicated: zebras exist. Keep testing until the evidence settles it."]],
+ rel:[["name","Hanlon’s Razor"],["name","First Principles"],["law","kiss"],["name","Confirmation Bias"]],
+ cheat:{ask:"What’s the simplest explanation that fits?",bend:"It’s a starting point, not proof."}},
+{id:"hanlon",part:"VII",name:"Hanlon’s Razor",sub:"Mistake before malice",gl:"hanlon",st:["hr","Hanlon’s razor"],
+ one:"Don’t assume malice when a mistake or missing information explains it.",
+ origin:"Robert J. Hanlon, 1980 (the idea is much older)",
+ pic:picHanlon,cap:"The tempting story is sabotage. The likely one is an overloaded inbox.",
+ q:"Could this be a mistake rather than bad intent?",
+ steps:[["Notice the reaction","Catch yourself assuming bad intent."],["List innocent causes","Busy, unaware, misinformed."],["Ask, don’t accuse","A neutral question brings out the facts."],["Fix the system","Not the person."]],
+ b5:"practice",
+ before:"An outage follows a teammate’s change.\nThe chat fills with blame, and people stop admitting mistakes.",
+ whyB:"Blame hides the next problem.",
+ after:"A blameless post-mortem asks what in the process let the mistake through.\nA check is added, and people keep reporting problems early.",
+ whyA:"The system improves; people stay honest.",
+ ex:[["tech","Most outages come from ordinary configuration mistakes, not sabotage."],["people","A curt message was typed on a phone on a crowded train."],["biz","A supplier’s breaking change is usually an internal mix-up, not a betrayal."],["home","The driver who cut you off probably didn’t see you."]],
+ bend:[["Hanlon says","Assume a mistake first."],["But don’t be naive","Security incidents and repeated patterns can be deliberate. Check, then decide."]],
+ rel:[["name","Occam’s Razor"],["name","Confirmation Bias"],["name","Unintended Consequences"]],
+ cheat:{ask:"Could this be a mistake rather than malice?",bend:"Security incidents and repeated patterns."}},
+{id:"sunk",part:"VII",name:"Sunk Cost Fallacy",sub:"Throwing good money after bad",gl:"sunk",st:["sk","Sunk cost fallacy"],
+ one:"Continuing something because of what you’ve already spent, rather than what it will bring.",
+ origin:"Decision research; studied by Hal Arkes & Catherine Blumer, 1985",
+ pic:picSunk,cap:"What’s spent is spent. Only the two futures should be compared.",
+ q:"Ignoring what’s already spent, would we start this today?",
+ steps:[["Name what’s spent","Money, time, reputation."],["Set it aside","It’s gone either way."],["Compare the futures","Cost and value of each option from today."],["Decide, and say why","Out loud, to the team."]],
+ b5:"practice",
+ before:"18 months and £2M into a rewrite that still doesn’t work.\n“We’ve come too far to stop now.”",
+ whyB:"The past spend is making the decision.",
+ after:"From today: what will finishing cost, and what will it bring?\nCompare with stopping or switching, and decide on that alone.",
+ whyA:"The future makes the decision.",
+ ex:[["air","Concorde kept flying long after its losses were clear, which is why this is also called the “Concorde fallacy”."],["tech","Teams defend a framework they chose years ago because of the effort already spent on it."],["biz","Pouring more money into a failing IT system."],["home","Sitting through a bad film because you paid for the ticket."]],
+ bend:[["Ignore the spend","Only the future counts."],["But keep the learning","What you learned is still valuable. Only the money and time are gone."]],
+ rel:[["name","Second-System Effect"],["name","Planning Fallacy"],["name","Gall’s Law"]],
+ cheat:{ask:"Ignoring what’s spent, would we start this today?",bend:"Keep what you learned."}},
+{id:"dunning",part:"VII",name:"Dunning–Kruger",sub:"Beginners overrate, experts underrate",gl:"dunning",st:["dk","Dunning–Kruger"],
+ one:"People with little skill in an area tend to overrate themselves; experts often underrate themselves.",
+ origin:"David Dunning & Justin Kruger, 1999",
+ pic:picDunning,cap:"The shape of the original study: everyone rates themselves above average, and the gap is biggest for the least skilled.",
+ q:"How would I know if I’m wrong about my skill here?",
+ steps:[["Seek outside feedback","Not just your own view."],["Compare to benchmarks","Objective tests and standards."],["Learn the basics properly","Knowledge reveals gaps."],["Calibrate","Check estimates against results."]],
+ b5:"practice",
+ before:"After one weekend tutorial, a developer pushes to rebuild the system in a new framework.",
+ whyB:"Confidence ahead of knowledge.",
+ after:"Build a small spike first, ask someone experienced to review it, and list three ways it could fail.",
+ whyA:"Confidence checked against evidence.",
+ ex:[["home","Most drivers rate themselves above average."],["money","Beginner investors trade more after a few lucky wins."],["tech","Experienced engineers often answer “it depends”, while beginners are certain."],["people","Experts often feel like impostors."]],
+ bend:[["Dunning–Kruger says","Beginners overrate themselves."],["But the meme is wrong","The popular “Mount Stupid” curve isn’t from the study, and part of the effect is statistical. Use it for humility, not to dismiss people."]],
+ rel:[["name","Peter Principle"],["name","Confirmation Bias"],["name","Planning Fallacy"]],
+ cheat:{ask:"How would I know if I’m wrong about my skill?",bend:"Don’t use it to dismiss people."}},
+{id:"confirm",part:"VII",name:"Confirmation Bias",sub:"Seeing what you expect",gl:"confirm",st:["cf","Confirmation bias"],
+ one:"We notice and favour evidence that supports what we already believe.",
+ origin:"Named after Peter Wason’s experiments, 1960s",
+ pic:picConfirm,cap:"Evidence that fits is remembered. Evidence that doesn’t is explained away.",
+ q:"What evidence would change my mind, and have I looked for it?",
+ steps:[["State your belief","Write it down."],["Decide what would disprove it","Before looking at the data."],["Go looking for it","Search for the counter-case too."],["Update honestly","Change your confidence."]],
+ before:`# checked every day; stop as soon as it looks good
+if variant_b.conversion > variant_a.conversion:
+    declare_winner("B")`,
+ whyB:"Stopping the moment your favourite pulls ahead finds “wins” that are just noise.",
+ after:`# decided before starting: metric, sample size, end date
+if days_run >= PLANNED_DAYS:
+    result = significance_test(variant_a, variant_b)
+    report(result)          # win, lose or no difference`,
+ whyA:"Rules fixed in advance stop you seeing what you hope to see.",
+ ex:[["science","Double-blind trials stop researchers seeing the results they want."],["law","Investigators who fix on one suspect can overlook contrary evidence."],["tech","Searching “why X is great” but never “problems with X” before choosing a tool."],["money","Investors read only the news that supports what they already own."]],
+ bend:[["Look for disproof","Before deciding."],["But you can’t doubt forever","At some point, decide with what you have and review later."]],
+ rel:[["name","Survivorship Bias"],["name","Occam’s Razor"],["name","Dunning–Kruger"],["name","Linus’s Law"]],
+ cheat:{ask:"What would change my mind, and did I look?",bend:"At some point, decide and review later."}},
+{id:"firstp",part:"VII",name:"First Principles",sub:"Reason up from what’s true",gl:"firstp",st:["fp","First principles"],
+ one:"Break a problem into what you know is true and reason up from there, instead of copying by analogy.",
+ origin:"Aristotle; popular in tech through Elon Musk’s account of rocket costs",
+ pic:picFirst,cap:"By analogy, the price is the price. From first principles, you can see where it comes from.",
+ q:"Why do we do it this way, and is that reason still true?",
+ steps:[["Name the assumption","What are we taking for granted?"],["Strip to the basics","Physics, costs, real needs."],["Rebuild from there","A new solution in your own words."],["Test it small","Prove it before betting on it."]],
+ b5:"practice",
+ before:"“Everyone uses microservices, so we will too.”",
+ whyB:"Reasoning by copying.",
+ after:"What do we actually need? Three developers, one product, a thousand users.\nA well-structured single app meets that; split it later if needed.",
+ whyA:"Reasoning from the real constraints.",
+ ex:[["air","SpaceX looked at the cost of rocket materials rather than market prices, and found most of the cost was elsewhere."],["biz","IKEA asked what really makes furniture expensive, and flat-packs cut shipping and assembly."],["health","Oral rehydration salts came from asking how the gut really absorbs water."],["tech","Asking why deploys only happen on Tuesdays, and finding the reason no longer applies."]],
+ bend:[["Reason from basics","For big decisions."],["But it’s slow","For everyday choices, proven practice is faster and usually fine."]],
+ rel:[["name","Occam’s Razor"],["name","Chesterton’s Fence"],["name","Lindy Effect"],["st","cg","Cargo cult"]],
+ cheat:{ask:"Why this way, and is that reason still true?",bend:"Everyday choices: proven practice is fine."}},
+{id:"pareto",part:"VII",name:"Pareto Principle",sub:"The 80/20 rule",gl:"pareto",st:["pa","Pareto principle"],
+ one:"Roughly 80% of effects come from 20% of causes.",
+ origin:"Vilfredo Pareto, 1896; named and popularised by Joseph Juran",
+ pic:picPareto,cap:"Sort the causes biggest first, and a few usually account for most of the effect.",
+ q:"Which few causes drive most of the result?",
+ steps:[["Gather data","Count causes and effects."],["Rank them","Biggest first."],["Find the vital few","Where the running total jumps."],["Act there first","Then re-measure."]],
+ before:`# fix bugs in the order they were reported
+for bug in sorted(bugs, key=lambda b: b.created):
+    fix(bug)`,
+ whyB:"Equal effort everywhere, so the worst areas stay bad.",
+ after:`from collections import Counter
+
+by_module = Counter(b.module for b in bugs)
+for module, count in by_module.most_common(5):   # the vital few
+    review_and_harden(module)`,
+ whyA:"Effort goes where most of the problems are.",
+ ex:[["tech","Microsoft reported that fixing the top 20% of reported bugs removed most crashes."],["biz","A small share of customers usually brings in most of the revenue."],["health","A small share of patients often accounts for a large share of care costs."],["history","Pareto noticed about 80% of Italy’s land was owned by about 20% of people."]],
+ bend:[["80/20 is a pattern","Not a law."],["The split varies","It might be 90/10 or 70/30. Measure your own before acting."]],
+ rel:[["name","Price’s Law"],["name","Knuth’s Optimisation Principle"],["name","Sturgeon’s Law"]],
+ cheat:{ask:"Which few causes drive most of the result?",bend:"The split varies: measure yours."}},
+{id:"lindy",part:"VII",name:"Lindy Effect",sub:"Old ideas tend to last",gl:"lindy",
+ one:"For ideas and technologies, the longer something has lasted, the longer it’s likely to keep lasting.",
+ origin:"Albert Goldman, 1964; popularised by Nassim Nicholas Taleb",
+ pic:picLindy,cap:"A rough guide: something that has lasted 50 years will probably last decades more.",
+ q:"How long has this been around, and how long do we need it to last?",
+ steps:[["Check its age","And how widely it’s used."],["Match your horizon","Long-lived systems on proven tools."],["Try new things at the edges","Experiments, not foundations."],["Override with strong reasons","When new really is better."]],
+ b5:"practice",
+ before:"A system meant to run for ten years is built on a framework released last month.",
+ whyB:"Betting the foundation on something untested by time.",
+ after:"The core uses proven tools: SQL, HTTP, a mainstream language.\nNew tools are tried in experiments and non-critical parts.",
+ whyA:"Boring foundations, experiments at the edges.",
+ ex:[["tech","SQL dates from the 1970s and is still at the heart of most business systems."],["tech","Email is over 50 years old and still everywhere."],["learn","Classic books keep selling long after this year’s bestsellers are forgotten."],["food","Recipes handed down for generations outlast food trends."]],
+ bend:[["Lindy says","Old tends to last."],["But not always","It doesn’t apply to things that wear out, and every old tool was once new. Some new tech really is better."]],
+ rel:[["name","Hype Cycle"],["name","Amara’s Law"],["name","Sturgeon’s Law"],["name","Second-System Effect"]],
+ cheat:{ask:"How long has it lasted, and how long must we?",bend:"When new really is better."}},
+{id:"hype",part:"VII",name:"Hype Cycle",sub:"Peak, crash, then real progress",gl:"hype",
+ one:"New technologies often go through a burst of inflated expectations, a crash of disappointment, then slow real progress.",
+ origin:"Gartner, 1995",
+ pic:picHype,cap:"Where a technology sits on this curve changes what you should do with it.",
+ q:"Where is this technology on the cycle right now?",
+ steps:[["Place it on the curve","Peak, trough or climbing?"],["At the peak: small bets","Experiment; don’t commit big."],["In the trough: look closer","Real uses often appear here."],["On the plateau: scale","Adopt what’s proven."]],
+ b5:"practice",
+ before:"At the peak, the board asks for “a strategy by Friday”.\nA big platform is bought before there’s a real use case.",
+ whyB:"Buying at the top of the hype.",
+ after:"Two small, measured pilots on real problems.\nScale what works, whatever the headlines say.",
+ whyA:"Decisions based on results, not buzz.",
+ ex:[["tech","The dot-com boom and bust of 1999–2001 came before the internet’s real long-term growth."],["home","3D televisions were heavily promoted, then quietly disappeared."],["transport","Fully self-driving cars have been “a few years away” for over a decade."],["biz","VR headsets have ridden several waves of hype."]],
+ bend:[["The cycle is a useful picture","For timing decisions."],["But it isn’t a law","Some technologies never climb out of the trough, and the timing varies enormously."]],
+ rel:[["name","Amara’s Law"],["name","Lindy Effect"],["name","Sturgeon’s Law"]],
+ cheat:{ask:"Where is this on the hype cycle?",bend:"Some tech never leaves the trough."}},
+{id:"amara",part:"VII",name:"Amara’s Law",sub:"Short-term hype, long-term change",gl:"amara",
+ one:"We overestimate a technology’s effect in the short run and underestimate it in the long run.",
+ origin:"Roy Amara, Institute for the Future, 1960s–70s",
+ pic:picAmara,cap:"Early on, expectations run ahead of reality. Later, reality overtakes them.",
+ q:"What will this look like in ten years, not one?",
+ steps:[["Discount the first-year buzz","It’s usually overstated."],["Watch long-term trends","Falling costs, growing use."],["Keep making small bets","Stay in the game."],["Be ready to scale","When it matures."]],
+ b5:"practice",
+ before:"Year 1: “It’ll change everything by next year.”\nYear 2: disappointment; the team drops it completely.",
+ whyB:"Overreacting twice: to the hype and to the dip.",
+ after:"Small, ongoing investment and learning.\nReady to scale when costs fall and tools mature.",
+ whyA:"Steady learning through the hype and the dip.",
+ ex:[["tech","After the dot-com crash many dismissed online shopping; a decade later it had reshaped retail."],["science","Solar power costs kept falling for decades, and it’s now a major source of electricity."],["home","Smartphones reshaped daily life over a decade, not in their first year."],["biz","Cloud computing went from a buzzword to how most companies run their systems."]],
+ bend:[["Amara says","The long run beats the short run."],["But not for everything","We remember the technologies that won. Plenty of hyped ones never paid off (survivorship bias)."]],
+ rel:[["name","Hype Cycle"],["name","Lindy Effect"],["name","Survivorship Bias"]],
+ cheat:{ask:"What will this look like in ten years?",bend:"We only remember the winners."}},
+{id:"planning",part:"VII",name:"Planning Fallacy",sub:"Our own plans look rosier",gl:"planning",
+ one:"We underestimate the time, cost and risk of our own plans, even when similar plans ran late before.",
+ origin:"Daniel Kahneman & Amos Tversky, 1979",
+ pic:picPlanning,cap:"The inside view pictures your plan going smoothly. The outside view looks at what really happened before.",
+ q:"How long did the last few things like this actually take?",
+ steps:[["Take the outside view","Find similar past work."],["Start from that","Then adjust for real differences."],["Name the risks","A pre-mortem: why might it fail?"],["Track estimates vs actuals","Learn your own bias."]],
+ b5:"practice",
+ before:"“The dashboard will take two weeks.”\nBased on picturing the work going smoothly.",
+ whyB:"The inside view: only the happy path.",
+ after:"“The last five dashboards took 3–6 weeks.\nThis one looks typical, so plan for 4–5.”",
+ whyA:"The outside view, adjusted.",
+ ex:[["transport","Big rail projects, such as HS2, have run far over budget and behind schedule."],["biz","Bent Flyvbjerg’s research found most large projects run over budget, over time, or both."],["learn","Students’ thesis estimates miss, even when asked for a worst case."],["home","Home renovations that were going to take “a couple of weeks”."]],
+ bend:[["Assume you’re optimistic","Plan from history."],["But don’t kill ambition","Use the outside view to plan, not to talk yourself out of starting."]],
+ rel:[["name","Hofstadter’s Law"],["name","Ninety-Ninety Rule"],["name","Sunk Cost Fallacy"]],
+ cheat:{ask:"How long did similar work actually take?",bend:"Plan with it; don’t let it kill ambition."}},
+{id:"survivor",part:"VII",name:"Survivorship Bias",sub:"Only the winners are visible",gl:"survivor",st:["sv","Survivorship bias"],
+ one:"Looking only at what made it through a selection process gives a distorted picture.",
+ origin:"Abraham Wald, analysing WWII bomber damage, 1943",
+ pic:picSurvivor,cap:"The holes show where a plane can be hit and still return. The engines needed the armour.",
+ q:"Who’s missing from this picture?",
+ steps:[["Ask who dropped out","Who isn’t in the data?"],["Find the failures","Seek the missing cases."],["Compare both groups","Winners vs losers."],["Adjust conclusions","What really made the difference?"]],
+ b5:"practice",
+ before:"“Big tech companies use this architecture, so it will work for us.”",
+ whyB:"Only the success stories are visible.",
+ after:"Look for companies that tried it and struggled.\nCompare their size and situation with ours before deciding.",
+ whyA:"Winners and losers, compared.",
+ ex:[["history","Wald advised armouring where returning bombers had no damage, because planes hit there never returned."],["money","Fund performance tables leave out the funds that closed."],["tech","“Every successful founder dropped out” ignores the many dropouts who failed."],["home","“They built things better back then”: only the good old buildings are still standing."]],
+ bend:[["Look for the missing","Before concluding."],["But you can’t always find them","Then be modest about what the survivors prove."]],
+ rel:[["name","Confirmation Bias"],["name","Amara’s Law"],["name","Sturgeon’s Law"],["name","Lindy Effect"]],
+ cheat:{ask:"Who’s missing from this picture?",bend:"If you can’t find them, be modest."}},
+{id:"chesterton",part:"VII",name:"Chesterton’s Fence",sub:"Know why before you remove",gl:"chesterton",
+ one:"Don’t remove something until you understand why it was put there.",
+ origin:"G. K. Chesterton, 1929",
+ pic:picChesterton,cap:"The fence looked pointless, until it was gone.",
+ q:"Do I know why this is here?",
+ steps:[["Find out why","History, comments, the person who added it."],["Check the reason still holds","Things change."],["Prove nothing depends on it","Logs, usage data."],["Then remove it, and record why","With a way back."]],
+ before:`import time
+
+def fetch_rates():
+    time.sleep(0.5)        # ??? looks pointless
+    return api.get_rates()`,
+ whyB:"Someone deletes the sleep. The partner’s API starts rate-limiting every request.",
+ after:`def fetch_rates():
+    # Partner API allows 2 calls/second (see TICKET-311).
+    # Use the shared rate limiter rather than a sleep.
+    rate_limiter.wait()
+    return api.get_rates()`,
+ whyA:"The reason is found, written down, and replaced with something clearer.",
+ ex:[["tech","A database column that looks unused is read by a nightly report."],["gov","Rules whose purpose has been forgotten often prevent a problem nobody remembers."],["home","A strange valve in an old house turns out to stop the heating from flooding."],["nature","Removing a predator from an ecosystem can let other species run out of control."]],
+ bend:[["Chesterton says","Understand before removing."],["But don’t freeze","If nobody can explain it and usage data shows nothing relies on it, remove it carefully, with a way back."]],
+ rel:[["name","Hyrum’s Law"],["name","Unintended Consequences"],["name","First Principles"],["law","scout"]],
+ cheat:{ask:"Do I know why this is here?",bend:"No reason and no usage: remove with a way back."}}
+);
 LAWS.forEach(l=>{l.part=l.part||"VI";});
 
 const BYID=Object.fromEntries(LAWS.map(l=>[l.id,l]));
@@ -1775,7 +2162,7 @@ const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
 const HUES=["h1","h2","h3","h4","h5","h6"];
 
 /* ================= BUILDING ================= */
-let curPart="II",curLaw="conway";
+let curPart="VII",curLaw="occam";
 function bldRender(){
   const svg=document.getElementById("bld");const X0=36,W=288,FH=58,TOP=80;let g="";
   /* crane */
@@ -1899,14 +2286,27 @@ const QZ=[
  {q:"You want separate services for orders, payments and delivery, so you first form one team for each.",a:"inverse",o:["inverse","conway","gall"],why:"Shape the teams to get the architecture you want."},
  {q:"Only one person knows how to deploy, and she’s on holiday.",a:"bus",o:["bus","price","murphy"],why:"A bus factor of one: knowledge isn’t spread."},
  {q:"Your best engineer is promoted to team lead as a reward, and struggles.",a:"peter",o:["peter","dilbert","putt"],why:"Promoted for the last role, not the skills of the next one."},
- {q:"A struggling engineer is “promoted” into management to get them away from the code.",a:"dilbert",o:["dilbert","peter","putt"],why:"The satirical Dilbert Principle: the problem is moved, not solved."}
+ {q:"A struggling engineer is “promoted” into management to get them away from the code.",a:"dilbert",o:["dilbert","peter","putt"],why:"The satirical Dilbert Principle: the problem is moved, not solved."},
+ {q:"Logins fail right after a certificate renewal, and someone suggests a targeted attack.",a:"occam",o:["occam","hanlon","confirm"],why:"Start with the explanation that needs the fewest assumptions: the renewal."},
+ {q:"A teammate’s change causes an outage, and the chat fills with accusations.",a:"hanlon",o:["hanlon","occam","dunning"],why:"A mistake is far more likely than malice. Fix the process, not the person."},
+ {q:"“We’ve spent £2M on this rewrite; we can’t stop now”, though it still doesn’t work.",a:"sunk",o:["sunk","planning","second"],why:"The £2M is gone either way. Compare only the futures."},
+ {q:"After one weekend tutorial, a developer insists on rebuilding the system in a new framework.",a:"dunning",o:["dunning","hype","confirm"],why:"Confidence running ahead of knowledge."},
+ {q:"You stop an A/B test the day your favourite version pulls ahead.",a:"confirm",o:["confirm","survivor","sunk"],why:"You saw what you hoped to see. Fix the rules before starting."},
+ {q:"Instead of copying a rival’s pricing, you work out your real costs and what customers value.",a:"firstp",o:["firstp","occam","pareto"],why:"Reasoning up from what’s true, not by analogy."},
+ {q:"Two of your ten modules produce 80% of the bug reports.",a:"pareto",o:["pareto","price","sturgeon"],why:"A few causes drive most of the effect. Start there."},
+ {q:"For a system meant to last ten years, you choose SQL over a database released last month.",a:"lindy",o:["lindy","hype","amara"],why:"What has lasted longest is likely to keep lasting."},
+ {q:"A year after huge excitement, the new technology is widely called a failure, though a few teams are quietly getting results.",a:"hype",o:["hype","amara","sturgeon"],why:"The trough of disillusionment, where real uses often start to appear."},
+ {q:"People dismissed online shopping after the dot-com crash; ten years later it had reshaped retail.",a:"amara",o:["amara","hype","lindy"],why:"Overestimated in the short run, underestimated in the long run."},
+ {q:"Your team estimates two weeks; the last five similar projects took four to six.",a:"planning",o:["planning","parkinson","ninety"],why:"The inside view is rosier than the outside view. Start from history."},
+ {q:"“Big tech companies use this architecture, so it will work for us.”",a:"survivor",o:["survivor","confirm","lindy"],why:"You only see the companies where it worked."},
+ {q:"A sleep(0.5) looks pointless. You delete it, and a partner’s API starts blocking you.",a:"chesterton",o:["chesterton","hyrum","occam"],why:"Find out why something is there before removing it."}
 ];
 const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
 const qz={floor:"all",order:[],pos:0,score:0,answered:0,picked:null};
 function qzReset(){const ids=QZ.map((_,i)=>i).filter(i=>qz.floor==="all"||BYID[QZ[i].a].part===qz.floor);Object.assign(qz,{order:shuffle(ids),pos:0,score:0,answered:0,picked:null});QZ.forEach(q=>delete q._o);}
 function qzRender(){
   const box=document.getElementById("quiz"),N=qz.order.length;
-  const filt=`<div class="qf" role="group" aria-label="Choose floor">${[["all","All open floors"],["VI","Ground"],["IV","Floor 1"],["V","Floor 2"],["I","Floor 3"],["III","Floor 4"],["II","Floor 5"]].map(([k,l])=>`<button data-f="${k}" aria-pressed="${qz.floor===k}">${l}</button>`).join("")}</div>`;
+  const filt=`<div class="qf" role="group" aria-label="Choose floor">${[["all","All open floors"],["VI","Ground"],["IV","Floor 1"],["V","Floor 2"],["I","Floor 3"],["III","Floor 4"],["II","Floor 5"],["VII","Floor 6"]].map(([k,l])=>`<button data-f="${k}" aria-pressed="${qz.floor===k}">${l}</button>`).join("")}</div>`;
   if(qz.pos>=N){box.innerHTML=filt+`<div class="q-meta"><span>Done</span><span>${qz.score}/${N}</span></div><p class="q-text">You matched ${qz.score} of ${N} situations.</p><button class="btn primary" id="qr" style="width:100%">Shuffle and play again</button>`;
     document.getElementById("qr").onclick=()=>{qzReset();qzRender();};}
   else{
@@ -1947,7 +2347,11 @@ const PAIRS=[
  {a:["law","brooks"],b:["law","bus"],t:"Keep the team small, or spread the knowledge?",r:"Add people early and spread knowledge before deadlines, not during the crunch."},
  {a:["law","price"],b:["law","bus"],t:"Rely on your stars, or reduce dependence on them?",r:"Support the few who do most of the work, and pair them so their knowledge isn’t a single point of failure."},
  {a:["law","peter"],b:["law","dilbert"],t:"Promote the best, or move the weakest?",r:"Neither: promote for the skills of the next role, and give experts a separate path."},
- {a:["law","ringelmann"],b:["law","linus"],t:"More reviewers, or clear ownership?",r:"One named owner plus a few expert eyes beats a crowd."}
+ {a:["law","ringelmann"],b:["law","linus"],t:"More reviewers, or clear ownership?",r:"One named owner plus a few expert eyes beats a crowd."},
+ {a:["law","chesterton"],b:["law","scout"],t:"Understand first, or tidy as you go?",r:"Tidy what you understand. For anything you can’t explain, find out why it’s there first."},
+ {a:["law","firstp"],b:["law","lindy"],t:"Reason it out, or trust what’s lasted?",r:"Use proven tools by default. Reason from first principles when the stakes are high or the old reason may no longer hold."},
+ {a:["law","hype"],b:["law","amara"],t:"Ignore the hype, or prepare for change?",r:"Discount the short-term buzz but keep learning: lasting change often arrives after the hype has died."},
+ {a:["law","hanlon"],b:["law","confirm"],t:"Assume good intent, or test your beliefs?",r:"Start from charity, then test it like any other belief."}
 ];
 function pairsRender(){
   const side=s=>{if(s[0]==="law"){const l=BYID[s[1]],c=PARTS[l.part].c;return `<a class="side" href="#law-${l.id}" style="--c:var(--${c});text-decoration:none;color:inherit"><span style="color:var(--${c})">${ic(GL[l.gl])}</span><b>${esc(l.name)}</b><small>${esc(l.one)}</small><span class="open">Open page →</span></a>`;}
@@ -1957,7 +2361,7 @@ function pairsRender(){
 
 /* ================= CHEAT SHEET ================= */
 function cheatRender(){
-  const open=["VI","IV","V","I","III","II"];
+  const open=["VI","IV","V","I","III","II","VII"];
   document.getElementById("cheat").outerHTML=`<div id="cheat">${open.map(k=>{const P=PARTS[k];return `<h3 class="cfloor" style="--c:var(--${P.c})">${floorName(P)} · ${esc(P.name)}</h3><div class="cheat">${LAWS.filter(l=>l.part===k).map(l=>`<div class="cs" style="--c:var(--${P.c})"><div class="top"><span class="gl">${ic(GL[l.gl])}</span><div><b>${esc(l.name)}</b><div style="font-size:11.5px;color:var(--muted);font-weight:700">${esc(l.sub)}</div></div></div>
     <p class="one">${esc(l.one)}</p><dl><dt>Ask</dt><dd>${esc(l.cheat.ask)}</dd><dt>Bend for</dt><dd>${esc(l.cheat.bend)}</dd></dl></div>`).join("")}</div>`;}).join("")}</div>`;
   if(location.protocol==="file:"||/github\.io$/.test(location.hostname)){
