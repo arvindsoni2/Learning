@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Software Laws, mapped</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=Nunito:wght@400;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: Book 2 of the Learning series. A building is the navigator (one floor per part, one window per law, code on the ground floor);
+   tapping a floor opens its floor plan, tapping a room opens a sketchnote law page with 8 numbered blocks. */
+:root{
+  --bg:#fbf8f1; --surface:#fffdf8; --ink:#2a2622; --muted:#6b645b; --line:#e3dccd; --accent:#3d6fd6; --hl:#fde68a; --lit:#ffd75e;
+  --font-d:'Kalam','Segoe Print',cursive; --font-b:'Nunito',system-ui,sans-serif; --font-m:'IBM Plex Mono',ui-monospace,monospace;
+  --p1:#2f62c9; --p2:#c4482f; --p3:#13836f; --p4:#9a6406; --p5:#7a4cc4; --p6:#b0305f; --p7:#1f7aa8;
+  --h1:#c7365a; --h2:#2f63c0; --h3:#2b8a53; --h4:#a86c05; --h5:#6c4bc4; --h6:#c4561d;
+  --good:#1d7a46; --bad:#b3362a; --water:#cfe6f7;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#16140f; --surface:#211e18; --ink:#efe9de; --muted:#a59d90; --line:#3a352c; --accent:#8fb0ff; --hl:#6b5413; --lit:#e8b931;
+  --p1:#7ea2f2; --p2:#f08a72; --p3:#4fc9b0; --p4:#e6b04a; --p5:#b495ee; --p6:#ee7fa6; --p7:#6cc0e8;
+  --h1:#f28aa2; --h2:#8fb2f5; --h3:#7fd3a0; --h4:#eec06a; --h5:#bba3f3; --h6:#f3a274;
+  --good:#5fcf8f; --bad:#f08a72; --water:#1f3a52; color-scheme:dark;}}
+:root[data-theme="dark"]{
+  --bg:#16140f; --surface:#211e18; --ink:#efe9de; --muted:#a59d90; --line:#3a352c; --accent:#8fb0ff; --hl:#6b5413; --lit:#e8b931;
+  --p1:#7ea2f2; --p2:#f08a72; --p3:#4fc9b0; --p4:#e6b04a; --p5:#b495ee; --p6:#ee7fa6; --p7:#6cc0e8;
+  --h1:#f28aa2; --h2:#8fb2f5; --h3:#7fd3a0; --h4:#eec06a; --h5:#bba3f3; --h6:#f3a274;
+  --good:#5fcf8f; --bad:#f08a72; --water:#1f3a52; color-scheme:dark;}
+*{box-sizing:border-box} html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-b);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+button,input{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+a{color:var(--accent)}
+.wrap{max-width:900px;margin:0 auto;padding:20px 16px 56px}
+.eyebrow{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+header h1{font-family:var(--font-d);font-weight:700;font-size:clamp(30px,7vw,44px);line-height:1.02;margin:4px 0 6px;text-wrap:balance}
+header p{margin:0;color:var(--muted);max-width:62ch}
+.tabs{display:flex;gap:6px;overflow-x:auto;margin:16px -16px 0;padding:0 16px 4px;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:0 0 auto;border:2px solid var(--ink);background:var(--surface);border-radius:999px;padding:7px 14px;font-weight:700;font-size:14px;cursor:pointer}
+.tab[aria-selected="true"]{background:var(--ink);color:var(--bg)}
+.bestfor{margin:12px 0 14px;font-size:14px;color:var(--muted)}
+section[hidden]{display:none}
+.ic{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
+svg text{font-family:var(--font-b);fill:var(--ink)}
+.card{background:var(--surface);border:2px solid var(--ink);border-radius:20px 24px 18px 22px;padding:12px;box-shadow:4px 4px 0 var(--line)}
+.btn{border:2px solid var(--ink);background:var(--surface);border-radius:12px;padding:9px 10px;font-weight:700;cursor:pointer;font-size:13.5px;line-height:1.2}
+.btn.primary{background:var(--ink);color:var(--bg)}
+
+/* ----- building ----- */
+.bld-svg{width:100%;max-width:440px;display:block;margin:0 auto}
+.floor{cursor:pointer}
+.floor:focus-visible rect.fl{stroke:var(--accent);stroke-width:3.5}
+.floor .soon{font-size:9.5px;fill:var(--muted)}
+@keyframes twinkle{0%,100%{opacity:1}50%{opacity:.55}}
+.win-lit{animation:twinkle 3.2s ease-in-out infinite}
+
+/* ----- floor plan ----- */
+.plan{margin-top:20px;scroll-margin-top:10px}
+.plan-hd{display:flex;align-items:baseline;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.plan-hd h2{margin:0;font-family:var(--font-d);font-size:26px;line-height:1.1;color:var(--c)}
+.plan-hd span{font-size:13px;color:var(--muted);font-weight:700}
+.rooms{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(160px,1fr))}
+.room{--c:var(--p6);text-align:left;display:grid;gap:6px;align-content:start;background:color-mix(in srgb,var(--c) 9%,var(--surface));border:2px solid var(--c);border-radius:14px 14px 4px 4px;padding:10px 12px 12px;cursor:pointer;position:relative}
+.room .door{display:flex;gap:8px;align-items:center}
+.room .gl{width:34px;height:34px;border-radius:50%;background:var(--surface);border:2px solid var(--c);color:var(--c);display:grid;place-items:center;flex:0 0 auto}
+.room b{font-family:var(--font-d);font-size:18px;line-height:1.05}
+.room small{font-size:12.5px;line-height:1.35;color:var(--ink)}
+.room .go{font-size:12px;font-weight:800;color:var(--c)}
+.room[aria-current="true"]{box-shadow:4px 4px 0 var(--c)}
+.room.soon{background:repeating-linear-gradient(135deg,var(--surface) 0 8px,color-mix(in srgb,var(--line) 60%,var(--surface)) 8px 16px);border-style:dashed;border-color:var(--line);cursor:default}
+.room.soon b{color:var(--muted)}
+.room.soon .tag{font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+
+/* ----- law page (sketchnote) ----- */
+.law{--c:var(--p6);margin-top:22px;scroll-margin-top:10px}
+.blk{margin-top:18px}
+.blk:first-child{margin-top:0}
+.hero{text-align:center}
+.kick{font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--c)}
+.hero h2{font-family:var(--font-d);font-weight:700;font-size:clamp(32px,8vw,46px);line-height:1;margin:4px 0 2px}
+.hero h2 mark{background:linear-gradient(transparent 58%,var(--hl) 58%);color:inherit;padding:0 4px}
+.hero .sub{font-weight:800;margin-bottom:6px}
+.hero .one{margin:0 auto 8px;max-width:52ch;font-size:16.5px}
+.origin{display:inline-block;font-size:12.5px;border:1.5px solid var(--line);border-radius:999px;padding:3px 12px;background:var(--surface)}
+.pic{background:var(--surface);border:2px solid var(--ink);border-radius:16px 20px 14px 18px;padding:10px;margin:18px 0 0}
+.pic svg{width:100%;height:auto;display:block}
+.pic figcaption{font-size:13px;text-align:center;margin-top:4px;color:var(--muted)}
+.ask{display:flex;gap:12px;align-items:center;background:color-mix(in srgb,var(--c) 10%,var(--surface));border:2px dashed var(--c);border-radius:16px 20px 14px 18px;padding:12px 14px}
+.ask .qm{font-family:var(--font-d);font-weight:700;font-size:30px;color:var(--c);width:42px;height:42px;border-radius:50%;border:2px solid var(--c);display:grid;place-items:center;flex:0 0 auto;background:var(--surface)}
+.ask small{display:block;font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.ask b{font-family:var(--font-d);font-size:19.5px;line-height:1.2}
+.subh{font-family:var(--font-d);font-weight:700;font-size:23px;margin:0 0 8px;display:flex;align-items:center;gap:8px}
+.subh::after{content:"";flex:1;border-bottom:2px dashed var(--line)}
+.steps{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+.step{--h:var(--h1);background:color-mix(in srgb,var(--h) 11%,var(--surface));border:2px solid color-mix(in srgb,var(--h) 55%,transparent);border-radius:16px 20px 14px 18px;padding:10px 12px;display:grid;gap:4px;align-content:start}
+.step .hd{display:flex;gap:8px;align-items:center}
+.badge{width:28px;height:28px;border-radius:50%;background:var(--h);color:var(--surface);font-family:var(--font-d);font-weight:700;display:grid;place-items:center;flex:0 0 auto}
+.step h4{margin:0;font-family:var(--font-d);font-size:16.5px;line-height:1.1;color:var(--h)}
+.step p{margin:0;font-size:13px;line-height:1.4}
+.ba{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.ba>div{border-radius:14px;border:2px solid var(--bad);overflow:hidden;background:var(--surface);display:flex;flex-direction:column}
+.ba>div.after{border-color:var(--good)}
+.ba .t{font-size:12px;font-weight:800;padding:5px 10px;color:var(--surface);background:var(--bad);letter-spacing:.04em}
+.ba .after .t{background:var(--good)}
+.ba pre{margin:0;padding:10px;font-family:var(--font-m);font-size:12px;line-height:1.55;overflow-x:auto;color:var(--ink);flex:1}
+.ba .why{font-size:12.5px;padding:8px 10px;margin:0;border-top:1px dashed var(--line);background:color-mix(in srgb,var(--ink) 3%,var(--surface))}
+.xgrid{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(240px,1fr))}
+.xcard{--h:var(--h2);display:flex;gap:10px;background:var(--surface);border:2px solid var(--ink);border-radius:14px 18px 12px 16px;padding:10px 12px;box-shadow:3px 3px 0 color-mix(in srgb,var(--h) 35%,transparent)}
+.xi{width:38px;height:38px;border-radius:50%;background:color-mix(in srgb,var(--h) 16%,var(--surface));color:var(--h);display:grid;place-items:center;flex:0 0 auto}
+.xs{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--h)}
+.xcard p{margin:2px 0 0;font-size:13.5px;line-height:1.4}
+.bend{display:grid;gap:8px;grid-template-columns:1fr auto 1fr;align-items:center;background:color-mix(in srgb,var(--hl) 50%,var(--surface));border-radius:16px;padding:12px 14px}
+.bend .side{font-size:13.5px}
+.bend .side b{font-family:var(--font-d);font-size:17px;display:block;line-height:1.15}
+.bend .vs{font-family:var(--font-d);font-size:20px;color:var(--muted)}
+.rel{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:13px}
+.rel .chip{border:2px solid var(--ink);border-radius:999px;padding:3px 11px;background:var(--surface);font-weight:700;cursor:pointer;text-decoration:none;color:var(--ink)}
+.rel .chip.st{border-style:dashed}
+.rel .chip.off{border-color:var(--line);color:var(--muted);cursor:default;font-weight:600}
+.law-nav{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;margin-top:18px;align-items:center}
+.law-nav .btn:last-child{text-align:right}
+
+/* svg animations */
+@keyframes dryOld{0%,8%{opacity:1}14%,92%{opacity:0}100%{opacity:1}}
+@keyframes dryNew{0%,8%{opacity:0}14%,92%{opacity:1}100%{opacity:0}}
+@keyframes dryMiss{0%,55%{opacity:0}62%,92%{opacity:1}100%{opacity:0}}
+.d-old{opacity:0}.d-new{opacity:1}.d-miss{opacity:1}
+.anim .d-old{animation:dryOld 7s infinite}
+.anim .d-new{animation:dryNew 7s infinite}
+.anim .d-miss{animation:dryMiss 7s infinite}
+@keyframes draw{from{stroke-dashoffset:600}to{stroke-dashoffset:0}}
+.anim .drawn{stroke-dasharray:600;animation:draw 2.4s ease-out both}
+
+/* ----- quiz ----- */
+.q-card{background:var(--surface);border:2px solid var(--ink);border-radius:18px 22px 16px 20px;padding:18px;max-width:580px;margin:0 auto;box-shadow:4px 4px 0 var(--line)}
+.q-meta{display:flex;justify-content:space-between;font-size:12.5px;font-weight:700;color:var(--muted);margin-bottom:8px}
+.q-text{font-family:var(--font-d);font-size:22px;line-height:1.22;margin:0 0 14px;font-weight:700;text-wrap:balance}
+.q-opts{display:grid;gap:8px}
+.q-opt{display:flex;gap:12px;align-items:center;text-align:left;border:2px solid var(--line);background:var(--surface);border-radius:12px;padding:8px 12px 8px 8px;cursor:pointer;font-weight:700}
+.q-opt .gl{width:34px;height:34px;border-radius:50%;border:2px solid var(--c);color:var(--c);display:grid;place-items:center;flex:0 0 auto}
+.q-opt.right{border-color:var(--good);background:color-mix(in srgb,var(--good) 10%,var(--surface))}
+.q-opt.wrong{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 10%,var(--surface))}
+.q-opt[disabled]{cursor:default}
+.q-fb{margin-top:14px;display:grid;gap:10px}
+.verdict{font-weight:800}.verdict.ok{color:var(--good)}.verdict.no{color:var(--bad)}
+
+/* ----- pairs ----- */
+.pairs{display:grid;gap:14px}
+.pair{background:var(--surface);border:2px solid var(--ink);border-radius:18px 22px 16px 20px;padding:14px;display:grid;gap:10px;box-shadow:4px 4px 0 var(--line)}
+.pair .tension{font-family:var(--font-d);font-weight:700;font-size:21px;margin:0;text-wrap:balance;line-height:1.15}
+.pair .sides{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:stretch}
+.pair .side{display:grid;gap:5px;align-content:start;text-align:left;border-radius:12px;padding:10px;background:color-mix(in srgb,var(--c) 9%,var(--surface));border:2px solid color-mix(in srgb,var(--c) 45%,transparent);cursor:pointer}
+.pair .side b{font-family:var(--font-d);font-size:16.5px;line-height:1.1}
+.pair .side small{font-size:12.5px;color:var(--muted);line-height:1.35}
+.pair .side .open{font-size:12px;font-weight:800;color:var(--c)}
+.pair .vs{font-family:var(--font-d);font-size:18px;color:var(--muted);align-self:center}
+.pair .resolve{margin:0;font-size:14px;padding:10px 12px;border-radius:12px;background:color-mix(in srgb,var(--hl) 55%,var(--surface))}
+.pair .resolve b{font-family:var(--font-d);font-size:16px;margin-right:4px}
+
+/* ----- cheat sheet ----- */
+.cheat-hd{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.cheat-hd h2{margin:0;font-family:var(--font-d);font-size:26px}
+.cheat-hd p{margin:0;font-size:12.5px;color:var(--muted);max-width:40ch}
+.cheat{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
+.cs{--c:var(--p6);background:var(--surface);border:2px solid var(--ink);border-radius:14px;padding:10px 12px;display:grid;gap:5px;break-inside:avoid}
+.cs .top{display:flex;gap:8px;align-items:center}
+.cs .gl{width:30px;height:30px;border-radius:50%;border:2px solid var(--c);color:var(--c);display:grid;place-items:center;flex:0 0 auto}
+.cs b{font-family:var(--font-d);font-size:19px;line-height:1}
+.cs .one{margin:0;font-size:13.5px;font-weight:700}
+.cs dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:2px 8px;font-size:12.5px}
+.cs dt{font-weight:800;color:var(--c)}
+.cs dd{margin:0}
+
+footer{margin-top:36px;font-size:12.5px;color:var(--muted);border-top:2px dashed var(--line);padding-top:14px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+@media print{
+  body{background:#fff;color:#000;font-size:12px}
+  .no-print,header,.tabs,.bestfor,footer{display:none!important}
+  section{display:none!important}
+  #v-cheat{display:block!important}
+  .cheat{grid-template-columns:1fr 1fr}
+  .cs{box-shadow:none}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="eyebrow">Learning series · Book 2</div>
+  <h1>Software Laws, mapped</h1>
+  <p>57 laws and principles of software engineering as a building: code on the ground floor, decisions on the roof. The ground floor (coding and design principles) is open. The other floors are under construction.</p>
+</header>
+
+<nav class="tabs" role="tablist" aria-label="Views">
+  <button class="tab" role="tab" data-view="building">The building</button>
+  <button class="tab" role="tab" data-view="quiz">Which principle?</button>
+  <button class="tab" role="tab" data-view="pairs">Tension pairs</button>
+  <button class="tab" role="tab" data-view="cheat">Cheat sheet</button>
+</nav>
+<p class="bestfor" id="bestfor"></p>
+
+<section id="v-building">
+  <div class="card">
+    <svg class="bld-svg" id="bld" viewBox="0 0 360 520" role="img" aria-label="Building with seven floors, one per part"></svg>
+  </div>
+  <div id="plan"></div>
+  <div id="lawhost"></div>
+</section>
+<section id="v-quiz" hidden><div class="q-card" id="quiz"></div></section>
+<section id="v-pairs" hidden><div class="pairs" id="pairs"></div></section>
+<section id="v-cheat" hidden>
+  <div class="cheat-hd"><h2>Ground floor cheat sheet</h2><p id="printnote">To print this page, open the file from the Learning repo in your browser and use Print. Only this sheet is printed.</p></div>
+  <div class="cheat" id="cheat"></div>
+</section>
+
+<footer>Built from your April 2026 software laws guide. The explanations, steps and examples are my own short paraphrases; quotes are kept short and credited. Some origin stories (like Kelly Johnson’s) are well-known anecdotes rather than documented fact.</footer>
+</div>
+
+<script>
+/* ================= DATA ================= */
+const PARTS={
+ VI:{n:"VI",name:"Coding & Design Principles",short:"Code",floor:"G",c:"p6",laws:["DRY","KISS","YAGNI","SOLID","Law of Demeter","Boy Scout Rule"],built:true},
+ IV:{n:"IV",name:"Quality, Maintenance & Evolution",short:"Quality",floor:"1",c:"p4",laws:["Murphy’s Law","Postel’s Law","Broken Windows","Technical Debt","Linus’s Law","Kernighan’s Law","Pesticide Paradox","Testing Pyramid","Lehman’s Laws","Sturgeon’s Law"]},
+ V:{n:"V",name:"Scale, Performance & Growth",short:"Scale",floor:"2",c:"p5",laws:["Amdahl’s Law","Gustafson’s Law","Little’s Law","Metcalfe’s Law"]},
+ I:{n:"I",name:"Architecture & Complexity",short:"Architecture",floor:"3",c:"p1",laws:["Gall’s Law","Leaky Abstractions","Tesler’s Law","CAP Theorem","Hyrum’s Law","Second-System Effect","Fallacies of Distributed Computing","Unintended Consequences"]},
+ III:{n:"III",name:"Time, Estimation & Planning",short:"Time",floor:"4",c:"p3",laws:["Hofstadter’s Law","Parkinson’s Law","Ninety-Ninety Rule","Goodhart’s Law","Gilb’s Law","Knuth’s Optimisation Principle"]},
+ II:{n:"II",name:"People, Teams & Organisations",short:"People",floor:"5",c:"p2",laws:["Conway’s Law","Brooks’s Law","Dunbar’s Number","Ringelmann Effect","Price’s Law","Putt’s Law","Peter Principle","Inverse Conway Manoeuvre","Bus Factor","Dilbert Principle"]},
+ VII:{n:"VII",name:"Decision-Making & Biases",short:"Decisions",floor:"6",c:"p7",laws:["Occam’s Razor","Hanlon’s Razor","Sunk Cost Fallacy","Dunning–Kruger","Confirmation Bias","First Principles","Pareto Principle","Lindy Effect","Hype Cycle","Amara’s Law","Planning Fallacy","Survivorship Bias","Chesterton’s Fence"]}
+};
+const ORDER=["VII","II","III","I","V","IV","VI"]; /* top to bottom */
+/* Super Thinking cross-links (book 1) */
+const ST_ART="https://claude.ai/artifact/3CPKFJ3aHLBf7QHV2BCPGc";
+const stHref=sym=>{const rel=location.protocol==="file:"||/github\.io$/.test(location.hostname);return rel?`../super-thinking/index.html#m-${sym}`:`${ST_ART}#m-${sym}`;};
+
+const GL={
+ dry:'<circle cx="12" cy="5.5" r="3"/><path d="M12 8.5v4M12 12.5l-6 5M12 12.5l6 5M12 12.5v5"/><circle cx="6" cy="19" r="1.6"/><circle cx="12" cy="19" r="1.6"/><circle cx="18" cy="19" r="1.6"/>',
+ kiss:'<circle cx="4" cy="12" r="2.2"/><circle cx="20" cy="12" r="2.2"/><path d="M6.2 12h11.6"/>',
+ yagni:'<path d="M2 11h20"/><path d="M9 11l2-5 2 1 2 4"/><path d="M6 11l3 8h7l3-8" stroke-dasharray="2 2"/>',
+ solid:'<rect x="4" y="2" width="16" height="3" rx="1"/><rect x="4" y="6.2" width="16" height="3" rx="1"/><rect x="4" y="10.4" width="16" height="3" rx="1"/><rect x="4" y="14.6" width="16" height="3" rx="1"/><rect x="4" y="18.8" width="16" height="3" rx="1"/>',
+ demeter:'<circle cx="7" cy="8" r="3"/><path d="M2 20a5 5 0 0 1 10 0"/><circle cx="17" cy="8" r="3"/><path d="M12 20a5 5 0 0 1 10 0"/>',
+ scout:'<path d="M2 20h20M12 4L4 20M12 4l8 16M12 12l-3 8M12 12l3 8"/>'
+};
+const FIELD={
+ tech:["Technology","h2",'<rect x="4" y="5" width="16" height="11" rx="1.5"/><path d="M2 19h20"/>'],
+ health:["Health & medicine","h1",'<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/><path d="M9.5 11.5h5M12 9v5"/>'],
+ biz:["Business","h4",'<path d="M5 20V12M10 20V7M15 20v-5M20 20V4M3 20h19"/>'],
+ home:["Everyday life","h5",'<path d="M4 11l8-7 8 7v9H4z"/><path d="M10 20v-5h4v5"/>'],
+ gov:["Government","h5",'<path d="M4 20h16M6 20v-7M10 20v-7M14 20v-7M18 20v-7M3 13h18M12 5a7 7 0 0 0-7 6h14a7 7 0 0 0-7-6z"/>'],
+ air:["Aviation","h2",'<path d="M3 13.5l7-1.5 3.5-7h2l-1.6 7 5.6.8v1.9l-5.6.8 1.6 5.5h-2L10 15.5 3 14z"/>'],
+ nature:["Outdoors","h3",'<path d="M12 21v-6"/><path d="M12 3c4 2 6 5 6 8a6 6 0 0 1-12 0c0-3 2-6 6-8z"/>'],
+ money:["Finance","h3",'<circle cx="12" cy="12" r="8.5"/><path d="M14.5 9a2.5 2.5 0 0 0-4.5 1.5V16M8.5 13h5M8.5 16h7"/>'],
+ food:["Food","h6",'<path d="M7 3v8a2 2 0 0 0 2 2v8M5 3v5M9 3v5M17 21V3c-2.2 0-3.5 3-3.5 7.5H17"/>'],
+ people:["Teams","h6",'<circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0 1 12 0"/><circle cx="17" cy="9" r="2.5"/><path d="M16 14.2A5 5 0 0 1 21 19"/>'],
+ transport:["Transport","h4",'<rect x="4" y="6" width="16" height="10" rx="2"/><circle cx="8" cy="18" r="1.8"/><circle cx="16" cy="18" r="1.8"/><path d="M4 11h16"/>']
+};
+
+/* ---------- pictures (block 2) ---------- */
+const fileIcon=(x,y,w,h)=>`<path d="M${x} ${y} h${w-8} l8 8 v${h-8} h-${w} z" fill="var(--surface)" stroke="var(--ink)" stroke-width="1.6"/><path d="M${x+w-8} ${y} v8 h8" fill="none" stroke="var(--ink)" stroke-width="1.6"/>`;
+function picDRY(){
+  let L="";const pos=[[12,46],[50,46],[88,46],[126,46],[31,104],[69,104],[107,104]];const miss=[2,5];
+  pos.forEach(([x,y],i)=>{const m=miss.includes(i);L+=fileIcon(x,y,30,38);
+    if(m){L+=`<text x="${x+14}" y="${y+25}" text-anchor="middle" font-size="10.5" font-weight="800">20%</text><circle class="d-miss" cx="${x+15}" cy="${y+19}" r="23" fill="none" stroke="var(--bad)" stroke-width="2.5"/>`;}
+    else{L+=`<text class="d-old" style="animation-delay:${i*.35}s" x="${x+14}" y="${y+25}" text-anchor="middle" font-size="10.5" font-weight="800">20%</text><text class="d-new" style="animation-delay:${i*.35}s;fill:var(--good)" x="${x+14}" y="${y+25}" text-anchor="middle" font-size="10.5" font-weight="800">21%</text>`;}});
+  let R=`<rect x="198" y="40" width="128" height="32" rx="6" fill="color-mix(in srgb,var(--good) 14%,var(--surface))" stroke="var(--good)" stroke-width="2.2"/><text x="262" y="61" text-anchor="middle" font-size="12" font-weight="800" style="font-family:var(--font-m)">VAT_RATE = 21%</text>`;
+  for(let i=0;i<7;i++){const x=184+i*22;R+=`<line x1="262" y1="72" x2="${x+8}" y2="118" stroke="var(--good)" stroke-width="1.6"/>`+fileIcon(x,118,17,22);R+=`<path d="M${x+4} ${131} l3 3 l6 -7" fill="none" stroke="var(--good)" stroke-width="2"/>`;}
+  return `<svg viewBox="0 0 340 190" role="img" aria-label="Seven copied values, two missed when the rate changes, versus one source feeding all files">
+   <text x="80" y="22" text-anchor="middle" font-size="12.5" font-weight="800" style="fill:var(--bad)">Copied into 7 files</text>
+   <text x="262" y="22" text-anchor="middle" font-size="12.5" font-weight="800" style="fill:var(--good)">One source of truth</text>
+   <line x1="170" y1="10" x2="170" y2="180" stroke="var(--line)" stroke-width="2" stroke-dasharray="4 4"/>
+   ${L}${R}
+   <text x="80" y="172" text-anchor="middle" font-size="10.5" style="fill:var(--bad)" font-weight="800">2 copies missed</text>
+   <text x="262" y="172" text-anchor="middle" font-size="10.5" style="fill:var(--good)" font-weight="800">change once, all updated</text></svg>`;
+}
+function picKISS(){
+  return `<svg viewBox="0 0 340 192" role="img" aria-label="A tangled path versus a straight line between A and B">
+   <text x="82" y="20" text-anchor="middle" font-size="12.5" font-weight="800" style="fill:var(--bad)">Clever</text>
+   <text x="258" y="20" text-anchor="middle" font-size="12.5" font-weight="800" style="fill:var(--good)">Simple</text>
+   <line x1="170" y1="10" x2="170" y2="175" stroke="var(--line)" stroke-width="2" stroke-dasharray="4 4"/>
+   <g transform="translate(0,14)"><path class="drawn" d="M18 130 C40 30 90 160 70 80 S150 40 120 120 S30 150 75 55 S160 70 146 130" fill="none" stroke="var(--bad)" stroke-width="3" stroke-linecap="round"/>
+   ${[[52,96],[95,70],[110,118],[62,120],[128,64]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="4" fill="var(--surface)" stroke="var(--bad)" stroke-width="2"/>`).join("")}
+   <circle cx="18" cy="130" r="9" fill="var(--ink)"/><text x="18" y="134" text-anchor="middle" font-size="10" font-weight="800" style="fill:var(--bg)">A</text>
+   <circle cx="146" cy="130" r="9" fill="var(--ink)"/><text x="146" y="134" text-anchor="middle" font-size="10" font-weight="800" style="fill:var(--bg)">B</text></g>
+   <path class="drawn" d="M196 95 H322" stroke="var(--good)" stroke-width="3.5" stroke-linecap="round"/>
+   <circle cx="196" cy="95" r="9" fill="var(--ink)"/><text x="196" y="99" text-anchor="middle" font-size="10" font-weight="800" style="fill:var(--bg)">A</text>
+   <circle cx="322" cy="95" r="9" fill="var(--ink)"/><text x="322" y="99" text-anchor="middle" font-size="10" font-weight="800" style="fill:var(--bg)">B</text>
+   <text x="82" y="184" text-anchor="middle" font-size="11" font-weight="800">50 min to understand</text>
+   <text x="258" y="184" text-anchor="middle" font-size="11" font-weight="800">5 min to understand</text></svg>`;
+}
+function picYAGNI(){
+  return `<svg viewBox="0 0 340 235" role="img" aria-label="Iceberg: the visible feature and the hidden costs below the waterline">
+    <rect x="0" y="72" width="340" height="163" fill="var(--water)" opacity=".7"/>
+    <path d="M0 72 Q20 66 40 72 T80 72 T120 72 T160 72 T200 72 T240 72 T280 72 T320 72 T360 72" fill="none" stroke="var(--h2)" stroke-width="1.5"/>
+    <path d="M140 72 L156 32 L176 22 L194 40 L206 72 Z" fill="var(--surface)" stroke="var(--ink)" stroke-width="2"/>
+    <text x="214" y="34" font-size="11.5" font-weight="800">the feature “we</text><text x="214" y="48" font-size="11.5" font-weight="800">might need”</text>
+    <path d="M100 72 L246 72 L290 140 L262 222 L114 228 L66 150 Z" fill="var(--surface)" stroke="var(--ink)" stroke-width="2" opacity=".95"/>
+    <g font-size="11.5" text-anchor="middle"><text x="178" y="98">writing it</text><text x="178" y="122">testing it</text><text x="178" y="146">maintaining it</text><text x="178" y="170">reading it in every review</text><text x="178" y="194">reworking it when the</text><text x="178" y="208">real need turns out different</text></g>
+    <text x="10" y="226" font-size="10.5" font-weight="800" style="fill:var(--h2)">hidden cost</text></svg>`;
+}
+function picSOLID(){
+  const T=[
+   ["S","Single responsibility","one reason to change","h1",(x,y)=>`<rect x="${x-18}" y="${y-14}" width="36" height="28" rx="4" fill="var(--surface)" stroke="var(--h1)" stroke-width="2"/><path d="M${x-8} ${y} h16" stroke="var(--h1)" stroke-width="3" stroke-linecap="round"/>`],
+   ["O","Open / closed","add, don’t edit","h2",(x,y)=>`<rect x="${x-24}" y="${y-14}" width="30" height="28" rx="4" fill="var(--surface)" stroke="var(--h2)" stroke-width="2"/><path d="M${x-4} ${y-6} h4 v12 h-4" fill="none" stroke="var(--h2)" stroke-width="2"/><rect x="${x+6}" y="${y-8}" width="18" height="16" rx="3" fill="color-mix(in srgb,var(--h2) 22%,var(--surface))" stroke="var(--h2)" stroke-width="2" stroke-dasharray="3 2"/><text x="${x+15}" y="${y+4}" text-anchor="middle" font-size="11" font-weight="800" style="fill:var(--h2)">+</text>`],
+   ["L","Liskov substitution","swap in, still works","h3",(x,y)=>`<path d="M${x-22} ${y-12} h44 v24 h-44 z" fill="none" stroke="var(--h3)" stroke-width="2" stroke-dasharray="4 3"/><rect x="${x-18}" y="${y-8}" width="16" height="16" rx="2" fill="color-mix(in srgb,var(--h3) 25%,var(--surface))" stroke="var(--h3)" stroke-width="2"/><rect x="${x+2}" y="${y-8}" width="16" height="16" rx="8" fill="color-mix(in srgb,var(--h3) 25%,var(--surface))" stroke="var(--h3)" stroke-width="2"/>`],
+   ["I","Interface segregation","small, focused contracts","h4",(x,y)=>`<rect x="${x-24}" y="${y-12}" width="12" height="24" rx="2" fill="var(--surface)" stroke="var(--h4)" stroke-width="2"/><rect x="${x-6}" y="${y-12}" width="12" height="24" rx="2" fill="var(--surface)" stroke="var(--h4)" stroke-width="2"/><rect x="${x+12}" y="${y-12}" width="12" height="24" rx="2" fill="var(--surface)" stroke="var(--h4)" stroke-width="2"/><path d="M${x-18} ${y-17}v-5M${x} ${y-17}v-5M${x+18} ${y-17}v-5" stroke="var(--h4)" stroke-width="2"/>`],
+   ["D","Dependency inversion","depend on the socket, not the wire","h5",(x,y)=>`<rect x="${x-30}" y="${y-10}" width="18" height="20" rx="3" fill="var(--surface)" stroke="var(--h5)" stroke-width="2"/><path d="M${x-12} ${y} h6" stroke="var(--h5)" stroke-width="2"/><rect x="${x-6}" y="${y-9}" width="12" height="18" rx="6" fill="none" stroke="var(--h5)" stroke-width="2" stroke-dasharray="3 2"/><path d="M${x+12} ${y} h-6" stroke="var(--h5)" stroke-width="2"/><rect x="${x+12}" y="${y-10}" width="18" height="20" rx="3" fill="var(--surface)" stroke="var(--h5)" stroke-width="2"/>`]];
+  const pos=[[60,20],[170,20],[280,20],[115,128],[225,128]];
+  return `<svg viewBox="0 0 340 236" role="img" aria-label="The five SOLID principles as small diagrams">${T.map(([L,n,s,h,draw],i)=>{const [cx,y]=pos[i];
+    return `<rect x="${cx-52}" y="${y}" width="104" height="98" rx="12" fill="color-mix(in srgb,var(--${h}) 9%,var(--surface))" stroke="var(--${h})" stroke-width="2"/>
+     <text x="${cx-42}" y="${y+24}" font-size="22" font-weight="800" style="fill:var(--${h});font-family:var(--font-d)">${L}</text>
+     ${draw(cx+8,y+30)}
+     <text x="${cx}" y="${y+66}" text-anchor="middle" font-size="9.5" font-weight="800">${n}</text>
+     <text x="${cx}" y="${y+80}" text-anchor="middle" font-size="9" style="fill:var(--muted)">${s.length>22?s.slice(0,s.lastIndexOf(" ",22)):s}</text>
+     ${s.length>22?`<text x="${cx}" y="${y+91}" text-anchor="middle" font-size="9" style="fill:var(--muted)">${s.slice(s.lastIndexOf(" ",22)+1)}</text>`:""}`;}).join("")}</svg>`;
+}
+const fig=(x,y,c)=>`<circle cx="${x}" cy="${y}" r="7" fill="var(--surface)" stroke="${c}" stroke-width="2"/><path d="M${x} ${y+7} v20 M${x} ${y+27} l-7 14 M${x} ${y+27} l7 14" fill="none" stroke="${c}" stroke-width="2" stroke-linecap="round"/>`;
+function picDemeter(){
+  const P=(i,title,body,mark)=>{const x=6+i*112;return `<rect x="${x}" y="8" width="104" height="146" rx="10" fill="var(--surface)" stroke="var(--ink)" stroke-width="2"/>
+   <text x="${x+52}" y="26" text-anchor="middle" font-size="10.5" font-weight="800">${i+1}. ${title}</text>${body(x)}${mark?mark(x):""}`;};
+  const boy="var(--h2)",cus="var(--h6)";
+  return `<svg viewBox="0 0 340 162" role="img" aria-label="Three-panel story: the paperboy should ask the customer to pay, not reach into their wallet">
+   ${P(0,"Paperboy calls",x=>`${fig(x+28,66,boy)}${fig(x+76,66,cus)}<rect x="${x+8}" y="33" width="78" height="18" rx="6" fill="var(--surface)" stroke="var(--ink)" stroke-width="1.4"/><path d="M${x+24} 51 l4 6 l3 -6" fill="var(--surface)" stroke="var(--ink)" stroke-width="1.4"/><text x="${x+47}" y="46" text-anchor="middle" font-size="9.5" font-weight="700">£2.50, please</text><text x="${x+52}" y="140" text-anchor="middle" font-size="9.5" style="fill:var(--muted)">paperboy · customer</text>`)}
+   ${P(1,"Reaches in",x=>`${fig(x+30,66,boy)}${fig(x+76,66,cus)}<rect x="${x+62}" y="94" width="16" height="11" rx="2" fill="var(--hl)" stroke="var(--ink)" stroke-width="1.4"/><path d="M${x+30} 82 L${x+64} 98" stroke="${boy}" stroke-width="2.5" stroke-linecap="round"/><text x="${x+52}" y="140" text-anchor="middle" font-size="9.5" style="fill:var(--muted)">digs into the wallet</text>`,x=>`<path d="M${x+40} 40 l24 24 M${x+64} 40 l-24 24" stroke="var(--bad)" stroke-width="4" stroke-linecap="round"/>`)}
+   ${P(2,"Customer pays",x=>`${fig(x+30,66,boy)}${fig(x+76,66,cus)}<circle cx="${x+53}" cy="90" r="6" fill="var(--hl)" stroke="var(--ink)" stroke-width="1.4"/><path d="M${x+64} 90 h-4 M${x+44} 90 h-4" stroke="var(--ink)" stroke-width="1.4"/><text x="${x+52}" y="140" text-anchor="middle" font-size="9.5" style="fill:var(--muted)">asks, doesn’t dig</text>`,x=>`<path d="M${x+40} 52 l8 8 l16 -18" fill="none" stroke="var(--good)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>`)}
+  </svg>`;
+}
+function picScout(){
+  const X=t=>40+t*2.8,Y=v=>150-v*1.2;
+  let bad="",good="";for(let t=0;t<=100;t+=5){bad+=(t?"L":"M")+X(t)+" "+Y(80-0.55*t-0.0025*t*t);good+=(t?"L":"M")+X(t)+" "+Y(80+0.1*t+3*Math.sin(t/8));}
+  const dots=[15,35,55,75,95].map(t=>`<circle cx="${X(t)}" cy="${Y(80+0.1*t+3*Math.sin(t/8))}" r="3.5" fill="var(--surface)" stroke="var(--good)" stroke-width="2"/>`).join("");
+  return `<svg viewBox="0 0 340 185" role="img" aria-label="Code health over time: steady decline without the rule, steady with it">
+   <path d="M40 18 V150 H326" fill="none" stroke="var(--muted)" stroke-width="1.5"/>
+   <text x="34" y="26" text-anchor="end" font-size="9.5" style="fill:var(--muted)">healthy</text><text x="34" y="150" text-anchor="end" font-size="9.5" style="fill:var(--muted)">painful</text>
+   <path class="drawn" d="${bad}" fill="none" stroke="var(--bad)" stroke-width="3" stroke-linecap="round"/>
+   <path class="drawn" d="${good}" fill="none" stroke="var(--good)" stroke-width="3" stroke-linecap="round"/>${dots}
+   <text x="322" y="34" text-anchor="end" font-size="11" font-weight="800" style="fill:var(--good)">small clean-up each change</text>
+   <text x="160" y="142" text-anchor="middle" font-size="11" font-weight="800" style="fill:var(--bad)">“we’ll tidy it later”</text>
+   <text x="183" y="172" text-anchor="middle" font-size="10" style="fill:var(--muted)">time → (day 1 … day 1,000)</text></svg>`;
+}
+
+/* ---------- law content ---------- */
+const LAWS=[
+{id:"dry",name:"DRY",sub:"Don’t Repeat Yourself",gl:"dry",
+ one:"Every piece of knowledge should live in one place in the system.",
+ origin:"Andy Hunt & Dave Thomas, <i>The Pragmatic Programmer</i>, 1999",
+ pic:picDRY,cap:"When the rate changes, copies get missed. One source updates everywhere.",
+ q:"If this rule changes, how many places would I have to edit?",
+ steps:[["Spot repeated knowledge","A rule, rate or format copied around, not just code that looks alike."],["Give it one home","A constant, function, config file or schema."],["Point everything at it","Replace the copies with references."],["Wait for the third copy","Don’t abstract look-alike code until a real pattern appears."]],
+ before:`# checkout.py
+total = subtotal * 1.20
+
+# invoice.py
+vat = net * 0.20
+
+# report.py
+gross = amount + amount * 0.2`,
+ whyB:"The VAT rule lives in three places. Change it in two and the reports quietly disagree.",
+ after:`# tax.py
+VAT_RATE = 0.20
+
+def add_vat(amount):
+    return amount * (1 + VAT_RATE)
+
+# everywhere else
+total = add_vat(subtotal)`,
+ whyA:"One home for the rule. A rate change is a one-line edit.",
+ ex:[["gov","The UK’s Tell Us Once service lets families report a death once, and it passes the news to most government departments."],["biz","Customer addresses kept separately in sales, billing and delivery systems drift apart. A single customer record fixes it."],["health","Medication lists held separately by the GP, hospital and pharmacy can disagree. Shared care records give one source."],["home","One shared family calendar instead of three diaries that never match."]],
+ bend:[["DRY says","Keep each piece of knowledge in one place."],["But don’t merge look-alikes","Two things that look the same but change for different reasons should stay separate. Merging them couples unrelated rules."]],
+ rel:[["law","kiss"],["law","solid"],["law","scout"],["soon","Technical Debt"]],
+ cheat:{ask:"How many places change if this rule changes?",bend:"Look-alike code that changes for different reasons."}},
+{id:"kiss",name:"KISS",sub:"Keep It Simple, Stupid",gl:"kiss",
+ one:"Choose the simplest design that does the job.",
+ origin:"Attributed to Kelly Johnson, Lockheed Skunk Works, 1960s",
+ pic:picKISS,cap:"Both reach B. Only one is easy to follow, change and fix.",
+ q:"Could a newcomer understand this in five minutes?",
+ steps:[["State the job","What must this actually do?"],["Remove moving parts","Fewer pieces, fewer ways to break."],["Prefer plain to clever","Obvious names, straight-line logic."],["Explain it out loud","If you can’t explain it simply, simplify it."]],
+ before:`is_adult = (lambda a: True if not a < 18
+            else False)(age)
+label = ["minor", "adult"][int(bool(is_adult))]`,
+ whyB:"Clever tricks that hide a simple rule. Readers must decode it.",
+ after:`label = "adult" if age >= 18 else "minor"`,
+ whyA:"One line that reads like the rule itself.",
+ ex:[["air","Kelly Johnson reportedly challenged engineers to design jets a field mechanic could fix with a few basic tools."],["health","The WHO Surgical Safety Checklist is one page long, and studies linked it to fewer complications and deaths."],["gov","GOV.UK writes in plain English so people can complete services first time."],["home","TV remotes with 50 buttons versus the few people actually use."]],
+ bend:[["KISS says","Simplest design that works."],["But simple isn’t easy","Simple means few parts, not what’s familiar to you. And some complexity is essential: it has to live somewhere (Tesler’s Law)."]],
+ rel:[["law","yagni"],["law","dry"],["soon","Gall’s Law"],["soon","Tesler’s Law"],["st","oz","Occam’s razor"]],
+ cheat:{ask:"Could a newcomer follow this in five minutes?",bend:"Essential complexity: it has to live somewhere."}},
+{id:"yagni",name:"YAGNI",sub:"You Aren’t Gonna Need It",gl:"yagni",
+ one:"Build what you need now, not what you guess you’ll need later.",
+ origin:"Extreme Programming, late 1990s · Ron Jeffries",
+ pic:picYAGNI,cap:"What you see is one feature. What you pay for sits below the waterline.",
+ q:"Is there a real need for this today, or is it a guess?",
+ steps:[["Name today’s need","Who needs it, and for what, right now?"],["Build the simplest fit","Just enough to meet that need."],["Keep it easy to change","Clean code makes adding later cheap."],["Add when it’s real","When the need arrives, you’ll know its true shape."]],
+ before:`class ExporterFactory:
+    FORMATS = {"csv": CsvExporter,
+               "xml": XmlExporter,
+               "parquet": ParquetExporter}
+
+    def create(self, fmt, **opts):
+        return self.FORMATS[fmt](**opts)`,
+ whyB:"Built for “someday”. Two years later only CSV is used, yet all three are tested and maintained.",
+ after:`import csv
+
+def export_csv(rows, path):
+    with open(path, "w", newline="") as f:
+        csv.writer(f).writerows(rows)`,
+ whyA:"Built for today. Add XML when someone actually asks.",
+ ex:[["tech","Admin screens and settings built “just in case” that nobody opens, but every release still has to test."],["home","Buying a seven-seat car for the occasional visit when you usually drive four people."],["food","Restaurants trimming huge menus: fewer dishes, less waste, a faster kitchen."],["biz","A start-up building multi-currency billing before its first customer outside the UK."]],
+ bend:[["YAGNI says","Don’t build for guesses."],["But don’t skip","Security, logging and an undo path. They’re costly to add late, and you’ll wish you had them."]],
+ rel:[["law","kiss"],["soon","Gall’s Law"],["soon","Second-System Effect"],["st","op","Preserving optionality"]],
+ cheat:{ask:"Is there a real need today, or a guess?",bend:"Security, logging and the ability to undo."}},
+{id:"solid",name:"SOLID",sub:"Five principles of object-oriented design",gl:"solid",
+ one:"Five rules that keep object-oriented code easy to change.",
+ origin:"Robert C. Martin’s principles; acronym by Michael Feathers, early 2000s",
+ pic:picSOLID,cap:"Each letter protects you from one kind of painful change.",
+ q:"When this requirement changes, how much existing code must I touch?",
+ steps:[["S · One job","Each class has one reason to change."],["O · Add, don’t edit","Extend behaviour with new code, not by editing stable code."],["L · Keep promises","A subtype must work anywhere its parent does."],["I · Small contracts","Many focused interfaces beat one bloated one."],["D · Depend on abstractions","High-level code relies on interfaces, not concrete details."]],
+ before:`class Report:
+    def build(self, data): ...
+    def to_pdf(self): ...
+    def to_csv(self): ...
+    def email(self, to): ...
+    def save_to_db(self): ...`,
+ whyB:"One class, five reasons to change. A new format means editing Report again.",
+ after:`from typing import Protocol
+
+class Report:                     # S: one job
+    def build(self, data): ...
+
+class Exporter(Protocol):         # I + D
+    def export(self, report) -> bytes: ...
+
+class PdfExporter: ...            # O: new formats
+class CsvExporter: ...            #    are new classes`,
+ whyA:"Report builds; exporters export. Adding Excel is a new class, not an edit.",
+ ex:[["home","Plug sockets: appliances depend on a standard socket, not on the power station (dependency inversion)."],["tech","USB-C: one small standard contract lets new devices plug in without changing the laptop (open/closed)."],["food","Kitchen stations: grill, sauce and pastry each have one job (single responsibility)."],["transport","Any licensed driver can drive any car with standard controls (Liskov substitution)."]],
+ bend:[["SOLID says","Design for change."],["But don’t go dogmatic","Interfaces for everything and ten files for a 20-line feature. Apply it where change is likely."]],
+ rel:[["law","dry"],["law","demeter"],["law","kiss"],["soon","Conway’s Law"]],
+ cheat:{ask:"How much existing code changes when this requirement does?",bend:"Small scripts and code that rarely changes."}},
+{id:"demeter",name:"Law of Demeter",sub:"Talk only to your immediate friends",gl:"demeter",
+ one:"An object should ask its direct neighbours for things, not reach through them into others.",
+ origin:"Karl Lieberherr and the Demeter Project, Northeastern University, 1987",
+ pic:picDemeter,cap:"A well-known way to explain it: the customer pays; the paperboy never touches the wallet.",
+ q:"Am I reaching through one object to get at another’s insides?",
+ steps:[["Spot the chains","Look for a.b.c.d reaching deep into objects."],["Ask, don’t dig","Give the nearest object a method that does the job."],["Hide the insides","Callers shouldn’t know how things are stored."],["Allow sensible exceptions","Plain data and fluent builders can be chained."]],
+ before:`def collect(paperboy, customer, price):
+    wallet = customer.wallet
+    if wallet.total >= price:
+        wallet.total -= price
+        paperboy.cash += price
+
+zip_code = order.customer.address.postcode`,
+ whyB:"The caller knows how Customer, Wallet and Address work inside. Change any of them and this breaks.",
+ after:`def collect(paperboy, customer, price):
+    paperboy.cash += customer.pay(price)
+
+class Customer:
+    def pay(self, amount):
+        return self._wallet.take(amount)
+
+zip_code = order.shipping_postcode()`,
+ whyA:"Each object asks its neighbour. The insides can change freely.",
+ ex:[["home","You ask the shop assistant for an item; you don’t walk into the stockroom yourself."],["health","Patients go through their GP, who refers them on, rather than phoning a consultant’s team directly."],["money","Card payments: the shop never sees inside your bank. The card network handles that."],["tech","Teams call another service’s public API instead of reading its database directly."]],
+ bend:[["Demeter says","Talk only to friends."],["But don’t wrap everything","Data chains like df.groupby(...).sum() are fine: each step returns the same kind of thing. Wrapping it all just adds pointless methods."]],
+ rel:[["law","solid"],["law","kiss"],["soon","Hyrum’s Law"],["soon","Leaky Abstractions"]],
+ cheat:{ask:"Am I reaching through an object into its insides?",bend:"Plain data and fluent builders."}},
+{id:"scout",name:"Boy Scout Rule",sub:"Leave it cleaner than you found it",gl:"scout",
+ one:"Every time you touch code, leave it a little cleaner.",
+ origin:"Robert C. Martin, <i>Clean Code</i>, 2008, adapting a Scouting saying",
+ pic:picScout,cap:"Small, regular clean-ups keep code healthy. “Later” rarely comes.",
+ q:"What one small thing can I tidy while I’m here?",
+ steps:[["Fix what you touch","Rename, extract or delete near your change."],["Keep it small","Minutes, not days."],["Ship it with the change","Same pull request, not a clean-up week."],["Make it a team habit","Everyone does a little, every time."]],
+ before:`def calc(d, t):
+    # TODO fix later (2021)
+    x = d * 0.2
+    return d + x if t == 1 else d`,
+ whyB:"Cryptic names, a stale TODO and a magic number, left for the next person.",
+ after:`VAT_RATE = 0.20
+
+def price_with_vat(net, vat_applies):
+    if not vat_applies:
+        return net
+    return net * (1 + VAT_RATE)`,
+ whyA:"Same behaviour, readable in seconds. Done while fixing a nearby bug.",
+ ex:[["nature","“Leave no trace” camping: take your litter home, plus a bit of someone else’s."],["biz","Toyota’s kaizen: small improvements from everyone, every day."],["tech","Wikipedia improves through millions of small edits, not big rewrites."],["home","Washing your own mug, and one more, in the office kitchen."]],
+ bend:[["Boy Scout says","Tidy as you go."],["But stay in scope","A big refactor hidden in a feature change makes reviews hard and risky. Small, nearby and safe."]],
+ rel:[["law","dry"],["soon","Broken Windows"],["soon","Technical Debt"],["st","en","Entropy"],["st","td","Technical debt"]],
+ cheat:{ask:"What small thing can I tidy while I’m here?",bend:"Big refactors: give them their own change."}}
+];
+const BYID=Object.fromEntries(LAWS.map(l=>[l.id,l]));
+const esc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+const ic=(p,cls="ic")=>`<svg class="${cls}" viewBox="0 0 24 24" aria-hidden="true">${p}</svg>`;
+const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+const HUES=["h1","h2","h3","h4","h5","h6"];
+
+/* ================= BUILDING ================= */
+let curPart="VI",curLaw="dry";
+function bldRender(){
+  const svg=document.getElementById("bld");const X0=36,W=288,FH=58,TOP=80;let g="";
+  /* crane */
+  g+=`<g stroke="var(--muted)" stroke-width="2" fill="none" stroke-linecap="round"><path d="M290 80 V14 M262 14 H346 M290 14 l-28 0 M290 22 l-24 -8 M290 22 l40 -8"/><path d="M334 14 v24" stroke-dasharray="3 3"/><rect x="327" y="38" width="14" height="10" rx="1"/></g>`;
+  /* roof */
+  g+=`<path d="M${X0-10} ${TOP} L180 ${TOP-44} L${X0+W+10} ${TOP}Z" fill="color-mix(in srgb,var(--ink) 8%,var(--surface))" stroke="var(--ink)" stroke-width="2.5" stroke-linejoin="round"/>
+      <text x="180" y="${TOP-12}" text-anchor="middle" font-size="12" font-weight="800" style="font-family:var(--font-d)">57 laws</text>`;
+  ORDER.forEach((k,i)=>{const P=PARTS[k],y=TOP+i*FH,sel=k===curPart,c=`var(--${P.c})`;
+    const n=P.laws.length,area=136,cell=Math.min(18,area/Math.ceil(n/ (n>8?2:1))),rows=n>8?2:1,perRow=Math.ceil(n/rows);
+    let wins="";for(let j=0;j<n;j++){const r=Math.floor(j/perRow),col=j%perRow;const wx=X0+W-12-area+col*cell,wy=y+(rows===2?12+r*20:20);
+      wins+=`<rect ${P.built?`class="win-lit" style="animation-delay:${j*.4}s"`:""} x="${wx.toFixed(1)}" y="${wy}" width="${(cell-4).toFixed(1)}" height="${rows===2?15:18}" rx="2" fill="${P.built?"var(--lit)":"color-mix(in srgb,var(--ink) 14%,var(--surface))"}" stroke="${c}" stroke-width="1.4"/>`;}
+    g+=`<g class="floor" tabindex="0" role="button" aria-label="Floor ${P.floor}: Part ${P.n}, ${esc(P.name)}${P.built?"":", under construction"}" data-part="${k}">
+      <rect class="fl" x="${X0}" y="${y}" width="${W}" height="${FH}" fill="${sel?`color-mix(in srgb,${c} 22%,var(--surface))`:`color-mix(in srgb,${c} 9%,var(--surface))`}" stroke="${sel?c:"var(--ink)"}" stroke-width="${sel?3:2}"/>
+      ${P.built?"":`<rect x="${X0+2}" y="${y+2}" width="${W-4}" height="${FH-4}" fill="url(#hatch)" opacity=".5" pointer-events="none"/>`}
+      <circle cx="${X0+20}" cy="${y+FH/2}" r="12" fill="${c}"/><text x="${X0+20}" y="${y+FH/2+4.5}" text-anchor="middle" font-size="12" font-weight="800" style="fill:var(--surface)">${P.floor}</text>
+      <text x="${X0+40}" y="${y+25}" font-size="15" font-weight="700" style="fill:${c};font-family:var(--font-d)">${P.short}</text>
+      <text x="${X0+40}" y="${y+41}" class="soon">${P.built?`${n} laws · open`:`${n} laws · soon`}</text>
+      ${wins}</g>`;});
+  const gy=TOP+7*FH;
+  g+=`<path d="M8 ${gy} H352" stroke="var(--ink)" stroke-width="3"/><rect x="${X0+W/2-74}" y="${gy-26}" width="16" height="24" fill="var(--ink)" pointer-events="none"/>
+     <text x="180" y="${gy+20}" text-anchor="middle" font-size="11" style="fill:var(--muted)">Tap a floor · lit windows are open laws</text>`;
+  svg.innerHTML=`<defs><pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="8" stroke="var(--line)" stroke-width="3"/></pattern></defs>`+g;
+}
+function planRender(scroll){
+  const P=PARTS[curPart],host=document.getElementById("plan");
+  const ids=P.built?LAWS.map(l=>l.id):[];
+  host.innerHTML=`<div class="plan" id="planbox" style="--c:var(--${P.c})">
+    <div class="plan-hd"><h2>Floor ${P.floor} · ${esc(P.name)}</h2><span>Part ${P.n} · ${P.laws.length} laws</span></div>
+    <div class="rooms">${P.built?LAWS.map(l=>`<button class="room" style="--c:var(--${P.c})" data-law="${l.id}" aria-current="${l.id===curLaw}"><span class="door"><span class="gl">${ic(GL[l.gl])}</span><b>${esc(l.name)}</b></span><small>${esc(l.one)}</small><span class="go">Open →</span></button>`).join("")
+      :P.laws.map(n=>`<div class="room soon"><b>${esc(n)}</b><span class="tag">Under construction</span></div>`).join("")}</div>
+    ${P.built?"":`<p style="font-size:13.5px;color:var(--muted);margin:10px 0 0">This floor is next on the build list. Every law will get the same 8-block page as the ground floor.</p>`}
+  </div>`;
+  host.querySelectorAll("[data-law]").forEach(b=>b.onclick=()=>{location.hash="law-"+b.dataset.law;});
+  if(scroll) document.getElementById("planbox").scrollIntoView({behavior:reduce?"auto":"smooth",block:"start"});
+}
+(function(){const svg=document.getElementById("bld");
+  const act=n=>{curPart=n.dataset.part;bldRender();planRender(true);if(PARTS[curPart].built)lawRender(false);else document.getElementById("lawhost").innerHTML="";};
+  svg.addEventListener("click",e=>{const n=e.target.closest(".floor");if(n)act(n);});
+  svg.addEventListener("keydown",e=>{const n=e.target.closest(".floor");if(n&&(e.key==="Enter"||e.key===" ")){e.preventDefault();act(n);}});})();
+
+/* ================= LAW PAGE ================= */
+function relChip(r){
+  if(r[0]==="law"){const l=BYID[r[1]];return `<a class="chip" href="#law-${l.id}">${esc(l.name)}</a>`;}
+  if(r[0]==="st") return `<a class="chip st" href="${stHref(r[1])}" target="_top" title="Opens in Super Thinking (book 1)">${esc(r[2])} ↔ book 1</a>`;
+  return `<span class="chip off" title="Coming soon">${esc(r[1])} · soon</span>`;
+}
+function lawRender(scroll){
+  const L=BYID[curLaw],host=document.getElementById("lawhost"),k=LAWS.indexOf(L);
+  const prev=LAWS[(k-1+LAWS.length)%LAWS.length],next=LAWS[(k+1)%LAWS.length];
+  host.innerHTML=`<article class="law" id="lawbox" style="--c:var(--p6)">
+    <div class="blk hero"><div class="kick">Ground floor · Part VI · Law ${k+1} of ${LAWS.length}</div>
+      <h2><mark>${esc(L.name)}</mark></h2><div class="sub">${esc(L.sub)}</div>
+      <p class="one">${esc(L.one)}</p><span class="origin">Origin: ${L.origin}</span></div>
+    <figure class="blk pic ${reduce?"":"anim"}">${L.pic()}<figcaption>${esc(L.cap)}</figcaption></figure>
+    <div class="blk ask"><span class="qm">?</span><div><small>Ask yourself</small><b>${esc(L.q)}</b></div></div>
+    <div class="blk"><p class="subh">How to apply it</p><div class="steps">${L.steps.map(([t,d],i)=>`<div class="step" style="--h:var(--${HUES[i%6]})"><div class="hd"><span class="badge">${i+1}</span><h4>${esc(t)}</h4></div><p>${esc(d)}</p></div>`).join("")}</div></div>
+    <div class="blk"><p class="subh">In code</p><div class="ba">
+      <div><div class="t">BEFORE</div><pre>${esc(L.before)}</pre><p class="why">${esc(L.whyB)}</p></div>
+      <div class="after"><div class="t">AFTER</div><pre>${esc(L.after)}</pre><p class="why">${esc(L.whyA)}</p></div></div></div>
+    <div class="blk"><p class="subh">Seen in the real world</p><div class="xgrid">${L.ex.map(([f,t])=>{const F=FIELD[f];return `<div class="xcard" style="--h:var(--${F[1]})"><span class="xi">${ic(F[2])}</span><div><span class="xs">${F[0]}</span><p>${esc(t)}</p></div></div>`;}).join("")}</div></div>
+    <div class="blk bend"><div class="side"><b>${esc(L.bend[0][0])}</b>${esc(L.bend[0][1])}</div><span class="vs">but</span><div class="side"><b>${esc(L.bend[1][0])}</b>${esc(L.bend[1][1])}</div></div>
+    <div class="blk rel"><span style="font-weight:800;margin-right:2px">Related:</span>${L.rel.map(relChip).join("")}</div>
+    <nav class="law-nav" aria-label="Move between laws">
+      <a class="btn" href="#law-${prev.id}" style="text-decoration:none;color:inherit">← ${esc(prev.name)}</a>
+      <button class="btn primary" id="tofloor">Floor ↑</button>
+      <a class="btn" href="#law-${next.id}" style="text-decoration:none;color:inherit;text-align:right">${esc(next.name)} →</a>
+    </nav></article>`;
+  document.getElementById("tofloor").onclick=()=>document.getElementById("planbox").scrollIntoView({behavior:reduce?"auto":"smooth",block:"start"});
+  document.querySelectorAll(".room[data-law]").forEach(r=>r.setAttribute("aria-current",r.dataset.law===curLaw));
+  if(scroll) document.getElementById("lawbox").scrollIntoView({behavior:reduce?"auto":"smooth",block:"start"});
+}
+
+/* ================= QUIZ ================= */
+const QZ=[
+ {q:"VAT changes from 20% to 21%, and you find the rate hard-coded in nine files.",a:"dry",o:["dry","kiss","demeter"],why:"One piece of knowledge, nine copies. Give the rate one home."},
+ {q:"A teammate adds a plugin system “in case we need more formats”. Only CSV has ever been used.",a:"yagni",o:["yagni","solid","dry"],why:"Built for a guess. Every unused format still costs testing and upkeep."},
+ {q:"order.customer.address.postcode breaks every time the Address class changes.",a:"demeter",o:["demeter","dry","scout"],why:"The caller reaches through three objects. Ask the order for the postcode instead."},
+ {q:"A simple age check is written as a nested lambda that nobody on the team can read.",a:"kiss",o:["kiss","yagni","solid"],why:"Clever beats nobody. The plain one-liner says the rule directly."},
+ {q:"While fixing a bug, you rename x2 to discount_rate and delete a stale TODO from 2021.",a:"scout",o:["scout","kiss","dry"],why:"A small clean-up near your change, shipped with it."},
+ {q:"Adding Excel export means editing the Report class yet again.",a:"solid",o:["solid","yagni","demeter"],why:"Open/closed: new formats should be new classes, not edits to Report."},
+ {q:"Two functions looked identical, one for shipping rules and one for tax, so you merged them. Now a tax change breaks shipping.",a:"dry",o:["dry","kiss","solid"],why:"DRY over-applied. They looked alike but were different knowledge that changes for different reasons."},
+ {q:"A Square subclass breaks code that sets a Rectangle’s width and height separately.",a:"solid",o:["solid","demeter","kiss"],why:"Liskov substitution: a subtype must work everywhere its parent does."},
+ {q:"A class must implement 12 interface methods but only uses 2 of them.",a:"solid",o:["solid","yagni","dry"],why:"Interface segregation: split the fat interface into small, focused ones."},
+ {q:"Your team agrees every pull request leaves one thing a little tidier.",a:"scout",o:["scout","dry","yagni"],why:"Small, continuous clean-up as a team habit."}
+];
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const qz={order:shuffle(QZ.map((_,i)=>i)),pos:0,score:0,answered:0,picked:null};
+function qzRender(){
+  const box=document.getElementById("quiz");
+  if(qz.pos>=qz.order.length){box.innerHTML=`<div class="q-meta"><span>Done</span><span>${qz.score}/${QZ.length}</span></div><p class="q-text">You matched ${qz.score} of ${QZ.length} situations.</p><button class="btn primary" id="qr" style="width:100%">Shuffle and play again</button>`;
+    document.getElementById("qr").onclick=()=>{Object.assign(qz,{order:shuffle(qz.order),pos:0,score:0,answered:0,picked:null});qzRender();};return;}
+  const q=QZ[qz.order[qz.pos]];if(!q._o)q._o=shuffle(q.o);const done=qz.picked!==null;
+  box.innerHTML=`<div class="q-meta"><span>Situation ${qz.pos+1} of ${QZ.length}</span><span>Score ${qz.score}/${qz.answered}</span></div><p class="q-text">${esc(q.q)}</p>
+   <div class="q-opts">${q._o.map(id=>{const l=BYID[id],cls=done?(id===q.a?"right":(id===qz.picked?"wrong":"")):"";return `<button class="q-opt ${cls}" style="--c:var(--p6)" data-id="${id}" ${done?"disabled":""}><span class="gl">${ic(GL[l.gl])}</span><span>${esc(l.name)}</span></button>`;}).join("")}</div>
+   ${done?`<div class="q-fb"><span class="verdict ${qz.picked===q.a?"ok":"no"}">${qz.picked===q.a?"Right.":"Not quite. It’s "+esc(BYID[q.a].name)+"."}</span><span>${esc(q.why)}</span>
+   <a class="btn" href="#law-${q.a}" style="text-decoration:none;color:inherit;text-align:center">Open the ${esc(BYID[q.a].name)} page</a><button class="btn primary" id="qn">Next situation →</button></div>`:""}`;
+  box.querySelectorAll(".q-opt").forEach(b=>b.onclick=()=>{if(qz.picked!==null)return;qz.picked=b.dataset.id;qz.answered++;if(qz.picked===q.a)qz.score++;qzRender();});
+  const n=document.getElementById("qn");if(n)n.onclick=()=>{qz.pos++;qz.picked=null;qzRender();};
+}
+
+/* ================= PAIRS ================= */
+const PAIRS=[
+ {a:["law","dry"],b:["law","kiss"],t:"One source of truth, or simple and obvious?",r:"Remove duplicated knowledge straight away. Tolerate duplicated-looking code until a third copy shows the real pattern."},
+ {a:["law","yagni"],b:["law","solid"],t:"Build only what’s needed, or design for extension?",r:"Keep code clean so it’s cheap to extend, but don’t add extension points until a second real case appears."},
+ {a:["law","scout"],b:["law","yagni"],t:"Tidy as you go, or don’t do unneeded work?",r:"Tidy only what today’s change touches. Anything bigger gets its own ticket."},
+ {a:["law","demeter"],b:["law","kiss"],t:"Hide the insides, or keep the API small?",r:"Apply Demeter to objects with behaviour. Let plain data be read directly."},
+ {a:["law","yagni"],b:["st","op","Preserving optionality","Keep choices open so you can adapt later."],t:"Don’t build for guesses, or keep doors open?",r:"Keep options open cheaply (clean code, standard formats) rather than building speculative features."}
+];
+function pairsRender(){
+  const side=s=>{if(s[0]==="law"){const l=BYID[s[1]];return `<a class="side" href="#law-${l.id}" style="--c:var(--p6);text-decoration:none;color:inherit"><span style="color:var(--p6)">${ic(GL[l.gl])}</span><b>${esc(l.name)}</b><small>${esc(l.one)}</small><span class="open">Open page →</span></a>`;}
+    return `<a class="side" href="${stHref(s[1])}" target="_top" style="--c:var(--p7);text-decoration:none;color:inherit;border-style:dashed"><b>${esc(s[2])}</b><small>${esc(s[3])}</small><span class="open">Open in book 1 ↔</span></a>`;};
+  document.getElementById("pairs").innerHTML=PAIRS.map(p=>`<article class="pair"><p class="tension">${esc(p.t)}</p><div class="sides">${side(p.a)}<span class="vs">vs</span>${side(p.b)}</div><p class="resolve"><b>Rule of thumb:</b>${esc(p.r)}</p></article>`).join("");
+}
+
+/* ================= CHEAT SHEET ================= */
+function cheatRender(){
+  document.getElementById("cheat").innerHTML=LAWS.map(l=>`<div class="cs"><div class="top"><span class="gl">${ic(GL[l.gl])}</span><div><b>${esc(l.name)}</b><div style="font-size:11.5px;color:var(--muted);font-weight:700">${esc(l.sub)}</div></div></div>
+    <p class="one">${esc(l.one)}</p><dl><dt>Ask</dt><dd>${esc(l.cheat.ask)}</dd><dt>Bend for</dt><dd>${esc(l.cheat.bend)}</dd></dl></div>`).join("");
+  if(location.protocol==="file:"||/github\.io$/.test(location.hostname)){
+    const n=document.getElementById("printnote");n.innerHTML=`<button class="btn" id="pr">Print cheat sheet</button>`;
+    document.getElementById("pr").onclick=()=>{try{window.print()}catch(e){}};}
+}
+
+/* ================= ROUTING ================= */
+const BEST={building:"Tap a floor to see its laws, then tap a law to open its page.",quiz:"Read a real situation and pick the principle it’s about.",pairs:"Principles that pull against each other, with a rule of thumb for choosing.",cheat:"All ground-floor principles on one page."};
+function route(scroll){
+  let h=location.hash.slice(1),v=h;
+  if(h.startsWith("law-")&&BYID[h.slice(4)]){curLaw=h.slice(4);curPart="VI";v="building";}
+  if(!BEST[v])v="building";
+  document.querySelectorAll(".tab").forEach(t=>t.setAttribute("aria-selected",t.dataset.view===v));
+  ["building","quiz","pairs","cheat"].forEach(x=>document.getElementById("v-"+x).hidden=x!==v);
+  document.getElementById("bestfor").textContent=BEST[v];
+  if(v==="building"){bldRender();planRender(false);if(PARTS[curPart].built)lawRender(scroll&&h.startsWith("law-"));}
+}
+document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>{location.hash=t.dataset.view;}));
+window.addEventListener("hashchange",()=>route(true));
+qzRender();pairsRender();cheatRender();route(false);
+</script>
+</body>
+</html>
