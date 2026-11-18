@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Super Thinking Visual Deck</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: a mind map as the navigator; tapping a model opens a hand-drawn style "action plan" explainer (numbered pastel panels + real-world examples by field), echoing a sketchnote poster. */
+:root{
+  --bg:#fbf8f1; --surface:#fffdf8; --ink:#2a2622; --muted:#6b645b; --line:#e3dccd; --accent:#3d6fd6;
+  --font-d:'Kalam', 'Comic Neue', 'Segoe Print', cursive;
+  --font-b:'Nunito', system-ui, -apple-system, sans-serif;
+  --h1:#c7365a; --h2:#2f63c0; --h3:#2b8a53; --h4:#a86c05; --h5:#6c4bc4; --h6:#c4561d;
+  --c1:#2f62c9; --c2:#c4482f; --c3:#13836f; --c4:#4f7f1c; --c5:#7a4cc4; --c6:#9a6406; --c7:#b0305f; --c8:#1f7aa8; --c9:#4c5a6b;
+  --good:#1d7a46; --bad:#b3362a; --hl:#fde68a;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#16140f; --surface:#211e18; --ink:#efe9de; --muted:#a59d90; --line:#3a352c; --accent:#8fb0ff;
+    --h1:#f28aa2; --h2:#8fb2f5; --h3:#7fd3a0; --h4:#eec06a; --h5:#bba3f3; --h6:#f3a274;
+    --c1:#7ea2f2; --c2:#f08a72; --c3:#4fc9b0; --c4:#9cc85f; --c5:#b495ee; --c6:#e6b04a; --c7:#ee7fa6; --c8:#6cc0e8; --c9:#a3b1c2;
+    --good:#5fcf8f; --bad:#f08a72; --hl:#6b5413;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#16140f; --surface:#211e18; --ink:#efe9de; --muted:#a59d90; --line:#3a352c; --accent:#8fb0ff;
+  --h1:#f28aa2; --h2:#8fb2f5; --h3:#7fd3a0; --h4:#eec06a; --h5:#bba3f3; --h6:#f3a274;
+  --c1:#7ea2f2; --c2:#f08a72; --c3:#4fc9b0; --c4:#9cc85f; --c5:#b495ee; --c6:#e6b04a; --c7:#ee7fa6; --c8:#6cc0e8; --c9:#a3b1c2;
+  --good:#5fcf8f; --bad:#f08a72; --hl:#6b5413;
+  color-scheme: dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-b);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{max-width:900px;margin:0 auto;padding:20px 16px 48px}
+header h1{font-family:var(--font-d);font-weight:700;font-size:clamp(30px,7vw,44px);line-height:1;margin:0 0 6px;text-wrap:balance}
+header p{margin:0;color:var(--muted);max-width:62ch}
+
+.tabs{display:flex;gap:6px;overflow-x:auto;margin:16px -16px 0;padding:0 16px 4px;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:0 0 auto;border:2px solid var(--ink);background:var(--surface);border-radius:999px;padding:7px 14px;font-weight:700;font-size:14px;cursor:pointer}
+.tab[aria-selected="true"]{background:var(--ink);color:var(--bg)}
+.bestfor{margin:12px 0 14px;font-size:14px;color:var(--muted)}
+section[hidden]{display:none}
+
+.tile{--c:var(--c1);display:inline-grid;place-items:center;width:42px;height:42px;border-radius:10px 12px 9px 11px;background:color-mix(in srgb,var(--c) 15%,var(--surface));border:2px solid var(--c);font-family:var(--font-d);font-weight:700;color:var(--c);font-size:18px;flex:0 0 auto}
+.chip{border:2px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 12px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap}
+.ic{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
+
+/* ----- mind map ----- */
+.map-card{background:var(--surface);border:2px solid var(--ink);border-radius:20px 24px 18px 22px;padding:12px 12px 4px;box-shadow:4px 4px 0 var(--line)}
+.map-top{display:flex;align-items:center;gap:10px;min-height:34px;flex-wrap:wrap}
+.crumb{font-size:14px;color:var(--muted)}
+.crumb b{color:var(--ink)}
+.map-svg{width:100%;max-width:500px;display:block;margin:0 auto}
+.map-svg .node{cursor:pointer}
+.map-svg text{font-family:var(--font-b);fill:var(--ink)}
+.map-svg .lbl{font-size:11px;font-weight:600}
+.map-svg .sym{font-family:var(--font-d);font-weight:700}
+.map-svg .node:focus-visible circle{stroke:var(--accent);stroke-width:3.5}
+
+/* ----- action-plan explainer ----- */
+.ex{margin-top:22px;scroll-margin-top:12px}
+.ex-hero{text-align:center;padding:4px 4px 0}
+.ex-kicker{font-size:12px;font-weight:700;letter-spacing:.04em;color:var(--c);text-transform:uppercase}
+.ex-hero h2{font-family:var(--font-d);font-weight:700;font-size:clamp(28px,7vw,42px);line-height:1.05;margin:4px 0 6px;text-wrap:balance}
+.ex-hero h2 mark{background:linear-gradient(transparent 55%,var(--hl) 55%);color:inherit;padding:0 4px}
+.ex-hero .lead{margin:0 auto;max-width:56ch;font-size:15.5px}
+.ex-q{display:flex;gap:12px;align-items:center;margin:16px auto 18px;max-width:600px;background:color-mix(in srgb,var(--c) 10%,var(--surface));border:2px dashed var(--c);border-radius:18px 22px 16px 20px;padding:12px 14px}
+.ex-q .qm{font-family:var(--font-d);font-weight:700;font-size:34px;line-height:1;color:var(--c);width:44px;height:44px;border-radius:50%;border:2px solid var(--c);display:grid;place-items:center;flex:0 0 auto;background:var(--surface)}
+.ex-q small{display:block;font-size:11.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.ex-q b{font-family:var(--font-d);font-size:20px;line-height:1.2;font-weight:700}
+.steps{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+.steps.rich{grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}
+.step{--h:var(--h1);position:relative;background:color-mix(in srgb,var(--h) 11%,var(--surface));border:2px solid color-mix(in srgb,var(--h) 55%,transparent);border-radius:16px 20px 14px 18px;padding:12px 12px 14px;display:flex;flex-direction:column;gap:6px;overflow:hidden}
+.step-hd{display:flex;gap:8px;align-items:center}
+.badge{width:30px;height:30px;border-radius:50%;background:var(--h);color:var(--surface);font-family:var(--font-d);font-weight:700;font-size:18px;display:grid;place-items:center;flex:0 0 auto}
+.step h4{margin:0;font-family:var(--font-d);font-weight:700;font-size:18px;line-height:1.1;color:var(--h)}
+.step p{margin:0;font-size:13.5px;line-height:1.4}
+.step .deco{position:absolute;right:8px;top:8px;width:22px;height:22px;color:var(--h);opacity:.45}
+.step:not(.has-viz) .step-hd{padding-right:22px}
+.step.has-viz .deco{display:none}
+/* mini visuals inside steps */
+.viz{margin-top:6px;font-size:12.5px;line-height:1.35}
+.viz ul{margin:0;padding:0;list-style:none;display:grid;gap:4px}
+.viz li{display:flex;gap:6px;align-items:flex-start}
+.dot{width:9px;height:9px;border-radius:50%;margin-top:4px;flex:0 0 auto}
+.v-note{background:#fff2a8;color:#3b3320;border-radius:3px;padding:10px 10px 10px;transform:rotate(-1.5deg);box-shadow:2px 3px 0 rgba(0,0,0,.12)}
+.v-note b{font-family:var(--font-d);font-size:15px;display:block;margin-bottom:4px}
+.v-book{background:#fff;color:#2a2622;border:1.5px solid #3a342c;border-radius:6px;padding:8px 10px 8px 22px;position:relative;background-image:repeating-linear-gradient(transparent 0 19px,#e6e1d6 19px 20px)}
+.v-book::before{content:"";position:absolute;left:5px;top:6px;bottom:6px;width:8px;background:radial-gradient(circle at 4px 5px,#3a342c 2.2px,transparent 2.6px) 0 0/8px 12px repeat-y}
+.v-stack{display:grid;gap:4px;justify-items:center}
+.v-stack span{display:block;width:var(--w);text-align:center;font-family:var(--font-d);font-weight:700;font-size:13px;padding:5px 6px;border:1.5px solid #3a342c;border-radius:4px;color:#2a2622;line-height:1.1}
+.v-card{background:#fff;color:#2a2622;border:1.5px solid #3a342c;border-radius:4px;padding:8px 10px;transform:rotate(1.2deg);box-shadow:2px 3px 0 rgba(0,0,0,.12);background-image:repeating-linear-gradient(transparent 0 19px,#dce6f5 19px 20px)}
+.v-screen{background:#2a2f3a;border-radius:8px 8px 2px 2px;padding:6px;position:relative;margin-bottom:8px}
+.v-screen>div{background:#fff;color:#2a2622;border-radius:4px;padding:8px 10px}
+.v-screen>div b{font-family:var(--font-d);display:block;font-size:14px;margin-bottom:3px}
+.v-screen::after{content:"";position:absolute;left:-8px;right:-8px;bottom:-8px;height:6px;background:#8a8f99;border-radius:0 0 8px 8px}
+.v-check{background:#fff;color:#2a2622;border:1.5px solid #3a342c;border-radius:6px;padding:8px 10px}
+.v-check b{font-family:var(--font-d);font-size:14px;display:block;margin-bottom:3px}
+.box{width:12px;height:12px;border:1.5px solid #3a342c;border-radius:2px;margin-top:3px;flex:0 0 auto}
+
+.ex-sub{font-family:var(--font-d);font-weight:700;font-size:24px;margin:22px 0 10px;display:flex;align-items:center;gap:8px}
+.ex-sub::after{content:"";flex:1;border-bottom:2px dashed var(--line)}
+.xgrid{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}
+.xcard{--h:var(--h2);display:flex;gap:10px;background:var(--surface);border:2px solid var(--ink);border-radius:14px 18px 12px 16px;padding:10px 12px;box-shadow:3px 3px 0 color-mix(in srgb,var(--h) 35%,transparent)}
+.xcard .xi{width:40px;height:40px;border-radius:50%;background:color-mix(in srgb,var(--h) 16%,var(--surface));color:var(--h);display:grid;place-items:center;flex:0 0 auto}
+.xcard .xs{font-size:11.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--h)}
+.xcard p{margin:2px 0 0;font-size:13.5px;line-height:1.4}
+.ex-use{margin:16px 0 0;background:color-mix(in srgb,var(--hl) 55%,var(--surface));border-radius:14px;padding:12px 14px;font-size:14px;text-align:center}
+.ex-use b{font-family:var(--font-d);font-size:16px}
+.ex-nav{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;margin-top:16px;align-items:center}
+.btn{border:2px solid var(--ink);background:var(--surface);border-radius:12px;padding:9px 10px;font-weight:700;cursor:pointer;font-size:13.5px;line-height:1.2}
+.btn.primary{background:var(--ink);color:var(--bg)}
+.ex-nav .btn:last-child{text-align:right}
+
+/* ----- quiz ----- */
+.q-card{background:var(--surface);border:2px solid var(--ink);border-radius:18px 22px 16px 20px;padding:18px;max-width:580px;margin:0 auto;box-shadow:4px 4px 0 var(--line)}
+.q-meta{display:flex;justify-content:space-between;font-size:12.5px;font-weight:700;color:var(--muted);margin-bottom:8px}
+.q-text{font-family:var(--font-d);font-size:23px;line-height:1.2;margin:0 0 14px;font-weight:700;text-wrap:balance}
+.q-opts{display:grid;gap:8px}
+.q-opt{display:flex;gap:12px;align-items:center;text-align:left;border:2px solid var(--line);background:var(--surface);border-radius:12px;padding:7px 12px 7px 7px;cursor:pointer;font-weight:700}
+.q-opt .tile{width:36px;height:36px;font-size:16px}
+.q-opt.right{border-color:var(--good);background:color-mix(in srgb,var(--good) 10%,var(--surface))}
+.q-opt.wrong{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 10%,var(--surface))}
+.q-opt[disabled]{cursor:default}
+.q-fb{margin-top:14px;display:grid;gap:10px}
+.verdict{font-weight:800}.verdict.ok{color:var(--good)}.verdict.no{color:var(--bad)}
+
+/* ----- pairs ----- */
+.pairs{display:grid;gap:14px}
+.pair{background:var(--surface);border:2px solid var(--ink);border-radius:18px 22px 16px 20px;padding:14px;display:grid;gap:10px;box-shadow:4px 4px 0 var(--line)}
+.pair .tension{font-family:var(--font-d);font-weight:700;font-size:21px;margin:0;text-wrap:balance;line-height:1.15}
+.pair .sides{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:stretch}
+.pair .side{display:grid;gap:5px;align-content:start;text-align:left;border-radius:12px;padding:10px;background:color-mix(in srgb,var(--c) 9%,var(--surface));border:2px solid color-mix(in srgb,var(--c) 40%,transparent);cursor:pointer}
+.pair .side b{font-family:var(--font-d);font-size:16px;line-height:1.1}
+.pair .side small{font-size:12.5px;color:var(--muted);line-height:1.35}
+.pair .side .open{font-size:12px;font-weight:800;color:var(--c)}
+.pair .vs{font-family:var(--font-d);font-size:18px;color:var(--muted);align-self:center}
+.pair .resolve{margin:0;font-size:14px;padding:10px 12px;border-radius:12px;background:color-mix(in srgb,var(--hl) 55%,var(--surface))}
+.pair .resolve b{font-family:var(--font-d);font-size:16px;margin-right:4px}
+
+footer{margin-top:36px;font-size:12.5px;color:var(--muted);border-top:2px dashed var(--line);padding-top:14px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>Super Thinking, mapped</h1>
+  <p>The 59 mental models from Weinberg &amp; McCann’s book, grouped by its nine chapters. Tap a model on the map to open its visual action plan, with real-world examples from many fields.</p>
+</header>
+
+<nav class="tabs" role="tablist" aria-label="Views">
+  <button class="tab" role="tab" data-view="map">Mind map + action plans</button>
+  <button class="tab" role="tab" data-view="quiz">Which model?</button>
+  <button class="tab" role="tab" data-view="pairs">Tension pairs</button>
+</nav>
+<p class="bestfor" id="bestfor"></p>
+
+<section id="v-map">
+  <div class="map-card">
+    <div class="map-top" id="map-top"></div>
+    <svg class="map-svg" id="map" viewBox="0 -24 400 430" role="img" aria-label="Mind map of Super Thinking chapters and models"></svg>
+  </div>
+  <div id="explainer"></div>
+</section>
+
+<section id="v-quiz" hidden><div class="q-card" id="quiz"></div></section>
+<section id="v-pairs" hidden><div class="pairs" id="pairs"></div></section>
+
+<footer>Summaries, steps and examples are my own short paraphrases, written for quick recall. The book has the full explanations. Some historical examples are well-known stories whose details are debated; they’re here to make the idea stick.</footer>
+</div>
+
+<script>
+const CH=[null,
+ {name:"Being Wrong Less",short:"Being wrong less"},
+ {name:"Anything That Can Go Wrong, Will",short:"Things go wrong"},
+ {name:"Spend Your Time Wisely",short:"Spend time wisely"},
+ {name:"Becoming One with Nature",short:"One with nature"},
+ {name:"Lies, Damned Lies, and Statistics",short:"Statistics"},
+ {name:"Decisions, Decisions",short:"Decisions"},
+ {name:"Dealing with Conflict",short:"Conflict"},
+ {name:"Unlocking People’s Potential",short:"People’s potential"},
+ {name:"Flex Your Market Power",short:"Market power"}];
+
+/* streams (fields) for real-world examples */
+const ST={
+ tech:["Technology","h2",'<rect x="4" y="5" width="16" height="11" rx="1.5"/><path d="M2 19h20"/>'],
+ health:["Health & medicine","h1",'<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/><path d="M9.5 11.5h5M12 9v5"/>'],
+ biz:["Business","h4",'<path d="M5 20V12M10 20V7M15 20v-5M20 20V4M3 20h19"/>'],
+ sport:["Sport","h3",'<circle cx="12" cy="12" r="8.5"/><path d="M6 6.5c2.8 2.3 2.8 8.7 0 11M18 6.5c-2.8 2.3-2.8 8.7 0 11"/>'],
+ history:["History","h6",'<path d="M3 9l9-5 9 5M5 9v9M9.5 9v9M14.5 9v9M19 9v9M3 20h18"/>'],
+ home:["Everyday life","h5",'<path d="M4 11l8-7 8 7v9H4z"/><path d="M10 20v-5h4v5"/>'],
+ science:["Science","h2",'<path d="M9 3h6M10 3v6L5 18a1.5 1.5 0 0 0 1.3 2.2h11.4A1.5 1.5 0 0 0 19 18l-5-9V3"/><path d="M7.5 14h9"/>'],
+ money:["Finance","h3",'<circle cx="12" cy="12" r="8.5"/><path d="M14.5 9a2.5 2.5 0 0 0-4.5 1.5V16M8.5 13h5M8.5 16h7"/>'],
+ air:["Aviation & space","h2",'<path d="M3 13.5l7-1.5 3.5-7h2l-1.6 7 5.6.8v1.9l-5.6.8 1.6 5.5h-2L10 15.5 3 14z"/>'],
+ food:["Food","h6",'<path d="M7 3v8a2 2 0 0 0 2 2v8M5 3v5M9 3v5M17 21V3c-2.2 0-3.5 3-3.5 7.5H17"/>'],
+ gov:["Government & policy","h5",'<path d="M4 20h16M6 20v-7M10 20v-7M14 20v-7M18 20v-7M3 13h18M12 5a7 7 0 0 0-7 6h14a7 7 0 0 0-7-6zM12 3v2"/>'],
+ nature:["Nature & environment","h3",'<path d="M12 21v-6"/><path d="M12 3c4 2 6 5 6 8a6 6 0 0 1-12 0c0-3 2-6 6-8z"/>'],
+ learn:["Learning","h4",'<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5V5.5"/>'],
+ law:["Law & justice","h1",'<path d="M12 4v16M8 20h8M5 7h14M5 7l-3 6a3 3 0 0 0 6 0zM19 7l-3 6a3 3 0 0 0 6 0z"/>'],
+ people:["People & teams","h5",'<circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0 1 12 0"/><circle cx="17" cy="9" r="2.5"/><path d="M16 14.2A5 5 0 0 1 21 19"/>']
+};
+const STEP_IC={
+ target:'<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1"/>',
+ question:'<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.3-1 .8-1 1.5V14M12 17.2v.3"/>',
+ layers:'<path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/>',
+ bulb:'<path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.3.3.5.7.5 1.1v1h6v-1c0-.4.2-.8.5-1.1A6 6 0 0 0 12 3z"/>',
+ play:'<circle cx="12" cy="12" r="9"/><path d="M10 8.5v7l5.5-3.5z"/>',
+ check:'<rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 12.5l3 3 5-6"/>'
+};
+const ic=(p,cls="ic")=>`<svg class="${cls}" viewBox="0 0 24 24" aria-hidden="true">${p}</svg>`;
+
+/* [sym, name, chapter, idea, use-when, key question, steps[[title,detail]], examples[[stream,text]]] */
+const RAW=[
+["Fp","First principles",1,"Break a problem down to what you know is true, then reason up from there instead of copying convention.","“That’s how it’s always done” is the only argument on the table, or you want to truly understand something.","What do we know is true here, whatever the usual way is?",
+ [["Choose a concept","Pick something you want to understand deeply or redesign, from any field."],
+  ["Ask the right questions","Question everything until you reach the fundamental truths."],
+  ["Break it down","Split it into its simplest building blocks and core principles."],
+  ["Rebuild the understanding","Put the pieces back together and explain it in your own words."],
+  ["Apply and practise","Use it on a small real project or problem."],
+  ["Review and improve","Find gaps, ask better questions and refine your thinking."]],
+ [["air","SpaceX priced a rocket by its raw materials instead of market quotes, found materials were a small fraction of the price, and built and reused rockets in-house."],
+  ["health","Oral rehydration salts came from asking how the gut actually absorbs water. A cheap sugar-and-salt drink replaced many hospital drips and has saved millions of lives."],
+  ["biz","IKEA asked what really makes furniture expensive: shipping air and assembly. Flat-packs that customers assemble themselves cut both."],
+  ["food","The clay pot-in-pot cooler (zeer) keeps vegetables fresh without electricity by using the basic physics of evaporation."],
+  ["home","Knowing bread is just flour, water, salt, yeast and time lets you bake without a recipe and fix a loaf that goes wrong."]]],
+["Dr","De-risking",1,"List the assumptions your plan rests on and test the riskiest ones cheaply, first.","Before committing serious time or money.","Which assumption, if wrong, would sink this plan?",
+ [["List assumptions","Write down every belief the plan depends on."],["Rank by risk","Which are most uncertain and most damaging if wrong?"],["Test cheaply","Prototype, survey, fake door or small pilot."],["Decide","Proceed, pivot or stop based on what you learned."]],
+ [["tech","Dropbox tested demand with a demo video before the full product existed."],["health","New drugs go through small safety trials before large, expensive efficacy trials."],["air","New aircraft go through ground, taxi and test flights long before carrying passengers."],["home","Renting in a new city for a year before buying a home there."]]],
+["Oz","Occam’s razor",1,"Prefer the explanation that needs the fewest assumptions.","Diagnosing a problem with many possible causes.","What is the simplest explanation that fits all the facts?",
+ [["List explanations","Every cause that could explain what you see."],["Count assumptions","How many extra things must be true for each one?"],["Test the simplest first","Check it before chasing exotic causes."],["Stay open","Move on if the evidence rules it out."]],
+ [["health","Doctors are taught “hoofbeats mean horses, not zebras”: check common conditions before rare ones."],["tech","Site down right after a release? Roll back before suspecting a cyber-attack."],["home","Car won’t start on a frosty morning: check the battery before the engine."],["science","A sun-centred solar system explained planetary motion with far fewer add-ons than the old Earth-centred model."]]],
+["In","Inversion",1,"Ask what would guarantee failure, then avoid those things.","The path to success feels fuzzy.","What would guarantee this fails?",
+ [["State the goal","Write down what success looks like."],["Flip it","Ask how you would make it fail for sure."],["List failure causes","Be specific and honest."],["Guard against them","Turn each cause into a check or rule."]],
+ [["air","Pre-flight checklists come from listing the ways flights go wrong and guarding against each."],["health","To live longer, first avoid the big killers like smoking and inactivity before chasing supplements."],["biz","A pre-mortem: imagine the project failed a year from now and explain why."],["money","Investor Charlie Munger liked to ask where he would “die” so he could avoid going there."]]],
+["Hr","Hanlon’s razor",1,"Don’t assume malice when carelessness or missing information explains it.","Someone’s action annoys you.","Could this be a mistake rather than malice?",
+ [["Notice the reaction","Catch the moment you assume bad intent."],["List innocent causes","Busy, unaware, misinformed, different priorities."],["Ask, don’t accuse","A neutral question brings out the facts."],["Fix the system","Change the process that let it happen."]],
+ [["people","An unanswered email is usually buried, not ignored."],["home","The driver who cut you off probably didn’t see you."],["gov","Contradictory rules usually come from departments not talking to each other."],["biz","An angry-sounding customer is often confused by a policy, not out to cause trouble."]]],
+["Cf","Confirmation bias",1,"We notice and favour evidence that supports what we already believe.","You feel very sure of yourself.","What evidence would change my mind?",
+ [["State your belief","Write it down plainly."],["Define disconfirming evidence","Decide in advance what would prove you wrong."],["Go looking for it","Talk to critics and seek counter-data."],["Update honestly","Adjust how confident you are."]],
+ [["science","Double-blind trials stop researchers seeing the results they hope for."],["money","Investors hold losing shares while reading only bullish news."],["law","Investigators who fix on one suspect can overlook contrary evidence."],["tech","Interviewing only happy users makes every feature look loved."]]],
+["Tg","Thinking gray",1,"Hold off on a firm opinion until you’ve seen enough of the evidence.","Early in a debate or investigation.","Have I seen enough to decide yet?",
+ [["Notice first impressions","Name your snap judgement."],["Delay the verdict","Treat early views as hypotheses."],["Hear other sides","Seek the strongest opposing case."],["Decide with confidence levels","Say “70% sure” and revisit later."]],
+ [["people","Structured interviews score evidence across rounds rather than a gut call in the first five minutes."],["law","Juries hear prosecution and defence before deliberating."],["gov","Early reports after a disaster are often wrong; wait for confirmed facts."],["home","Hearing both friends’ sides before taking one in a dispute."]]],
+
+["Tc","Tragedy of the commons",2,"A shared resource gets overused because each person gains while the cost is spread across everyone.","Shared environments, budgets, channels.","Who owns the upkeep of this shared thing?",
+ [["Spot the shared resource","Anything many use and nobody owns."],["Compare use and upkeep","Who takes value, who maintains it?"],["Assign limits or owners","Quotas, fees, rotas or a named owner."],["Make costs visible","Show each user their share."]],
+ [["nature","Overfishing collapsed the Grand Banks cod fishery off Canada in 1992."],["health","Overusing antibiotics breeds resistance that harms everyone."],["tech","Shared cloud accounts balloon in cost when no one owns clean-up."],["home","The office kitchen sink full of everyone’s mugs."]]],
+["Mh","Moral hazard",2,"People take more risk when someone else bears the cost.","Designing incentives and contracts.","Who pays if this goes wrong, and do they make the decisions?",
+ [["Map who takes the risk","Who decides?"],["Map who bears the cost","Who pays if it fails?"],["Realign","Excess payments, skin in the game, shared outcomes."],["Monitor","Watch behaviour after the change."]],
+ [["money","Banks that expect a bailout may take bigger risks, a central debate after 2008."],["biz","Insurance excesses make drivers share costs so they stay careful."],["home","Rental cars are often driven harder than owned ones."],["people","Contractors paid by the hour have little reason to finish fast."]]],
+["Gl","Goodhart’s law",2,"When a measure becomes a target, it stops being a good measure.","Setting KPIs and OKRs.","How could people hit this number without achieving the goal?",
+ [["State the real goal","What outcome do you actually want?"],["Use several measures","No single number carries it."],["Imagine gaming it","How would someone hit the number and miss the goal?"],["Review and rotate","Refresh targets before they decay."]],
+ [["history","The “cobra effect”: a bounty on dead cobras in colonial India reportedly led people to breed cobras."],["health","Hospital waiting-time targets can lead to reclassifying waits instead of speeding care."],["learn","Teaching to the test raises scores without deeper understanding."],["biz","Call centres measured on call length rush customers off the phone."]]],
+["Td","Technical debt",2,"Shortcuts taken now must be repaid later with extra work, plus interest.","Weighing speed against quality.","What will this shortcut cost us later?",
+ [["Log shortcuts","Record each corner cut and why."],["Estimate the interest","How much does it slow future work?"],["Schedule repayment","Reserve capacity every cycle."],["Prevent new debt","Agree standards for when shortcuts are OK."]],
+ [["tech","Many banks still run decades-old COBOL systems that few people can maintain."],["gov","Deferred maintenance on bridges and pipes turns into far costlier repairs."],["health","Skipping sleep borrows energy you repay with lost focus."],["biz","Spreadsheet workarounds that quietly become critical, fragile processes."]]],
+["Rd","Reversible decisions",2,"Decide fast when a choice can be undone; slow down when it can’t.","Judging how much analysis a decision deserves.","Can we undo this cheaply?",
+ [["Classify","One-way door or two-way door?"],["Two-way: decide fast","Small team, short time box."],["One-way: slow down","More data, more voices."],["Make it reversible","Pilots, trials, rollbacks."]],
+ [["biz","Jeff Bezos split Amazon’s decisions into “one-way” and “two-way doors”."],["tech","Feature flags let teams switch a new feature off instantly."],["home","Renting before buying in a new area."],["health","Trying a diet change for two weeks is reversible; elective surgery isn’t."]]],
+["Ap","Analysis paralysis",2,"Over-analysing until the chance to act has passed.","A decision keeps getting deferred.","Would more information actually change my decision?",
+ [["Set a deadline","Decide by a date."],["Define good enough","What would make an option acceptable?"],["Pick key criteria","Three, not thirty."],["Decide, then review","Learn from the result."]],
+ [["home","Scrolling streaming menus for longer than the film."],["home","Reading 40 reviews for a £20 kettle."],["tech","Weeks of architecture debate where a two-day spike would settle it."],["people","Waiting for the perfect job instead of applying."]]],
+["Op","Preserving optionality",2,"Keep choices open so you can adapt as you learn more.","Uncertainty is high.","Does this choice keep doors open or close them?",
+ [["Name the uncertainty","What don’t you know yet?"],["Prefer flexible options","Choose paths that allow change."],["Pay a little for options","Refundable, modular, standard."],["Commit when clear","Close options once you know."]],
+ [["money","An options contract pays a small premium for the right, not the obligation, to buy or sell."],["tech","Open standards and data export keep you free to switch vendors."],["people","Transferable skills keep many career paths open."],["air","Refundable fares cost more but keep travel plans flexible."]]],
+
+["Ei","Eisenhower matrix",3,"Sort work by urgent vs important, and protect the important-but-not-urgent.","Weekly planning.","Is this important, or just urgent?",
+ [["List tasks","Everything on your plate."],["Sort into four boxes","Do, schedule, delegate, drop."],["Protect “schedule”","Block time for important, non-urgent work."],["Review weekly","Re-sort as things change."]],
+ [["health","Exercise and check-ups are important but rarely urgent, so they need scheduling."],["people","Most notifications are urgent-feeling but unimportant."],["home","Reading with your children daily matters more than answering every ping."],["history","Named after US President Eisenhower, who separated urgent from important."]]],
+["Oc","Opportunity cost",3,"The value of the best alternative you give up when you choose something.","Every time you say yes.","What’s the best thing I’m giving up?",
+ [["Name the choice","What are you saying yes to?"],["List alternatives","What else could the time or money do?"],["Value the best one","Estimate its benefit."],["Compare","Is your choice still better?"]],
+ [["learn","University costs years of earnings as well as fees."],["biz","Idle cash could have funded growth."],["gov","Money spent on one programme isn’t available for another."],["home","An hour of chores vs paying someone and resting or earning."]]],
+["Lv","Leverage",3,"Effort that produces outsized results.","Choosing which work to do next.","What small input gives the biggest output here?",
+ [["Map activities","Where does your time go?"],["Estimate output per hour","What does each produce?"],["Find multipliers","Automation, teaching, tools, capital."],["Shift time to them","Do more of the high-leverage work."]],
+ [["science","Archimedes’ lever: a long arm lets a small force lift a heavy load."],["tech","Code written once can run millions of times."],["people","Training five people multiplies your impact."],["learn","One good guide answers thousands of repeated questions."]]],
+["Pa","Pareto principle",3,"Roughly 80% of effects come from 20% of causes.","Prioritising a long list.","Which few causes drive most of the result?",
+ [["Gather data","Count causes and effects."],["Rank causes","Sort by impact."],["Find the vital few","The top slice that drives most results."],["Act there first","Fix or invest in those."]],
+ [["history","Vilfredo Pareto noticed about 80% of Italy’s land was owned by about 20% of people."],["biz","A small share of products usually drives most sales."],["tech","Microsoft reported that fixing the top 20% of reported bugs removed most crashes."],["health","A small share of patients often accounts for a large share of care costs."]]],
+["Dm","Diminishing returns",3,"Each extra unit of effort yields less than the last, and can eventually go negative.","Polishing, tuning, adding people.","Is the next hour still worth it?",
+ [["Track output per effort","Measure the gain from each extra unit."],["Spot the flattening","Where does the curve bend?"],["Set a stop rule","Define “good enough”."],["Redeploy","Move effort elsewhere."]],
+ [["food","Extra fertiliser raises crop yields less each time and eventually harms them."],["learn","The tenth hour of cramming adds little."],["sport","Overtraining lowers athletic performance."],["tech","Adding people to a late software project can make it later (Brooks’s law)."]]],
+["Sk","Sunk cost fallacy",3,"Continuing because of what you’ve already spent rather than future value.","You hear “we’ve come too far to stop”.","Ignoring what’s spent, would I start this today?",
+ [["Name what’s spent","Money, time, reputation."],["Set it aside","It’s gone either way."],["Compare futures","Continue vs stop, from today."],["Decide","Choose the better future."]],
+ [["air","Concorde kept flying long after its losses were clear, hence the “Concorde fallacy”."],["home","Sitting through a bad film because you paid for the ticket."],["biz","Pouring more money into a failing IT system."],["gov","Continuing projects to “honour” past spending."]]],
+["Fw","Five whys",3,"Ask “why?” repeatedly to get from a symptom to its root cause.","Postmortems and recurring problems.","Why did that happen, and why did that happen?",
+ [["State the problem","Specific and factual."],["Ask why, about five times","Each answer becomes the next question."],["Find a fixable root","A cause you can actually change."],["Fix the system","Not the person."]],
+ [["biz","Toyota built five whys into its production system."],["history","An often-told story: a memorial’s stone eroded from cleaning bird droppings, birds came for spiders, spiders came for insects drawn by the lights. Fix: change when the lights go on."],["health","Hospital incident reviews trace errors back to process gaps."],["home","Late for work → overslept → phone died → charger broken → buy a charger."]]],
+
+["It","Inertia",4,"People and organisations resist changing direction, more so the longer they’ve been moving.","Planning any change.","What will keep things exactly as they are?",
+ [["Map status-quo forces","Habits, incentives, tools."],["Lower switching costs","Make the new way easy."],["Add steady push","Change rarely happens from one email."],["Celebrate early movement","Build momentum."]],
+ [["science","Newton’s first law: objects keep doing what they’re doing unless a force acts."],["money","Auto-enrolment into pension saving massively raised participation."],["health","Starting exercise is the hardest part; the habit then keeps it going."],["gov","Laws and institutions persist long after their original purpose."]]],
+["Fl","Flywheel",4,"Hard to start, but each turn adds momentum until it nearly runs itself.","Growth and habit-building.","What loop makes each turn easier than the last?",
+ [["Map the loop","Which outputs feed back as inputs?"],["Find the hardest push","Usually the start."],["Push consistently","Small, regular effort."],["Remove friction","Speed up each turn."]],
+ [["biz","Amazon’s flywheel: lower prices → more customers → more sellers → more choice."],["health","Exercise → better sleep → more energy → more exercise."],["learn","Knowing more makes new material easier to learn."],["tech","Good answers on Q&A sites attract experts who write more good answers."]]],
+["St","Strategy tax",4,"Committing to a long-term strategy means paying a cost when choices conflict with it.","A team “can’t” do the obvious thing.","What is our strategy costing us here?",
+ [["Name the strategy","The long-term commitment."],["List conflicts","Where does it block good options?"],["Price them","What are you giving up?"],["Revisit deliberately","Keep paying, or change course."]],
+ [["tech","A company tied to its own platform may avoid integrating better rival tools."],["biz","Luxury brands can’t cut prices without hurting the brand."],["gov","Long-term commitments to one energy source make switching slower."],["people","A specialist career path makes some side opportunities harder."]]],
+["Cm","Critical mass",4,"The point where something becomes self-sustaining.","Launches, adoption, communities.","How many do we need before it sustains itself?",
+ [["Define the threshold","Users, sellers, members."],["Go small and dense","Win one niche first."],["Seed one side","Supply or demand."],["Watch for tipping","Growth that feeds itself."]],
+ [["science","A nuclear chain reaction needs a critical mass of fissile material."],["tech","Facebook launched campus by campus to reach density."],["biz","Ride-hailing needs enough drivers in one city before riders stay."],["people","Social movements tip once enough people join."]]],
+["Ff","Forcing function",4,"Something that compels a decision or action.","Work keeps drifting.","What would force this decision to happen?",
+ [["Spot the stalled decision","What keeps slipping?"],["Create a constraint","Deadline, event, design limit."],["Make it public","Commitment adds pressure."],["Hold the line","Don’t move the date."]],
+ [["home","A microwave won’t run with the door open: a design forcing function."],["sport","Booking a race forces you to train."],["gov","Sunset clauses force laws to be reviewed."],["tech","A public launch date forces scope decisions."]]],
+["En","Entropy",4,"Left alone, systems drift toward disorder; order needs constant energy.","Planning maintenance.","What will decay if nobody tends it?",
+ [["List what needs upkeep","Systems, docs, relationships."],["Schedule maintenance","Regular, not heroic."],["Automate tidying","Let tools do routine clean-up."],["Accept some disorder","Tend what matters most."]],
+ [["science","The second law of thermodynamics: disorder tends to increase."],["home","Gardens become overgrown without tending."],["tech","Software “rots” as libraries and platforms change around it."],["people","Processes drift away from their documentation."]]],
+
+["Cc","Correlation ≠ causation",5,"Two things moving together doesn’t mean one causes the other; a third factor may drive both.","Reading dashboards and studies.","What else could cause both?",
+ [["Spot the correlation","Two things moving together."],["Look for confounders","A third factor behind both?"],["Test with an experiment","Change one thing, hold others."],["Conclude cautiously","Say what you know and don’t."]],
+ [["home","Ice-cream sales and drownings both rise in summer; heat drives both."],["health","Observational studies suggested hormone therapy protected hearts; a large randomised trial didn’t find that."],["learn","Children with more books at home do better. Is it the books, or the family background?"],["biz","Busier shops have more staff. Staff may follow sales, not cause them."]]],
+["Sv","Survivorship bias",5,"Looking only at the winners hides the failures that disappeared.","Learning from success stories.","Who’s missing from this picture?",
+ [["Ask who dropped out","Who isn’t in the data?"],["Find the failures","Seek the missing cases."],["Compare both groups","Winners vs losers."],["Adjust conclusions","What really made the difference?"]],
+ [["history","In WWII, Abraham Wald advised armouring where returning bombers had no holes, since planes hit there didn’t return."],["money","Fund performance tables leave out the funds that closed."],["home","“They built them better back then”: only the good old buildings survived."],["biz","Business books profile winners, not the firms that did the same and failed."]]],
+["Br","Base-rate fallacy",5,"Ignoring how common something is in general when judging a specific case.","Alerts, tests, fraud flags.","How common is this in general?",
+ [["Find the base rate","How often does it happen overall?"],["Check test accuracy","False positives and negatives."],["Combine them","Rare event + imperfect test = many false alarms."],["Then judge the case","With both in view."]],
+ [["health","Screening for a rare disease produces many false positives even with an accurate test."],["gov","Security profiling flags many innocent people for each real threat."],["people","Assuming a top-university graduate will excel ignores how many don’t."],["air","Fearing flights over car journeys ignores how rare air accidents are."]]],
+["Rm","Regression to the mean",5,"Extreme results tend to be followed by more ordinary ones.","Before crediting or blaming an intervention.","Was this result extreme, and will it settle?",
+ [["Spot the extreme","Unusually high or low result."],["Expect a return","Toward the average."],["Use a comparison group","Did others change too?"],["Judge trends","Not single peaks."]],
+ [["air","Flight instructors believed criticism beat praise. Pilots simply drifted back to average after great or poor landings (Kahneman’s story)."],["sport","The “magazine cover jinx”: athletes appear at their peak, then return to normal."],["health","Patients often seek treatment at their worst and improve anyway."],["money","Last year’s top fund is often average this year."]]],
+["Ln","Law of large numbers",5,"Averages only settle with enough data; small samples swing wildly.","A/B tests and pilots.","Is the sample big enough to trust?",
+ [["Check sample size","How many data points?"],["Expect noise","Small samples swing."],["Collect more","Or wait longer."],["Show uncertainty","Ranges, not single numbers."]],
+ [["money","Casinos profit reliably over millions of bets, even if a player wins tonight."],["biz","Insurers pool many policies to predict claims accurately."],["health","Small hospitals see more days with extreme boy–girl birth ratios than large ones."],["tech","A/B tests stopped early often “find” effects that vanish."]]],
+["By","Bayesian updating",5,"Start with a prior belief and adjust it in proportion to new evidence.","Forecasts and estimates.","How much should this evidence shift my belief?",
+ [["State your prior","Your best estimate now."],["Weigh the evidence","How strong, how reliable?"],["Update","Shift in proportion."],["Repeat","As evidence arrives."]],
+ [["air","Searchers used Bayesian analysis to locate the wreck of Air France 447 in 2011."],["science","Weather forecasts update continually with new readings."],["health","Doctors revise a diagnosis as test results come in."],["tech","Spam filters learn which words make spam more likely."]]],
+
+["Cb","Cost–benefit analysis",6,"Put rough values on all costs and benefits over time, then compare.","Investment decisions.","Do the benefits outweigh all the costs, over time?",
+ [["List costs and benefits","Direct and indirect."],["Put values on them","Rough is fine."],["Discount the future","A pound later is worth less."],["Compare and sense-check","Does the answer feel right?"]],
+ [["gov","The UK Treasury’s Green Book guides appraisal of public projects."],["health","NICE weighs a treatment’s cost against the quality-adjusted life years it adds."],["home","Solar panels: upfront cost vs years of lower bills."],["biz","Build vs buy over three years, not just year one."]]],
+["Dt","Decision tree",6,"Map choices, chance outcomes and their probabilities as branches.","Decisions with uncertain outcomes.","What are the branches, and how likely is each?",
+ [["Draw your choices","Each option is a branch."],["Add chance outcomes","What could happen next?"],["Add odds and payoffs","Probabilities and values."],["Work backwards","Pick the best branch."]],
+ [["health","Treat now or test first? Each branch has risks and costs."],["law","Settle or go to trial, with odds of winning and costs."],["biz","Survey the oil field first or drill now."],["home","Take an umbrella? Rain odds vs the hassle."]]],
+["Ev","Expected value",6,"Probability × payoff, added up across outcomes.","Comparing risky options.","Probability × payoff: what’s it worth on average?",
+ [["List outcomes","Good and bad."],["Estimate probabilities","They should add to 100%."],["Multiply by payoffs","For each outcome."],["Sum and check the downside","Can you survive the worst case?"]],
+ [["money","Lottery tickets have negative expected value: on average you lose."],["sport","Analytics show teams should “go for it” on fourth down more often than tradition says."],["biz","Venture capital: most bets fail, a few huge wins drive returns."],["biz","Insurers price premiums from expected claims."]]],
+["Sa","Sensitivity analysis",6,"Vary one input at a time to see which assumptions drive the result.","Stress-testing a business case.","Which assumption changes the answer most?",
+ [["Build the base case","Your best estimates."],["Vary one input","Up and down."],["Find the big movers","Inputs that swing the result."],["Firm those up","Research the ones that matter."]],
+ [["home","Mortgage payments at 4%, 5% and 6% interest."],["science","Climate models test how sensitive warming is to CO₂."],["money","Valuations change dramatically with the discount rate."],["biz","If savings hinge on one adoption rate, test that rate first."]]],
+["Sy","Systems thinking",6,"Look at the whole system and its feedback loops, not one part in isolation.","Fixes keep backfiring.","What feedback loops connect these parts?",
+ [["Map the parts","People, tools, flows."],["Draw links and loops","What affects what?"],["Find bottlenecks","Where does it really get stuck?"],["Watch side effects","Fixes ripple."]],
+ [["nature","Reintroducing wolves to Yellowstone changed elk behaviour and let vegetation recover."],["gov","New roads often fill with new traffic (induced demand)."],["biz","Speeding up one factory step only moves the queue to the next."],["health","Treating symptoms vs changing the lifestyle system behind them."]]],
+["Lo","Local optimum",6,"A solution that’s best nearby but not best overall.","Incremental tweaks have stalled.","Am I at the top of a small hill?",
+ [["Recognise the plateau","Tweaks stop helping."],["Explore farther","Try radically different options."],["Compare","Is there a higher hill?"],["Commit to the climb","Accept a dip to get there."]],
+ [["science","Evolution can’t redesign from scratch, which is why the human eye has a blind spot."],["tech","Optimisation algorithms add randomness to escape local peaks."],["people","A comfortable job that blocks bigger growth."],["biz","Perfecting film cameras while digital took over."]]],
+["Bs","Black swan",6,"A rare, high-impact event that seemed unpredictable beforehand.","Risk planning.","What rare event would hurt us most?",
+ [["Brainstorm extremes","What’s never happened but could?"],["Focus on impact","Not probability."],["Build buffers","Cash, slack, redundancy."],["Prefer robust options","That survive surprises."]],
+ [["health","COVID-19 disrupted supply chains worldwide."],["money","The 2008 financial crisis surprised most models."],["science","Fukushima’s 2011 tsunami exceeded the plant’s design assumptions."],["home","An emergency fund for the shock you can’t predict."]]],
+
+["Pd","Prisoner’s dilemma",7,"Each side acting in self-interest leaves both worse off than cooperating.","Negotiations and cross-team work.","Are we both losing by not cooperating?",
+ [["Map incentives","For both sides."],["Spot the mutual loss","Where both do worse."],["Build trust or rules","Agreements, enforcement."],["Make cooperation pay","Reward working together."]],
+ [["history","The Cold War arms race cost both sides enormously."],["biz","Price wars between airlines or supermarkets squeeze everyone’s margins."],["sport","Doping: if all cheat, nobody gains and everyone risks health."],["nature","Countries hesitate to cut emissions alone."]]],
+["Tt","Tit-for-tat",7,"Start cooperative, then mirror what the other side did last.","Repeated relationships.","How did they act last time?",
+ [["Start cooperative","Offer good faith."],["Mirror","Respond in kind."],["Forgive quickly","Return to cooperation."],["Be predictable","Clear rules build trust."]],
+ [["science","Tit-for-tat won Robert Axelrod’s famous computer tournaments of strategies."],["history","WWI trench “live and let live” truces grew from mirrored restraint."],["gov","Trade disputes often follow retaliatory tariffs."],["home","Neighbours trading favours, or complaints."]]],
+["Rc","Reciprocity",7,"People feel obliged to return favours.","Building influence.","What can I give first?",
+ [["Give first","Help, share, offer."],["Be genuine","Not transactional."],["Ask proportionately","Match the ask to the favour."],["Watch for manipulation","Free gifts can come with strings."]],
+ [["food","Free samples in shops increase purchases."],["gov","Charities send small gifts with appeal letters."],["tech","Open-source contributors help each other’s projects."],["people","Helping another team unblock earns goodwill for your next ask."]]],
+["Sp","Social proof",7,"People follow what others like them are doing.","Driving adoption or change.","What are people like them doing?",
+ [["Find the reference group","Who do they compare with?"],["Show their behaviour","Real numbers."],["Make it visible","Public, timely."],["Beware herding","Crowds can be wrong."]],
+ [["gov","UK tax letters saying most neighbours paid on time increased payments."],["home","Hotel cards saying most guests reuse towels raise reuse."],["food","A queue outside a restaurant attracts more diners."],["money","Investment bubbles grow as people follow others in."]]],
+["Sc","Scarcity",7,"Things seem more valuable when they’re limited.","Spotting pressure tactics.","Is this genuinely limited, or am I being rushed?",
+ [["Notice urgency","“Only 2 left”."],["Check if it’s real","Often it isn’t."],["Take time","Sleep on it."],["Decide on value","Would you want it anyway?"]],
+ [["biz","Limited-edition trainer drops sell out in minutes."],["tech","Booking sites show “only 2 rooms left” to rush decisions."],["home","Panic buying of toilet roll in 2020."],["food","Seasonal menus create urgency to visit."]]],
+["Xs","Exit strategy",7,"Plan how you’ll get out before you get in.","Contracts, pilots, conflicts.","How do we get out if this goes wrong?",
+ [["Define success and failure","Before starting."],["Set stop rules","Clear triggers."],["Plan the exit route","Who, how, cost."],["Revisit","As things change."]],
+ [["money","Stop-loss orders sell automatically if a price falls too far."],["home","Break clauses in leases."],["history","Military interventions are judged on whether they had an exit plan."],["biz","Pilots with agreed success criteria and a stop rule."]]],
+
+["Tx","10x team",8,"Teams become far more effective when people are in roles that fit their strengths.","Staffing and role design.","Is everyone in a role that fits their strengths?",
+ [["Map strengths","Ask and observe."],["Match roles","Fit people to work."],["Clarify ownership","One owner per outcome."],["Remove blockers","Let them do the work."]],
+ [["sport","Formula 1 pit crews, each with one specialised job, change four tyres in around two seconds."],["health","Surgical teams with clear roles reduce errors."],["people","Orchestras: each section excels at its part."],["sport","Football teams pick positions to suit players’ strengths."]]],
+["Fh","Foxes & hedgehogs",8,"Foxes know many things; hedgehogs know one big thing. Teams need both.","Building a team.","Do we need breadth or depth here?",
+ [["Name the need","Breadth or depth?"],["Combine both","Mix generalists and specialists."],["Value each","Different strengths."],["Forecast with foxes","Breadth predicts better."]],
+ [["science","Philip Tetlock found fox-like forecasters predicted more accurately than hedgehogs."],["health","GPs (foxes) and specialists (hedgehogs) work together."],["sport","Decathletes vs specialist sprinters."],["biz","A generalist CEO paired with a specialist CTO."]]],
+["Pe","Peter principle",8,"People get promoted until they reach a role they’re not good at.","Promotions.","Are we promoting for the next role, or the last one?",
+ [["Define next-role skills","What does it really need?"],["Assess for those","Not past performance alone."],["Offer dual tracks","Expert and manager paths."],["Trial the role","Acting or stretch roles first."]],
+ [["sport","Star players don’t always make great managers."],["biz","The top salesperson promoted to sales manager."],["tech","Dual career ladders let engineers grow without managing."],["learn","Great researchers made heads of department."]]],
+["Dp","Deliberate practice",8,"Improvement comes from focused practice at the edge of your ability, with fast feedback.","Building a skill.","Am I practising at the edge of my ability, with feedback?",
+ [["Pick a narrow skill","Specific, not general."],["Push slightly beyond","Just past comfort."],["Get fast feedback","Coach, recording, results."],["Repeat and adjust","Small loops."]],
+ [["learn","Musicians practise hard passages slowly, not whole pieces."],["sport","Chess players study grandmaster games and predict each move."],["health","Surgeons train on simulators before operating."],["learn","Speaking with a tutor who corrects you beats apps alone."]]],
+["Se","Spacing effect",8,"Learning sticks better when reviews are spread out over time.","Studying and onboarding.","When should I review this again?",
+ [["Learn it","First exposure."],["Review after a day","Before you forget."],["Lengthen the gaps","Days, then weeks."],["Test yourself","Recall beats re-reading."]],
+ [["science","Ebbinghaus’s forgetting curve showed memory fades fast without review."],["learn","Spaced-repetition apps schedule reviews just before you forget."],["health","Medical students use spaced repetition for huge syllabuses."],["people","Short refreshers beat one annual training day."]]],
+["Dk","Dunning–Kruger",8,"Beginners tend to overrate their skill; experts often underrate theirs.","Self-assessment and estimates.","How would I know if I’m wrong about my skill?",
+ [["Seek outside feedback","Not just your own view."],["Compare to benchmarks","Objective standards."],["Learn the basics","Knowledge reveals gaps."],["Calibrate","Check estimates against results."]],
+ [["home","Most drivers rate themselves above average."],["money","Beginners overtrade after a few lucky wins."],["home","Confident DIY electrics that need fixing later."],["people","Experts often feel like impostors."]]],
+
+["Pm","Product/market fit",9,"A product a market genuinely wants, shown by pull rather than push.","Before scaling up.","Are people pulling this from us, or are we pushing?",
+ [["Pick a target customer","Specific segment."],["Measure pull","Retention, referrals, complaints when it’s down."],["Iterate","Change until pull appears."],["Scale after fit","Not before."]],
+ [["tech","Slack spread within companies largely by word of mouth."],["biz","The Sean Ellis test: fit if 40%+ would be “very disappointed” without it."],["food","A restaurant with queues and regulars, not just discount diners."],["tech","Video-call tools exploded in 2020 because need pulled them."]]],
+["Sr","Secret",9,"An important truth few others believe, which gives you an edge.","Setting strategy.","What do I believe that few others do?",
+ [["Look for overlooked truths","Where are experts wrong?"],["Test the evidence","Data, not hope."],["Build around it","Strategy that exploits it."],["Keep proving it","Until others catch up."]],
+ [["sport","Moneyball: the Oakland A’s valued on-base percentage that others undervalued."],["health","Marshall and Warren showed bacteria, not stress, cause most stomach ulcers."],["biz","Airbnb bet strangers would rent rooms to strangers."],["money","Index funds bet most active managers wouldn’t beat the market."]]],
+["Oo","OODA loop",9,"Observe, orient, decide, act, and cycle faster than rivals.","Fast-moving markets.","How fast can we go round the loop?",
+ [["Observe","Gather what’s happening."],["Orient","Make sense of it."],["Decide","Choose an action."],["Act, then loop","Faster than the other side."]],
+ [["air","Fighter pilot John Boyd created the OODA loop for air combat."],["biz","Zara moves designs from sketch to shelf in weeks."],["health","Emergency triage cycles rapidly as patients change."],["sport","Boxers and tennis players read and react faster than opponents."]]],
+["Mt","Moat",9,"A durable advantage that keeps competitors out.","Assessing a strategy.","What stops a well-funded rival copying us?",
+ [["List advantages","Brand, network, cost, data."],["Test durability","Could money copy it?"],["Deepen it","Invest where it’s hardest to copy."],["Defend it","Watch for erosion."]],
+ [["biz","Coca-Cola’s brand is hard to copy at any price."],["money","Visa and Mastercard’s networks: shops accept them because shoppers carry them."],["biz","Costco’s scale lets it price below rivals."],["health","Drug patents protect pharmaceutical returns."]]],
+["Lk","Lock-in",9,"High switching costs keep customers with you, or keep you with a vendor.","Choosing vendors.","How hard would it be to leave?",
+ [["Find switching costs","Data, training, contracts."],["Check exits","Export, standards, terms."],["Negotiate","Before signing."],["Decide knowingly","Accept or avoid."]],
+ [["home","Printers sold cheaply, with costly ink cartridges."],["tech","Smartphone ecosystems make switching phone brands painful."],["biz","ERP systems are hard and expensive to replace."],["history","The QWERTY layout persists because everyone learned it."]]],
+["Di","Disruptive innovation",9,"A cheaper, simpler product starts at the low end and moves up until it displaces incumbents.","Scanning competitors.","What cheap, “worse” option is improving fast?",
+ [["Watch the low end","Who serves overlooked customers?"],["Track improvement","How fast is it getting better?"],["Experiment","Small bets on new models."],["Cannibalise yourself","Before others do."]],
+ [["tech","Kodak built an early digital camera but stayed with film while digital took over."],["biz","Netflix’s mail-order DVDs, then streaming, overtook Blockbuster."],["science","Steel mini-mills started with cheap rebar and moved up market."],["air","Low-cost airlines grew from no-frills short hops."]]],
+["Cg","Cargo cult",9,"Copying the visible rituals of success without the cause behind them.","Adopting “best practices”.","Do I understand why this works, or am I copying the ritual?",
+ [["Spot the copied practice","What did we borrow?"],["Ask why it worked there","The real cause."],["Check conditions here","Do they apply?"],["Adapt or drop","Keep the cause, not the form."]],
+ [["history","After WWII, some Pacific islanders built imitation airstrips hoping cargo planes would return."],["science","Richard Feynman coined “cargo cult science” for research with the form but not the rigour."],["biz","Open-plan offices copied from tech giants without their culture."],["people","Holding stand-ups without empowered teams isn’t Agile."]]]
+];
+const M=RAW.map((r,i)=>({i,sym:r[0],name:r[1],ch:r[2],idea:r[3],use:r[4],q:r[5],steps:r[6],ex:r[7]}));
+const BY=Object.fromEntries(M.map(m=>[m.sym,m]));
+const cv=ch=>`var(--c${ch})`;
+const esc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;");
+const tile=m=>`<span class="tile" style="--c:${cv(m.ch)}">${m.sym}</span>`;
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* Rich mini-visuals for the First principles plan (mirrors a sketchnote poster) */
+const DOTS=["#e8607d","#f2a33a","#4caf6e","#4a86e8","#9b6be0"];
+const FP_VIZ=[
+ `<div class="viz v-note"><b>Try it on:</b><ul>${["How does a database work?","How does machine learning work?","Why does inflation happen?","How does the internet work?"].map((t,k)=>`<li><span class="dot" style="background:${DOTS[k]}"></span>${t}</li>`).join("")}</ul></div>`,
+ `<div class="viz v-book"><ul>${["What is it?","Why does it exist?","What are the core parts?","How does it work?","What am I assuming?"].map((t,k)=>`<li><span class="dot" style="background:${DOTS[k]}"></span>${t}</li>`).join("")}</ul></div>`,
+ `<div class="viz v-stack">${[["Truth 1","#bfe0f7","62%"],["Truth 2","#fde3a3","74%"],["Truth 3","#f8c6cf","86%"],["Truth 4","#c6ecd0","98%"]].map(([t,c,w])=>`<span style="background:${c};--w:${w}">${t}</span>`).join("")}</div>`,
+ `<div class="viz v-card"><ul>${["Explain it in simple words","Use a real-world example","Make your own notes","Teach it to someone"].map((t,k)=>`<li><span class="dot" style="background:${DOTS[k]}"></span>${t}</li>`).join("")}</ul></div>`,
+ `<div class="viz v-screen"><div><b>Practice ideas</b><ul>${["Build a small project","Solve practice problems","Work with real data","Experiment and explore"].map((t,k)=>`<li><span class="dot" style="background:${DOTS[k]}"></span>${t}</li>`).join("")}</ul></div></div>`,
+ `<div class="viz v-check"><b>Review checklist</b><ul>${["Can I explain it clearly?","Do I understand the why?","Can I apply it elsewhere?","What are its limits?","What can I explore next?"].map(t=>`<li><span class="box"></span>${t}</li>`).join("")}</ul></div>`
+];
+
+/* ---------- Tabs ---------- */
+const BEST={
+ map:"Tap a chapter, then a model. Its action plan opens below the map.",
+ quiz:"Read a real-world situation and pick the model that explains it.",
+ pairs:"Models that pull in opposite directions, with a rule of thumb for choosing. Tap a side to open its action plan."
+};
+const VIEWS=Object.keys(BEST);
+function show(v,scroll){
+  let model=null;
+  if(v&&v.startsWith("m-")){model=M.find(m=>m.sym.toLowerCase()===v.slice(2));v="map";}
+  if(!VIEWS.includes(v)) v="map";
+  document.querySelectorAll(".tab").forEach(t=>t.setAttribute("aria-selected",t.dataset.view===v));
+  VIEWS.forEach(x=>document.getElementById("v-"+x).hidden=x!==v);
+  document.getElementById("bestfor").textContent=BEST[v];
+  if(model){openModel(model.i,scroll);}
+}
+document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>{location.hash=t.dataset.view;}));
+window.addEventListener("hashchange",()=>show(location.hash.slice(1),true));
+
+/* ---------- Mind map ---------- */
+const mp={ch:1,sel:0};
+function wrapTxt(s,max){const w=s.split(" ");const L=[];let cur="";for(const x of w){if(cur&&(cur+" "+x).length>max){L.push(cur);cur=x}else cur=cur?cur+" "+x:x}if(cur)L.push(cur);return L}
+function tspans(lines,x,y,lh){return lines.map((l,k)=>`<tspan x="${x}" y="${y+k*lh}">${esc(l)}</tspan>`).join("")}
+function mapRender(){
+  const svg=document.getElementById("map"),top=document.getElementById("map-top");
+  const cx=200,cy=200;let g="";
+  if(mp.ch===null){
+    top.innerHTML=`<span class="crumb"><b>Super Thinking</b> · tap a chapter</span>`;
+    const R=138;
+    for(let c=1;c<=9;c++){const a=-Math.PI/2+(c-1)*2*Math.PI/9,x=cx+R*Math.cos(a),y=cy+R*Math.sin(a);
+      const mx=cx+R*.5*Math.cos(a)+18*Math.sin(a),my=cy+R*.5*Math.sin(a)-18*Math.cos(a);
+      g+=`<path d="M${cx},${cy} Q${mx.toFixed(1)},${my.toFixed(1)} ${x.toFixed(1)},${y.toFixed(1)}" fill="none" stroke="${cv(c)}" stroke-width="3" stroke-linecap="round" opacity=".55"/>`;}
+    g+=`<circle cx="${cx}" cy="${cy}" r="54" fill="var(--ink)"/><text text-anchor="middle" class="sym" font-size="19" style="fill:var(--bg)">${tspans(["Super","Thinking"],cx,cy-4,21)}</text>`;
+    for(let c=1;c<=9;c++){const a=-Math.PI/2+(c-1)*2*Math.PI/9,x=cx+R*Math.cos(a),y=cy+R*Math.sin(a);
+      const n=M.filter(m=>m.ch===c).length,L=wrapTxt(CH[c].short,11),up=Math.sin(a)<-0.3,y0=up?y-34-L.length*13:y+38;
+      g+=`<g class="node" tabindex="0" role="button" aria-label="Chapter ${c}: ${esc(CH[c].name)}" data-ch="${c}">
+        <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="24" fill="color-mix(in srgb, ${cv(c)} 16%, var(--surface))" stroke="${cv(c)}" stroke-width="2.5"/>
+        <text text-anchor="middle" class="sym" font-size="20" style="fill:${cv(c)}" x="${x.toFixed(1)}" y="${(y+7).toFixed(1)}">${c}</text>
+        <text text-anchor="middle" class="lbl">${tspans(L,x.toFixed(1),y0,13)}</text>
+        <text text-anchor="middle" font-size="9.5" style="fill:var(--muted)" x="${x.toFixed(1)}" y="${(y0+L.length*13).toFixed(1)}">${n} models</text></g>`;}
+  }else{
+    const c=mp.ch,ms=M.filter(m=>m.ch===c),R=136;
+    top.innerHTML=`<button class="chip" id="map-back">← All chapters</button><span class="crumb">Ch ${c} · <b>${esc(CH[c].name)}</b></span>`;
+    document.getElementById("map-back").onclick=()=>{mp.ch=null;mapRender();};
+    ms.forEach((m,k)=>{const a=-Math.PI/2+k*2*Math.PI/ms.length,x=cx+R*Math.cos(a),y=cy+R*Math.sin(a),on=mp.sel===m.i;
+      g+=`<line x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="${cv(c)}" stroke-width="${on?3.5:2}" stroke-linecap="round" opacity="${on?1:.45}"/>`;});
+    const cl=wrapTxt(CH[c].name,12);
+    g+=`<circle cx="${cx}" cy="${cy}" r="60" fill="${cv(c)}"/><text text-anchor="middle" class="sym" font-size="16" style="fill:var(--surface)">${tspans(cl,cx,cy-(cl.length-1)*9+5,18)}</text>`;
+    ms.forEach((m,k)=>{const a=-Math.PI/2+k*2*Math.PI/ms.length,x=cx+R*Math.cos(a),y=cy+R*Math.sin(a),on=mp.sel===m.i;
+      const L=wrapTxt(m.name,14),up=Math.sin(a)<-0.3,y0=up?y-31-(L.length-1)*13:y+35;
+      g+=`<g class="node" tabindex="0" role="button" aria-label="${esc(m.name)}" data-i="${m.i}">
+        <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="21" fill="${on?cv(c):`color-mix(in srgb, ${cv(c)} 16%, var(--surface))`}" stroke="${cv(c)}" stroke-width="2.5"/>
+        <text text-anchor="middle" class="sym" font-size="16" style="fill:${on?"var(--surface)":cv(c)}" x="${x.toFixed(1)}" y="${(y+5.5).toFixed(1)}">${m.sym}</text>
+        <text text-anchor="middle" class="lbl" font-weight="${on?800:600}">${tspans(L,x.toFixed(1),y0,13)}</text></g>`;});
+  }
+  svg.innerHTML=g;
+}
+(function(){
+  const svg=document.getElementById("map");
+  const act=n=>{ if(n.dataset.ch){mp.ch=+n.dataset.ch;mapRender();} else openModel(+n.dataset.i,true); };
+  svg.addEventListener("click",e=>{const n=e.target.closest(".node");if(n)act(n);});
+  svg.addEventListener("keydown",e=>{const n=e.target.closest(".node");if(n&&(e.key==="Enter"||e.key===" ")){e.preventDefault();act(n);}});
+})();
+
+/* ---------- Action-plan explainer ---------- */
+function explainer(m){
+  const rich=m.sym==="Fp";
+  const icons=m.steps.length===6?["target","question","layers","bulb","play","check"]:["target","layers","bulb","check"];
+  const hues=["h1","h2","h3","h4","h5","h6"];
+  const steps=m.steps.map(([t,d],k)=>`<div class="step ${rich?"has-viz":""}" style="--h:var(--${hues[k%6]})">
+      <div class="step-hd"><span class="badge">${k+1}</span><h4>${esc(t)}</h4></div>
+      <p>${esc(d)}</p>${rich?FP_VIZ[k]:""}${ic(STEP_IC[icons[k]],"ic deco")}</div>`).join("");
+  const ex=m.ex.map(([s,t])=>{const S=ST[s];return `<div class="xcard" style="--h:var(--${S[1]})"><span class="xi">${ic(S[2])}</span><div><span class="xs">${S[0]}</span><p>${esc(t)}</p></div></div>`;}).join("");
+  const sib=M.filter(x=>x.ch===m.ch),k=sib.indexOf(m),prev=sib[(k-1+sib.length)%sib.length],next=sib[(k+1)%sib.length];
+  return `<article class="ex" id="ex" style="--c:${cv(m.ch)}">
+    <div class="ex-hero"><div class="ex-kicker">Chapter ${m.ch} · ${esc(CH[m.ch].name)} · Model ${k+1} of ${sib.length}</div>
+      <h2>Your <mark>${esc(m.name)}</mark> action plan</h2>
+      <p class="lead">${esc(m.idea)}</p></div>
+    <div class="ex-q"><span class="qm">?</span><div><small>Ask yourself</small><b>${esc(m.q)}</b></div></div>
+    <div class="steps ${rich?"rich":""}">${steps}</div>
+    <h3 class="ex-sub">Seen in the real world</h3>
+    <div class="xgrid">${ex}</div>
+    <p class="ex-use"><b>Reach for it when:</b> ${esc(m.use)}</p>
+    <nav class="ex-nav" aria-label="Move between models">
+      <button class="btn" data-go="${prev.i}">← ${esc(prev.name)}</button>
+      <button class="btn primary" id="ex-up">Map ↑</button>
+      <button class="btn" data-go="${next.i}">${esc(next.name)} →</button>
+    </nav></article>`;
+}
+function openModel(i,scroll){
+  const m=M[i]; mp.ch=m.ch; mp.sel=i; mapRender();
+  const host=document.getElementById("explainer"); host.innerHTML=explainer(m);
+  host.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>{openModel(+b.dataset.go,true);});
+  document.getElementById("ex-up").onclick=()=>document.querySelector(".map-card").scrollIntoView({behavior:reduce?"auto":"smooth",block:"start"});
+  if(scroll) document.getElementById("ex").scrollIntoView({behavior:reduce?"auto":"smooth",block:"start"});
+}
+
+/* ---------- Which model? ---------- */
+const QZ=[
+ {q:"Velocity jumps 30% after it becomes a quarterly target, yet features ship no faster.",a:"Gl",o:["Gl","Sk","Rm"],why:"Story points became the target, so the team optimised the number instead of delivery."},
+ {q:"Four months into a vendor integration that clearly won’t meet needs, the sponsor says: “We’ve come too far to stop.”",a:"Sk",o:["Sk","It","Op"],why:"The months already spent are gone either way. Only future cost and value should decide."},
+ {q:"You study ten famous founders, notice they all dropped out of university, and conclude dropping out helps.",a:"Sv",o:["Sv","Cc","Cf"],why:"You never see the many dropouts who failed, so the sample is skewed toward winners."},
+ {q:"A colleague misses a handover and you start suspecting they want your project to fail.",a:"Hr",o:["Hr","Pd","Dk"],why:"Overload or a lost message explains it with far fewer assumptions than malice."},
+ {q:"Three ticket categories account for most of your support queue.",a:"Pa",o:["Pa","Dm","Ln"],why:"A small share of causes drives most of the effect, so fix those first."},
+ {q:"The team spends a week debating button copy that can be changed in five minutes.",a:"Rd",o:["Rd","Lk","Ev"],why:"An easily undone choice deserves a quick call. Save deliberation for one-way doors."},
+ {q:"After a record sprint, the next one is average. A manager decides the praise made the team complacent.",a:"Rm",o:["Rm","En","Pe"],why:"Extreme results tend to be followed by ordinary ones, whatever you do in between."},
+ {q:"Scope keeps drifting, so you book a customer demo for the 14th and announce it.",a:"Ff",o:["Ff","Sc","Cm"],why:"A fixed external date compels the scope decisions people were putting off."},
+ {q:"Before building a feature, you add a “Request access” button to see how many people click it.",a:"Dr",o:["Dr","Fp","Op"],why:"You’re testing the riskiest assumption, demand, before committing to the build."},
+ {q:"Your best engineer is promoted to team lead and starts to struggle.",a:"Pe",o:["Pe","Dk","Tx"],why:"Excelling in one role earned a move into a role that needs different skills."},
+ {q:"The shared staging environment is always broken and nobody cleans it up.",a:"Tc",o:["Tc","Mh","Lo"],why:"Everyone benefits from using it, but the upkeep belongs to no one."},
+ {q:"A fraud alert that’s “99% accurate” flags a long-standing customer and the team wants to block them.",a:"Br",o:["Br","Bs","Cf"],why:"Real fraud is rare, so even a good detector produces mostly false alarms."},
+ {q:"A rocket company prices its rocket from the cost of aluminium, fuel and electronics rather than competitors’ quotes.",a:"Fp",o:["Fp","Oz","Lv"],why:"They reasoned up from basic truths (material costs) instead of accepting the market’s convention."}
+];
+const qz={order:shuffle(QZ.map((_,i)=>i)),pos:0,score:0,answered:0,picked:null};
+function qzRender(){
+  const box=document.getElementById("quiz");
+  if(qz.pos>=qz.order.length){
+    box.innerHTML=`<div class="q-meta"><span>Done</span><span>${qz.score}/${QZ.length}</span></div><p class="q-text">You matched ${qz.score} of ${QZ.length} situations.</p><button class="btn primary" id="qz-restart" style="width:100%">Shuffle and play again</button>`;
+    document.getElementById("qz-restart").onclick=()=>{Object.assign(qz,{order:shuffle(qz.order),pos:0,score:0,answered:0,picked:null});qzRender();};return;
+  }
+  const q=QZ[qz.order[qz.pos]]; if(!q._o) q._o=shuffle(q.o); const done=qz.picked!==null;
+  box.innerHTML=`<div class="q-meta"><span>Situation ${qz.pos+1} of ${QZ.length}</span><span>Score ${qz.score}/${qz.answered}</span></div>
+    <p class="q-text">${esc(q.q)}</p>
+    <div class="q-opts">${q._o.map(s=>{const m=BY[s],cls=done?(s===q.a?"right":(s===qz.picked?"wrong":"")):"";
+      return `<button class="q-opt ${cls}" data-s="${s}" ${done?"disabled":""}>${tile(m)}<span>${esc(m.name)}</span></button>`;}).join("")}</div>
+    ${done?`<div class="q-fb"><span class="verdict ${qz.picked===q.a?"ok":"no"}">${qz.picked===q.a?"Right.":"Not quite. It’s "+esc(BY[q.a].name)+"."}</span><span>${esc(q.why)}</span>
+      <button class="btn" id="qz-open">Open the ${esc(BY[q.a].name)} action plan</button>
+      <button class="btn primary" id="qz-next">Next situation →</button></div>`:""}`;
+  box.querySelectorAll(".q-opt").forEach(b=>b.onclick=()=>{if(qz.picked!==null)return;qz.picked=b.dataset.s;qz.answered++;if(qz.picked===q.a)qz.score++;qzRender();});
+  const nx=document.getElementById("qz-next");if(nx)nx.onclick=()=>{qz.pos++;qz.picked=null;qzRender();};
+  const op=document.getElementById("qz-open");if(op)op.onclick=()=>{location.hash="m-"+q.a.toLowerCase();};
+}
+qzRender();
+
+/* ---------- Tension pairs ---------- */
+const PAIRS=[
+ {a:"Fp",b:"Cg",t:"Reason it out, or copy what works?",r:"Copy a practice only once you can explain why it works for them and whether that reason holds for you."},
+ {a:"Dr",b:"Ap",t:"Test more, or stop testing?",r:"Test the single riskiest assumption. If more analysis wouldn’t change the decision, decide."},
+ {a:"Rd",b:"Lk",t:"Move fast, or avoid getting stuck?",r:"Go fast on two-way doors. Slow down where switching costs turn a choice into a one-way door."},
+ {a:"Fl",b:"En",t:"Momentum builds, but everything decays",r:"Keep feeding the flywheel. A stopped one slides back toward disorder."},
+ {a:"Oz",b:"Bs",t:"Simplest explanation, or the rare extreme?",r:"Use the simple explanation to diagnose; keep buffers for what it can’t predict."},
+ {a:"Sp",b:"Sr",t:"Follow the crowd, or bet against it?",r:"Use social proof to drive adoption. Look for secrets when choosing direction."},
+ {a:"Dp",b:"Sk",t:"Push through, or cut your losses?",r:"Persist while feedback shows progress. Quit when only past spend is keeping you there."}
+];
+document.getElementById("pairs").innerHTML=PAIRS.map(p=>{
+  const side=m=>`<button class="side" data-m="${m.sym.toLowerCase()}" style="--c:${cv(m.ch)}">${tile(m)}<b>${esc(m.name)}</b><small>${esc(m.idea)}</small><span class="open">Open action plan →</span></button>`;
+  return `<article class="pair"><p class="tension">${esc(p.t)}</p><div class="sides">${side(BY[p.a])}<span class="vs">vs</span>${side(BY[p.b])}</div><p class="resolve"><b>Rule of thumb:</b>${esc(p.r)}</p></article>`;}).join("");
+document.getElementById("pairs").addEventListener("click",e=>{const b=e.target.closest(".side");if(b)location.hash="m-"+b.dataset.m;});
+
+/* ---------- start ---------- */
+openModel(0,false);
+show(location.hash.slice(1),false);
+</script>
+</body>
+</html>
