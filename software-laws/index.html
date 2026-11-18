@@ -200,6 +200,9 @@ input[type=range]{width:100%;accent-color:var(--accent);height:28px}
 .presets{display:flex;gap:6px;flex-wrap:wrap}
 .presets button{border:2px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 12px;font-size:13px;font-weight:700;cursor:pointer}
 .presets button[aria-pressed="true"]{border-color:var(--ink);background:var(--ink);color:var(--bg)}
+@keyframes drip{0%{transform:translateY(0);opacity:0}10%{opacity:1}85%{opacity:1}100%{transform:translateY(-140px);opacity:0}}
+.drip{opacity:.9}
+.anim .drip{animation:drip 3.3s ease-in infinite both}
 footer{margin-top:36px;font-size:12.5px;color:var(--muted);border-top:2px dashed var(--line);padding-top:14px}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 @media print{
@@ -217,7 +220,7 @@ footer{margin-top:36px;font-size:12.5px;color:var(--muted);border-top:2px dashed
 <header>
   <div class="eyebrow">Learning series · Book 2</div>
   <h1>Software Laws, mapped</h1>
-  <p>57 laws and principles of software engineering as a building: code on the ground floor, decisions on the roof. The ground floor (coding), floor 1 (quality) and floor 2 (scale, with live calculators) are open. The other floors are under construction.</p>
+  <p>57 laws and principles of software engineering as a building: code on the ground floor, decisions on the roof. Four floors are open: code, quality, scale (with live calculators) and architecture. The top three floors are under construction.</p>
 </header>
 
 <nav class="tabs" role="tablist" aria-label="Views">
@@ -251,7 +254,7 @@ const PARTS={
  VI:{n:"VI",name:"Coding & Design Principles",short:"Code",floor:"G",c:"p6",laws:["DRY","KISS","YAGNI","SOLID","Law of Demeter","Boy Scout Rule"],built:true},
  IV:{n:"IV",name:"Quality, Maintenance & Evolution",short:"Quality",floor:"1",c:"p4",built:true,laws:["Murphy’s Law","Postel’s Law","Broken Windows","Technical Debt","Linus’s Law","Kernighan’s Law","Pesticide Paradox","Testing Pyramid","Lehman’s Laws","Sturgeon’s Law"]},
  V:{n:"V",name:"Scale, Performance & Growth",short:"Scale",floor:"2",c:"p5",built:true,laws:["Amdahl’s Law","Gustafson’s Law","Little’s Law","Metcalfe’s Law"]},
- I:{n:"I",name:"Architecture & Complexity",short:"Architecture",floor:"3",c:"p1",laws:["Gall’s Law","Leaky Abstractions","Tesler’s Law","CAP Theorem","Hyrum’s Law","Second-System Effect","Fallacies of Distributed Computing","Unintended Consequences"]},
+ I:{n:"I",name:"Architecture & Complexity",short:"Architecture",floor:"3",c:"p1",built:true,laws:["Gall’s Law","Leaky Abstractions","Tesler’s Law","CAP Theorem","Hyrum’s Law","Second-System Effect","Fallacies of Distributed Computing","Unintended Consequences"]},
  III:{n:"III",name:"Time, Estimation & Planning",short:"Time",floor:"4",c:"p3",laws:["Hofstadter’s Law","Parkinson’s Law","Ninety-Ninety Rule","Goodhart’s Law","Gilb’s Law","Knuth’s Optimisation Principle"]},
  II:{n:"II",name:"People, Teams & Organisations",short:"People",floor:"5",c:"p2",laws:["Conway’s Law","Brooks’s Law","Dunbar’s Number","Ringelmann Effect","Price’s Law","Putt’s Law","Peter Principle","Inverse Conway Manoeuvre","Bus Factor","Dilbert Principle"]},
  VII:{n:"VII",name:"Decision-Making & Biases",short:"Decisions",floor:"6",c:"p7",laws:["Occam’s Razor","Hanlon’s Razor","Sunk Cost Fallacy","Dunning–Kruger","Confirmation Bias","First Principles","Pareto Principle","Lindy Effect","Hype Cycle","Amara’s Law","Planning Fallacy","Survivorship Bias","Chesterton’s Fence"]}
@@ -1034,6 +1037,255 @@ pool = ThreadPoolExecutor(max_workers=int(in_flight * 1.5))`,
  rel:[["name","Gustafson’s Law"],["name","Dunbar’s Number"],["st","cm","Critical mass"],["st","mt","Moat"]],
  cheat:{ask:"Does each new user make it better for everyone?",bend:"Noisy networks: quality beats count."}}
 );
+/* ================= FLOOR 3 · PART I ================= */
+const tick=(x,y,c="var(--good)")=>`<path d="M${x-5} ${y} l3.5 3.5 l7 -8" fill="none" stroke="${c}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>`;
+const cross=(x,y)=>`<path d="M${x-5} ${y-5} l10 10 M${x+5} ${y-5} l-10 10" stroke="var(--bad)" stroke-width="2.6" stroke-linecap="round"/>`;
+function picGall(){
+  return `<svg viewBox="0 0 340 210" role="img" aria-label="Big-bang design never works; small working versions grow into a working complex system">
+   <text x="10" y="20" font-size="12" font-weight="800" style="fill:var(--bad)">Big bang: design it all up front</text>
+   <rect x="10" y="30" width="200" height="62" rx="8" fill="color-mix(in srgb,var(--bad) 8%,var(--surface))" stroke="var(--bad)" stroke-width="2" stroke-dasharray="6 4"/>
+   <text x="110" y="56" text-anchor="middle" font-size="12" font-weight="800">Grand design v1.0</text>
+   <text x="110" y="74" text-anchor="middle" font-size="10" style="fill:var(--muted)">18 months · 400-page spec</text>
+   <circle cx="250" cy="61" r="16" fill="color-mix(in srgb,var(--bad) 12%,var(--surface))" stroke="var(--bad)" stroke-width="2"/>${cross(250,61)}
+   <text x="274" y="58" font-size="10.5" font-weight="800" style="fill:var(--bad)">never</text><text x="274" y="71" font-size="10.5" font-weight="800" style="fill:var(--bad)">works</text>
+   <text x="10" y="112" font-size="12" font-weight="800" style="fill:var(--good)">Grow it: simple, working, then more</text>
+   ${[[10,24,28,"v1"],[72,40,40,"v2"],[150,64,54,"v3"],[250,84,66,"v4"]].map(([x,w,h,l],i)=>`<rect x="${x}" y="${200-h-6}" width="${w}" height="${h}" rx="6" fill="color-mix(in srgb,var(--good) ${10+i*5}%,var(--surface))" stroke="var(--good)" stroke-width="2"/><text x="${x+w/2}" y="${200-h/2-2}" text-anchor="middle" font-size="11" font-weight="800">${l}</text>${tick(x+w/2,200-h-16)}${i<3?`<path d="M${x+w+6} ${170} h${[34,32,30][i]}" stroke="var(--ink)" stroke-width="2" marker-end="url(#gA)"/>`:""}`).join("")}
+   <defs><marker id="gA" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0 0L8 4L0 8z" fill="var(--ink)"/></marker></defs></svg>`;
+}
+function picLeaky(){
+  const layers=[["user.save()","h2"],["ORM","h5"],["SQL driver","h4"],["TCP / TLS","h3"],["Network: routers, packet loss","h1"]];
+  return `<svg viewBox="0 0 340 214" role="img" aria-label="Layers of abstraction; a problem in the network leaks up to your code">
+   ${layers.map(([t,h],i)=>{const y=14+i*38;return `<rect x="20" y="${y}" width="214" height="32" rx="6" fill="color-mix(in srgb,var(--${h}) ${i===0?22:11}%,var(--surface))" stroke="var(--${h})" stroke-width="${i===0||i===4?2.4:1.6}"/><text x="127" y="${y+21}" text-anchor="middle" font-size="${i===0?13:11.5}" font-weight="800" style="${i===0?"font-family:var(--font-m)":""}">${t}</text>`;}).join("")}
+   <path d="M214 182 l6 -8 l6 6 l6 -9" fill="none" stroke="var(--bad)" stroke-width="2.4" stroke-linecap="round"/>
+   ${[0,1,2].map(i=>`<path class="drip" style="animation-delay:${i*1.1}s" d="M${291+i*9} 164 c-4 -6 -4 -10 0 -14 c4 4 4 8 0 14z" fill="var(--h2)"/>`).join("")}
+   <path d="M240 30 h20" stroke="var(--ink)" stroke-width="2"/><text x="264" y="27" font-size="10.5" font-weight="800">you think</text><text x="264" y="40" font-size="10.5" font-weight="800">you’re here</text>
+   <path d="M240 182 h20" stroke="var(--bad)" stroke-width="2"/><text x="264" y="179" font-size="10.5" font-weight="800" style="fill:var(--bad)">the leak</text><text x="264" y="192" font-size="10.5" font-weight="800" style="fill:var(--bad)">starts here</text>
+   <path d="M300 146 V60" stroke="var(--h2)" stroke-width="1.5" stroke-dasharray="3 5" marker-end="url(#lkA)"/>
+   <defs><marker id="lkA" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0 0L8 4L0 8z" fill="var(--h2)"/></marker></defs>
+   <text x="306" y="100" font-size="9.5" font-weight="800" style="fill:var(--h2)">leaks</text><text x="306" y="111" font-size="9.5" font-weight="800" style="fill:var(--h2)">up</text></svg>`;
+}
+function picTesler(){
+  const bar=(y,title,team,col,note)=>`<text x="12" y="${y-8}" font-size="11.5" font-weight="800">${title}</text>
+    <rect x="12" y="${y}" width="${team}" height="30" rx="4" fill="color-mix(in srgb,var(--h2) 26%,var(--surface))" stroke="var(--h2)" stroke-width="1.8"/>
+    <rect x="${12+team}" y="${y}" width="${316-team}" height="30" rx="4" fill="color-mix(in srgb,var(--h6) 26%,var(--surface))" stroke="var(--h6)" stroke-width="1.8"/>
+    <text x="${12+team/2}" y="${y+19}" text-anchor="middle" font-size="10.5" font-weight="800">team</text>
+    <text x="${12+team+(316-team)/2}" y="${y+19}" text-anchor="middle" font-size="10.5" font-weight="800">every user</text>
+    <text x="12" y="${y+46}" font-size="10.5" font-weight="700" style="fill:${col}">${note}</text>`;
+  return `<svg viewBox="0 0 340 196" role="img" aria-label="The same total complexity split two ways between the team and the users">
+   ${bar(30,"Option A: “let users configure it”",70,"var(--bad)","quick for the team, hard for thousands of users")}
+   ${bar(116,"Option B: the product handles it",250,"var(--good)","more work for the team, once; easy for everyone")}
+   <path d="M12 178 H328" stroke="var(--ink)" stroke-width="1.5"/><path d="M12 172 v12 M328 172 v12" stroke="var(--ink)" stroke-width="1.5"/>
+   <text x="170" y="192" text-anchor="middle" font-size="10.5" font-weight="800">same total complexity, just moved</text></svg>`;
+}
+function picCAP(){
+  const db=(x,l)=>`<ellipse cx="${x}" cy="30" rx="30" ry="9" fill="var(--surface)" stroke="var(--ink)" stroke-width="2"/><path d="M${x-30} 30 v34 a30 9 0 0 0 60 0 v-34" fill="color-mix(in srgb,var(--h5) 12%,var(--surface))" stroke="var(--ink)" stroke-width="2"/><text x="${x}" y="56" text-anchor="middle" font-size="11" font-weight="800">${l}</text>`;
+  return `<svg viewBox="0 0 340 230" role="img" aria-label="Two data centres lose their link; choose consistency or availability">
+   ${db(60,"London")}${db(280,"New York")}
+   <path d="M92 48 H150" stroke="var(--ink)" stroke-width="2.5"/><path d="M190 48 H248" stroke="var(--ink)" stroke-width="2.5"/>
+   <path d="M152 36 l10 12 l-8 4 l14 12" fill="none" stroke="var(--bad)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+   <text x="170" y="92" text-anchor="middle" font-size="11.5" font-weight="800" style="fill:var(--bad)">the link breaks (a “partition”)</text>
+   <text x="170" y="110" text-anchor="middle" font-size="11" font-weight="700">A customer in New York updates their balance. Now what?</text>
+   <rect x="8" y="124" width="158" height="98" rx="12" fill="color-mix(in srgb,var(--h2) 10%,var(--surface))" stroke="var(--h2)" stroke-width="2"/>
+   <text x="87" y="146" text-anchor="middle" font-size="13" font-weight="800" style="fill:var(--h2)">CP: stay correct</text>
+   <text x="87" y="166" text-anchor="middle" font-size="10.5">Refuse the update until</text><text x="87" y="180" text-anchor="middle" font-size="10.5">the link is back.</text>
+   <text x="87" y="204" text-anchor="middle" font-size="10" font-weight="800" style="fill:var(--muted)">e.g. bank balances</text>
+   <rect x="174" y="124" width="158" height="98" rx="12" fill="color-mix(in srgb,var(--h3) 10%,var(--surface))" stroke="var(--h3)" stroke-width="2"/>
+   <text x="253" y="146" text-anchor="middle" font-size="13" font-weight="800" style="fill:var(--h3)">AP: stay available</text>
+   <text x="253" y="166" text-anchor="middle" font-size="10.5">Accept it now and</text><text x="253" y="180" text-anchor="middle" font-size="10.5">reconcile later.</text>
+   <text x="253" y="204" text-anchor="middle" font-size="10" font-weight="800" style="fill:var(--muted)">e.g. shopping baskets</text></svg>`;
+}
+function picHyrum(){
+  const rely=["returns a list","in id order","in under 40 ms","with this exact error text","with a trailing space","…and every other quirk"];
+  return `<svg viewBox="0 0 340 214" role="img" aria-label="The documented contract is small; what users rely on is much larger">
+   <text x="74" y="20" text-anchor="middle" font-size="12" font-weight="800">What you documented</text>
+   <rect x="16" y="32" width="116" height="44" rx="8" fill="color-mix(in srgb,var(--h2) 12%,var(--surface))" stroke="var(--h2)" stroke-width="2"/>
+   <text x="74" y="58" text-anchor="middle" font-size="11" style="font-family:var(--font-m)">returns a list</text>
+   <text x="244" y="20" text-anchor="middle" font-size="12" font-weight="800">What users rely on</text>
+   <rect x="156" y="32" width="176" height="${rely.length*22+14}" rx="8" fill="color-mix(in srgb,var(--h6) 10%,var(--surface))" stroke="var(--h6)" stroke-width="2"/>
+   ${rely.map((t,i)=>`<text x="168" y="${54+i*22}" font-size="10.5" style="font-family:var(--font-m);${i===rely.length-1?"fill:var(--muted)":""}">${t}</text>`).join("")}
+   ${[0,1,2,3].map(i=>`${fig(40+i*26,140,"var(--h5)")}`).join("")}
+   <path d="M150 150 C140 140 145 110 156 100" fill="none" stroke="var(--h5)" stroke-width="1.8" stroke-dasharray="4 3"/>
+   <text x="12" y="204" font-size="10.5" font-weight="800" style="fill:var(--h5)">enough users: someone relies on all of it</text></svg>`;
+}
+function picSecond(){
+  const v=[["v1","lean, ships",54,"good",["core job"]],["v2","“now we’ll do it properly”",150,"bad",["plug-ins","themes","AI","workflow engine","offline mode","the wish list"]],["v3","chastened, ships",92,"good",["core job","2 real fixes"]]];
+  return `<svg viewBox="0 0 340 214" role="img" aria-label="Scope by version: a lean v1, a bloated v2, a sensible v3">
+   <path d="M20 180 H330" stroke="var(--muted)" stroke-width="1.5"/>
+   ${v.map(([l,s,h,c,f],i)=>{const x=24+i*104,w=90;return `<rect x="${x}" y="${180-h}" width="${w}" height="${h}" rx="6" fill="color-mix(in srgb,var(--${c}) 12%,var(--surface))" stroke="var(--${c})" stroke-width="2"/>
+     ${f.map((t,j)=>`<text x="${x+w/2}" y="${180-h+16+j*16}" text-anchor="middle" font-size="9.5" font-weight="700">${t}</text>`).join("")}
+     <text x="${x+w/2}" y="196" text-anchor="middle" font-size="12" font-weight="800">${l}</text>
+     <text x="${x+w/2}" y="209" text-anchor="middle" font-size="9.5" style="fill:var(--${c})" font-weight="800">${s}</text>
+     ${c==="bad"?`<text x="${x+w/2}" y="${180-h-8}" text-anchor="middle" font-size="10" font-weight="800" style="fill:var(--bad)">late, over budget</text>`:tick(x+w/2,180-h-12)}`;}).join("")}</svg>`;
+}
+function picFallacies(){
+  const F=[["The network is reliable","it drops and resets"],["Latency is zero","every hop takes time"],["Bandwidth is infinite","links get congested"],["The network is secure","assume it’s watched"],["Topology doesn’t change","servers move"],["There’s one administrator","many owners"],["Transport is free","moving data costs"],["The network is uniform","mixed kit, mixed rules"]];
+  return `<svg viewBox="0 0 340 266" role="img" aria-label="Eight network myths and the reality behind each">
+   ${F.map(([m,r],i)=>{const x=6+(i%2)*168,y=6+Math.floor(i/2)*64;return `<rect x="${x}" y="${y}" width="160" height="58" rx="9" fill="var(--surface)" stroke="var(--ink)" stroke-width="1.6"/>
+    <circle cx="${x+16}" cy="${y+18}" r="9" fill="var(--ink)"/><text x="${x+16}" y="${y+22}" text-anchor="middle" font-size="10" font-weight="800" style="fill:var(--bg)">${i+1}</text>
+    <text x="${x+30}" y="${y+22}" font-size="10" font-weight="700" style="fill:var(--bad)" text-decoration="line-through">${m}</text>
+    <text x="${x+30}" y="${y+42}" font-size="10.5" font-weight="800" style="fill:var(--good)">${r}</text>`;}).join("")}</svg>`;
+}
+function picUnintended(){
+  const P=(i,title,body)=>{const x=6+i*112;return `<rect x="${x}" y="8" width="104" height="150" rx="10" fill="var(--surface)" stroke="var(--ink)" stroke-width="2"/><text x="${x+52}" y="26" text-anchor="middle" font-size="10.5" font-weight="800">${i+1}. ${title}</text>${body(x)}`;};
+  return `<svg viewBox="0 0 340 196" role="img" aria-label="Story: a strict uptime rule makes teams deploy less, causing bigger, riskier releases">
+   ${P(0,"A strict rule",x=>`<path d="M${x+22} 96 a30 30 0 0 1 60 0" fill="none" stroke="var(--line)" stroke-width="8"/><path d="M${x+22} 96 a30 30 0 0 1 56 -8" fill="none" stroke="var(--good)" stroke-width="8"/><path d="M${x+52} 96 l20 -22" stroke="var(--ink)" stroke-width="2.5" stroke-linecap="round"/><text x="${x+52}" y="118" text-anchor="middle" font-size="12" font-weight="800">99.95%</text><text x="${x+52}" y="140" text-anchor="middle" font-size="9.5" style="fill:var(--muted)">“no deploys if</text><text x="${x+52}" y="151" text-anchor="middle" font-size="9.5" style="fill:var(--muted)">uptime dips”</text>`)}
+   ${P(1,"Teams stop",x=>`${[0,1,2,3,4].map(j=>`<rect x="${x+30+(j%2)*8}" y="${116-j*16}" width="40" height="14" rx="2" fill="color-mix(in srgb,var(--h4) 22%,var(--surface))" stroke="var(--h4)" stroke-width="1.5"/>`).join("")}<text x="${x+52}" y="140" text-anchor="middle" font-size="9.5" style="fill:var(--muted)">changes pile up,</text><text x="${x+52}" y="151" text-anchor="middle" font-size="9.5" style="fill:var(--muted)">waiting to ship</text>`)}
+   ${P(2,"Big-bang release",x=>`<rect x="${x+24}" y="62" width="56" height="44" rx="4" fill="color-mix(in srgb,var(--h4) 22%,var(--surface))" stroke="var(--h4)" stroke-width="2"/><path d="M${x+58} 42 l-12 22 h10 l-8 18 l20 -26 h-10 l8 -14z" fill="var(--bad)"/><text x="${x+52}" y="124" text-anchor="middle" font-size="11" font-weight="800" style="fill:var(--bad)">outage</text><text x="${x+52}" y="140" text-anchor="middle" font-size="9.5" style="fill:var(--muted)">the opposite of</text><text x="${x+52}" y="151" text-anchor="middle" font-size="9.5" style="fill:var(--muted)">what was intended</text>`)}
+   <text x="170" y="184" text-anchor="middle" font-size="10.5" font-weight="800" style="fill:var(--bad)">intended: more uptime · got: fewer, riskier releases</text></svg>`;
+}
+Object.assign(GL,{
+ gall:'<path d="M12 21v-9"/><path d="M12 12c0-4 3-7 7-7 0 4-3 7-7 7zM12 14c0-3-2.5-5.5-6-5.5 0 3 2.5 5.5 6 5.5z"/>',
+ leaky:'<path d="M12 3s6 7 6 11a6 6 0 0 1-12 0c0-4 6-11 6-11z"/>',
+ tesler:'<path d="M12 4v16M8 20h8M5 7h14M5 7l-3 6a3 3 0 0 0 6 0zM19 7l-3 6a3 3 0 0 0 6 0z"/>',
+ cap:'<path d="M12 4L3.5 19.5h17z"/><circle cx="12" cy="4" r="1.6"/><circle cx="3.5" cy="19.5" r="1.6"/><circle cx="20.5" cy="19.5" r="1.6"/>',
+ hyrum:'<path d="M9 15l6-6M7.5 11.5L5 14a3.5 3.5 0 0 0 5 5l2.5-2.5M16.5 12.5L19 10a3.5 3.5 0 0 0-5-5l-2.5 2.5"/>',
+ second:'<rect x="3" y="12" width="6" height="8" rx="1"/><rect x="11" y="4" width="10" height="16" rx="1"/>',
+ fallacies:'<path d="M2 9a15 15 0 0 1 20 0M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0"/><path d="M4 4l16 16"/>',
+ unintended:'<rect x="4" y="4" width="16" height="16" rx="3"/><circle cx="9" cy="9" r="1.2"/><circle cx="15" cy="15" r="1.2"/><circle cx="15" cy="9" r="1.2"/><circle cx="9" cy="15" r="1.2"/>'
+});
+LAWS.push(
+{id:"gall",part:"I",name:"Gall’s Law",sub:"Complex systems grow from simple ones",gl:"gall",
+ one:"Every complex system that works grew from a simple system that worked. Designing a complex system from scratch rarely works.",
+ origin:"John Gall, <i>Systemantics</i>, 1975",
+ pic:picGall,cap:"The only reliable route to a big working system is a small working one, grown step by step.",
+ q:"What’s the smallest version of this that works end to end?",
+ steps:[["Build a thin slice","One journey, working end to end."],["Put it in real hands","Real users, real data."],["Grow one step at a time","Each step adds one working piece."],["Keep it working","Never break the whole to build the next part."]],
+ b5:"practice",
+ before:"An 18-month rewrite of the whole platform, designed up front.\nNothing ships until everything ships.\nIntegration problems appear at the very end.",
+ whyB:"All the risk lands on one big day.",
+ after:"A working end-to-end slice in weeks: one product, one customer journey.\nEach release adds one more working piece.\nProblems show up early, while they’re small.",
+ whyA:"Risk is spread across many small, safe steps.",
+ ex:[["tech","The web started as one simple server and browser at CERN, then grew piece by piece."],["biz","Amazon began by selling only books."],["nature","Evolution builds complex creatures through many small steps that each work."],["gov","The NHS National Programme for IT tried to build everything at once and was dismantled in 2011 after billions were spent."]],
+ bend:[["Gall says","Start simple and grow."],["But some things need design up front","Safety-critical parts, hard-to-change data models and legal requirements deserve careful early design. Grow the rest."]],
+ rel:[["name","Second-System Effect"],["law","yagni"],["law","kiss"],["st","dr","De-risking"]],
+ cheat:{ask:"What’s the smallest version that works end to end?",bend:"Safety-critical parts and hard-to-change data models."}},
+{id:"leaky",part:"I",name:"Leaky Abstractions",sub:"Every abstraction leaks",gl:"leaky",
+ one:"Every useful abstraction hides details that sometimes leak through. Then you need to understand the layer below.",
+ origin:"Joel Spolsky, 2002",
+ pic:picLeaky,cap:"You work at the top, but a problem at the bottom can leak all the way up.",
+ q:"What happens one layer below this when something goes wrong?",
+ steps:[["Learn one layer down","Know what your tools do underneath."],["Watch for leak signs","Odd slowness, strange errors, timeouts."],["Test against the real thing","Real database, real network."],["Keep escape hatches","Let people reach the layer below when needed."]],
+ before:`orders = Order.objects.all()
+for order in orders:
+    print(order.customer.name)   # 1 query + 1 per order`,
+ whyB:"Looks like one simple loop. Underneath, 1,001 database queries for 1,000 orders.",
+ after:`orders = Order.objects.select_related("customer")
+for order in orders:
+    print(order.customer.name)   # 1 query with a join`,
+ whyA:"Knowing the SQL underneath turns 1,001 queries into one.",
+ ex:[["transport","An automatic gearbox hides the gears, until you tow a caravan up a steep hill."],["home","A smart thermostat app hides the boiler, until the boiler breaks."],["money","Contactless payment hides card networks, until one has an outage."],["tech","Cloud storage feels like a local drive, until the connection drops."]],
+ bend:[["Spolsky says","Abstractions leak."],["But use them anyway","They save enormous effort. Just learn the layer below the one you use every day."]],
+ rel:[["law","demeter"],["name","Hyrum’s Law"],["name","Fallacies of Distributed Computing"],["name","Kernighan’s Law"]],
+ cheat:{ask:"What happens one layer down when it breaks?",bend:"Don’t avoid abstractions; learn the layer below."}},
+{id:"tesler",part:"I",name:"Tesler’s Law",sub:"Complexity can’t vanish, only move",gl:"tesler",
+ one:"Every task has some complexity that can’t be removed, only moved: to the team building it or to the people using it.",
+ origin:"Larry Tesler, Xerox PARC, 1980s",
+ pic:picTesler,cap:"“Simplifying” by pushing work onto users just moves the complexity to thousands of people.",
+ q:"Who should carry this complexity: us, or every user?",
+ steps:[["Find the essential part","What complexity can’t be removed?"],["Decide who carries it","Team or user, deliberately."],["Absorb it once","Usually better in the product than in every user’s head."],["Leave real choices to users","Sensible defaults, with control for experts."]],
+ before:`from datetime import timedelta
+
+def to_utc(local_time, offset_hours):
+    # every user types their UTC offset:
+    # +1 in summer, 0 in winter, and often gets it wrong
+    return local_time - timedelta(hours=offset_hours)`,
+ whyB:"“Simple” code that hands time-zone complexity to every user.",
+ after:`from zoneinfo import ZoneInfo
+
+def to_utc(local_time, place="Europe/London"):
+    # the product handles zones and clock changes
+    local = local_time.replace(tzinfo=ZoneInfo(place))
+    return local.astimezone(ZoneInfo("UTC"))`,
+ whyA:"The team handles the complexity once, for everyone.",
+ ex:[["home","Flat-pack furniture is cheaper because assembly moves from the factory to you."],["gov","Pre-filled tax returns move the paperwork from citizens to the tax office."],["transport","Satnav took on the route-finding drivers used to do with paper maps."],["health","Pharmacy blister packs take a complicated medication schedule off the patient."]],
+ bend:[["Tesler says","Complexity must live somewhere."],["But don’t hide all of it","Experts need control. Offer sensible defaults with an “advanced” option."]],
+ rel:[["law","kiss"],["name","Leaky Abstractions"],["name","Gall’s Law"]],
+ cheat:{ask:"Should we carry this complexity, or every user?",bend:"Experts need control: defaults plus advanced options."}},
+{id:"cap",part:"I",name:"CAP Theorem",sub:"Consistency or availability, when the network splits",gl:"cap",
+ one:"When the network between data centres breaks, a distributed system must choose: stay correct or stay available.",
+ origin:"Eric Brewer, 2000; proved by Seth Gilbert & Nancy Lynch, 2002",
+ pic:picCAP,cap:"Network splits will happen. The real choice is what each feature does when they do.",
+ q:"During a network split, is a wrong answer or no answer worse for us?",
+ steps:[["Accept splits happen","They’re not optional on real networks."],["Choose per feature","Correct (CP) or available (AP)?"],["Pick matching tools","Databases differ in what they favour."],["Design the recovery","Reconcile, retry, and tell the user."]],
+ b5:"practice",
+ before:"One rule for everything: “always up and always correct”.\nThen a network split forces a choice nobody planned for.",
+ whyB:"The decision gets made by accident, during an incident.",
+ after:"Decided per feature, in advance:\nBank balance → stay correct; pause if unsure.\nShopping basket → stay available; merge later.\nUsers see a clear message when something pauses.",
+ whyA:"The trade-off is a design decision, not a surprise.",
+ ex:[["money","Cash machines can allow limited withdrawals while offline from the bank, then reconcile later (available)."],["tech","Amazon’s Dynamo design kept shopping baskets available and merged conflicts afterwards."],["health","During an IT outage, hospitals switch to paper records and reconcile them later."],["home","Two people editing a shared document offline get their changes merged when they reconnect."]],
+ bend:[["CAP says","Choose C or A during a split."],["But it’s not “pick any two”","Splits aren’t optional. And when the network is healthy, the trade-off becomes speed versus consistency."]],
+ rel:[["name","Fallacies of Distributed Computing"],["name","Murphy’s Law"],["name","Leaky Abstractions"]],
+ cheat:{ask:"During a split, is wrong or unavailable worse?",bend:"It’s not “pick any two”: splits will happen."}},
+{id:"hyrum",part:"I",name:"Hyrum’s Law",sub:"Every behaviour becomes a promise",gl:"hyrum",
+ one:"With enough users, every observable behaviour of your system will be relied on by someone, whatever your documentation says.",
+ origin:"Hyrum Wright, Google, 2010s",
+ pic:picHyrum,cap:"You promise a little. Users rely on everything they can see.",
+ q:"If I change this behaviour, who might be relying on it?",
+ steps:[["Assume it’s all relied on","Order, timing, error text, quirks."],["Make behaviour deliberate","Promise it, or make it unpredictable on purpose."],["Version and deprecate","Announce, overlap, then remove."],["Check real usage","Look at logs before changing behaviour."]],
+ before:`def list_users():
+    # docs: "returns users" (no order promised)
+    return db.query("SELECT * FROM users")
+    # ...which happens to come back in id order`,
+ whyB:"Clients quietly depend on the accidental order. A database upgrade changes it and breaks them.",
+ after:`SAFE_ORDER = {"id": "id", "name": "last_name"}
+
+def list_users(order_by="id"):
+    # order is now an explicit, documented promise
+    col = SAFE_ORDER[order_by]
+    return db.query(f"SELECT * FROM users ORDER BY {col}")`,
+ whyA:"The behaviour people rely on becomes a promise you can keep, or version.",
+ ex:[["tech","The Go language deliberately randomises map order so nobody can come to rely on it."],["tech","Linux’s rule is “don’t break user space”, even when programs rely on odd behaviour."],["biz","Customers rely on a delivery that always arrives before 10 a.m., though it was never promised."],["transport","Commuters rely on the train always using platform 2, so a change causes chaos."]],
+ bend:[["Hyrum says","Everything gets relied on."],["But you can still change","Announce early, run old and new side by side, and give a migration path. Don’t freeze forever."]],
+ rel:[["name","Postel’s Law"],["name","Leaky Abstractions"],["law","demeter"],["name","Lehman’s Laws"]],
+ cheat:{ask:"Who might rely on this behaviour?",bend:"Change with notice, versions and a migration path."}},
+{id:"second",part:"I",name:"Second-System Effect",sub:"Version two gets everything",gl:"second",
+ one:"The second version of a system is the most dangerous: designers pile in every idea they held back the first time.",
+ origin:"Fred Brooks, <i>The Mythical Man-Month</i>, 1975",
+ pic:picSecond,cap:"v1 was lean and shipped. v2 tries to include everything and doesn’t.",
+ q:"Are we fixing real problems, or adding everything we couldn’t before?",
+ steps:[["List v1’s real pain points","From users and data, not wish lists."],["Set a scope budget","Agreed before kick-off."],["Ship v2 in steps","Small working releases (Gall’s Law)."],["Say no to “while we’re at it”","Park extras for later."]],
+ b5:"practice",
+ before:"“Now we’ll build it properly.”\nEvery postponed idea goes in.\nTwo years later, it still hasn’t shipped.",
+ whyB:"Ambition without a limit.",
+ after:"Fix v1’s top three pain points.\nA fixed scope budget, agreed before kick-off.\nShip in small increments.",
+ whyA:"Learning from v1 without the bloat.",
+ ex:[["tech","Brooks drew on his own experience leading IBM’s OS/360 projects."],["tech","Netscape’s ground-up browser rewrite took about three years while rivals moved ahead."],["home","The second house renovation, with every item from the wish list, runs far over budget."],["biz","A “v2” CRM that tries to give every department everything it ever asked for."]],
+ bend:[["Brooks warns","Beware version two."],["But rewrites can work","Learning from v1 is valuable. The danger is unlimited ambition, not the rewrite itself."]],
+ rel:[["name","Gall’s Law"],["law","yagni"],["law","kiss"],["name","Hofstadter’s Law"]],
+ cheat:{ask:"Real problems, or every postponed idea?",bend:"Rewrites with a strict scope budget."}},
+{id:"fallacies",part:"I",name:"Fallacies of Distributed Computing",sub:"Eight myths about networks",gl:"fallacies",
+ one:"Eight things developers wrongly assume about networks, starting with “the network is reliable”.",
+ origin:"L. Peter Deutsch and colleagues at Sun Microsystems, 1990s; the eighth added by James Gosling",
+ pic:picFallacies,cap:"Each myth is crossed out, with the reality underneath.",
+ q:"What happens to this call when the network is slow, broken or hostile?",
+ steps:[["Assume it fails","Timeouts, retries with back-off, circuit breakers."],["Budget for latency","Fewer, bigger calls."],["Secure every hop","Encrypt and authenticate everything."],["Watch it","Monitoring and tracing across services."]],
+ before:`total = 0
+for sku in basket:                    # 50 items
+    total += pricing_api.get(sku)     # 50 network calls, no timeout`,
+ whyB:"Treats the network like a local function: 50 round trips and no plan for failure.",
+ after:`prices = pricing_api.get_many(basket, timeout=1.5)  # one call
+total = sum(prices.values())`,
+ whyA:"One batched call with a timeout. Latency and failure are planned for.",
+ ex:[["tech","Calls between continents always take noticeable time: light in fibre has a speed limit."],["home","Video calls freeze when the Wi-Fi drops for a second."],["gov","Public Wi-Fi isn’t safe to trust, which is why websites now encrypt everything."],["biz","Cloud data-transfer fees surprise teams who assumed moving data is free."]],
+ bend:[["The fallacies say","Assume the network is hostile."],["But stay proportionate","Inside one data centre some risks are small. Measure your real network before over-engineering."]],
+ rel:[["name","Murphy’s Law"],["name","CAP Theorem"],["name","Leaky Abstractions"],["name","Postel’s Law"]],
+ cheat:{ask:"What if this call is slow, broken or hostile?",bend:"Measure first; don’t over-engineer local calls."}},
+{id:"unintended",part:"I",name:"Unintended Consequences",sub:"Every change has side effects",gl:"unintended",
+ one:"Actions in complex systems always have effects nobody planned, and some of them work against the original goal.",
+ origin:"Robert K. Merton, 1936",
+ pic:picUnintended,cap:"A rule meant to protect uptime ends up causing the outage it was meant to prevent.",
+ q:"If this works exactly as intended, what will people do differently?",
+ steps:[["Ask “and then what?”","Two or three steps ahead."],["Check the incentives","What does this reward or punish?"],["Pilot small and watch","Measure the side effects too."],["Be ready to reverse","Agree how you’ll undo it."]],
+ b5:"practice",
+ before:"Policy: “No production deploys if uptime drops below 99.95%.”\nTeams stop deploying.\nChanges pile up into big, risky releases.",
+ whyB:"The rule rewards not deploying, which makes failures bigger.",
+ after:"Policy: “Small, frequent deploys with automatic rollback.”\nReliability measured alongside how fast you recover.",
+ whyA:"The incentive now points at the real goal.",
+ ex:[["gov","England’s 1696 window tax led people to brick up their windows."],["nature","Cane toads, brought to Australia in 1935 to eat beetles, became a major pest themselves."],["tech","Strict password rules lead people to write passwords on sticky notes."],["biz","Bonuses for closing support tickets fast led to tickets closed without being fixed."]],
+ bend:[["Merton says","Expect surprises."],["But don’t freeze","Doing nothing has consequences too. Pilot, measure and adjust."]],
+ rel:[["st","gl","Goodhart’s law"],["st","sy","Systems thinking"],["name","Murphy’s Law"],["name","Gall’s Law"]],
+ cheat:{ask:"If it works as intended, what will people do differently?",bend:"Inaction has consequences too: pilot and adjust."}}
+);
 LAWS.forEach(l=>{l.part=l.part||"VI";});
 
 const BYID=Object.fromEntries(LAWS.map(l=>[l.id,l]));
@@ -1045,7 +1297,7 @@ const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
 const HUES=["h1","h2","h3","h4","h5","h6"];
 
 /* ================= BUILDING ================= */
-let curPart="V",curLaw="amdahl";
+let curPart="I",curLaw="gall";
 function bldRender(){
   const svg=document.getElementById("bld");const X0=36,W=288,FH=58,TOP=80;let g="";
   /* crane */
@@ -1145,14 +1397,22 @@ const QZ=[
  {q:"With a bigger cluster, the data team models every store daily instead of every region monthly, in the same run time.",a:"gustafson",o:["gustafson","amdahl","metcalfe"],why:"More capacity went into a bigger problem, not the same one faster."},
  {q:"400 requests arrive each second and each takes half a second. About how many are in progress at once? (200)",a:"little",o:["little","amdahl","murphy"],why:"L = λ × W = 400 × 0.5 = 200."},
  {q:"A messaging app becomes far more useful once most of your friends have joined.",a:"metcalfe",o:["metcalfe","gustafson","sturgeon"],why:"Each new user adds possible connections for everyone already there."},
- {q:"A café owner works out she needs about 30 seats from customer arrivals and how long people stay.",a:"little",o:["little","metcalfe","amdahl"],why:"2 arrivals a minute × 15 minutes each = about 30 people inside."}
+ {q:"A café owner works out she needs about 30 seats from customer arrivals and how long people stay.",a:"little",o:["little","metcalfe","amdahl"],why:"2 arrivals a minute × 15 minutes each = about 30 people inside."},
+ {q:"The team spends 18 months designing a complete replacement platform before shipping anything, and it never works.",a:"gall",o:["gall","second","tesler"],why:"Working complex systems grow from simple working ones. Ship a thin slice first."},
+ {q:"A tidy-looking ORM loop turns out to fire 1,001 database queries.",a:"leaky",o:["leaky","hyrum","fallacies"],why:"The abstraction leaked: you needed to know the SQL underneath."},
+ {q:"To make the app “simpler”, users now have to type their own time-zone offset.",a:"tesler",o:["tesler","kiss","leaky"],why:"The complexity didn’t go away; it moved to every user."},
+ {q:"During a network split, the bank’s app refuses transfers rather than risk wrong balances.",a:"cap",o:["cap","fallacies","murphy"],why:"A deliberate choice of consistency over availability during a partition."},
+ {q:"You fix a typo in an error message and a customer’s script that searched for the old text breaks.",a:"hyrum",o:["hyrum","postel","leaky"],why:"With enough users, even error text becomes something people rely on."},
+ {q:"Version 2 of the CRM tries to include every feature every department ever asked for.",a:"second",o:["second","gall","yagni"],why:"Classic second-system bloat. Set a scope budget and ship in steps."},
+ {q:"A checkout loop calls a remote pricing service 50 times, with no timeout.",a:"fallacies",o:["fallacies","little","murphy"],why:"It assumes the network is reliable and latency is zero."},
+ {q:"A rule meant to improve uptime makes teams deploy rarely, so releases get bigger and riskier.",a:"unintended",o:["unintended","broken","murphy"],why:"The rule changed behaviour in a way that worked against its own goal."}
 ];
 const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
 const qz={floor:"all",order:[],pos:0,score:0,answered:0,picked:null};
 function qzReset(){const ids=QZ.map((_,i)=>i).filter(i=>qz.floor==="all"||BYID[QZ[i].a].part===qz.floor);Object.assign(qz,{order:shuffle(ids),pos:0,score:0,answered:0,picked:null});QZ.forEach(q=>delete q._o);}
 function qzRender(){
   const box=document.getElementById("quiz"),N=qz.order.length;
-  const filt=`<div class="qf" role="group" aria-label="Choose floor">${[["all","All open floors"],["VI","Ground"],["IV","Floor 1"],["V","Floor 2"]].map(([k,l])=>`<button data-f="${k}" aria-pressed="${qz.floor===k}">${l}</button>`).join("")}</div>`;
+  const filt=`<div class="qf" role="group" aria-label="Choose floor">${[["all","All open floors"],["VI","Ground"],["IV","Floor 1"],["V","Floor 2"],["I","Floor 3"]].map(([k,l])=>`<button data-f="${k}" aria-pressed="${qz.floor===k}">${l}</button>`).join("")}</div>`;
   if(qz.pos>=N){box.innerHTML=filt+`<div class="q-meta"><span>Done</span><span>${qz.score}/${N}</span></div><p class="q-text">You matched ${qz.score} of ${N} situations.</p><button class="btn primary" id="qr" style="width:100%">Shuffle and play again</button>`;
     document.getElementById("qr").onclick=()=>{qzReset();qzRender();};}
   else{
@@ -1181,7 +1441,11 @@ const PAIRS=[
  {a:["law","lehman"],b:["law","kiss"],t:"Keep evolving, or keep it simple?",r:"Evolve what users need, and simplify as you go so each change stays cheap."},
  {a:["law","amdahl"],b:["law","gustafson"],t:"Go faster, or do more?",r:"Same job sooner: find and shrink the serial part. Bigger job in the same time: scale out."},
  {a:["law","metcalfe"],b:["law","sturgeon"],t:"More users, or better ones?",r:"Value comes from useful connections. Growth that adds mostly noise can make the network worse."},
- {a:["law","little"],b:["law","murphy"],t:"Plan for the average, or the bad day?",r:"Use Little’s Law for the average load, then add headroom for the peaks Murphy promises."}
+ {a:["law","little"],b:["law","murphy"],t:"Plan for the average, or the bad day?",r:"Use Little’s Law for the average load, then add headroom for the peaks Murphy promises."},
+ {a:["law","gall"],b:["law","second"],t:"Grow it, or rebuild it properly?",r:"If you must rebuild, do it in small working steps. A “proper” rebuild in one go combines both failure modes."},
+ {a:["law","tesler"],b:["law","kiss"],t:"Hide the complexity, or keep it simple?",r:"Simplify what you can. What remains must live somewhere, and it’s usually better in the product than with every user."},
+ {a:["law","hyrum"],b:["law","lehman"],t:"Never break users, or keep evolving?",r:"Keep evolving, but through versions, deprecation notices and migration paths."},
+ {a:["law","cap"],b:["law","fallacies"],t:"Choose your trade-off, or assume the network works?",r:"The fallacies say partitions will happen; CAP says decide in advance what each feature does when they do."}
 ];
 function pairsRender(){
   const side=s=>{if(s[0]==="law"){const l=BYID[s[1]],c=PARTS[l.part].c;return `<a class="side" href="#law-${l.id}" style="--c:var(--${c});text-decoration:none;color:inherit"><span style="color:var(--${c})">${ic(GL[l.gl])}</span><b>${esc(l.name)}</b><small>${esc(l.one)}</small><span class="open">Open page →</span></a>`;}
@@ -1191,7 +1455,7 @@ function pairsRender(){
 
 /* ================= CHEAT SHEET ================= */
 function cheatRender(){
-  const open=["VI","IV","V"];
+  const open=["VI","IV","V","I"];
   document.getElementById("cheat").outerHTML=`<div id="cheat">${open.map(k=>{const P=PARTS[k];return `<h3 class="cfloor" style="--c:var(--${P.c})">${floorName(P)} · ${esc(P.name)}</h3><div class="cheat">${LAWS.filter(l=>l.part===k).map(l=>`<div class="cs" style="--c:var(--${P.c})"><div class="top"><span class="gl">${ic(GL[l.gl])}</span><div><b>${esc(l.name)}</b><div style="font-size:11.5px;color:var(--muted);font-weight:700">${esc(l.sub)}</div></div></div>
     <p class="one">${esc(l.one)}</p><dl><dt>Ask</dt><dd>${esc(l.cheat.ask)}</dd><dt>Bend for</dt><dd>${esc(l.cheat.bend)}</dd></dl></div>`).join("")}</div>`;}).join("")}</div>`;
   if(location.protocol==="file:"||/github\.io$/.test(location.hostname)){
