@@ -174,6 +174,21 @@ svg text{font-family:var(--font-b);fill:var(--ink)}
 .cs dt{font-weight:800;color:var(--c)}
 .cs dd{margin:0}
 
+.ba .flow{padding:10px 12px;font-size:13.5px;line-height:1.55;white-space:pre-line;flex:1}
+.stb{display:inline-block;margin-top:8px;font-size:12px;font-weight:800;border:2px dashed var(--p7);color:var(--p7);border-radius:999px;padding:2px 10px;text-decoration:none}
+.qf{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin:0 auto 12px;max-width:580px}
+.qf button{border:2px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 12px;font-size:13px;font-weight:700;cursor:pointer}
+.qf button[aria-pressed="true"]{border-color:var(--ink);background:var(--ink);color:var(--bg)}
+.cfloor{font-family:var(--font-d);font-size:20px;margin:16px 0 8px;color:var(--c)}
+.cfloor:first-child{margin-top:0}
+@keyframes crk{0%{opacity:0}8%,92%{opacity:1}100%{opacity:0}}
+@keyframes eyeIn{0%{opacity:0}8%,90%{opacity:1}100%{opacity:0}}
+@keyframes found{0%,45%{opacity:0}55%,90%{opacity:1}100%{opacity:0}}
+@keyframes goldpulse{0%,100%{opacity:1}50%{opacity:.55}}
+.anim .crk{animation:crk 9s infinite both}
+.anim .eyein{animation:eyeIn 7s infinite both}
+.anim .found{animation:found 7s infinite both}
+.anim .gold{animation:goldpulse 2.6s ease-in-out infinite}
 footer{margin-top:36px;font-size:12.5px;color:var(--muted);border-top:2px dashed var(--line);padding-top:14px}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 @media print{
@@ -191,12 +206,12 @@ footer{margin-top:36px;font-size:12.5px;color:var(--muted);border-top:2px dashed
 <header>
   <div class="eyebrow">Learning series · Book 2</div>
   <h1>Software Laws, mapped</h1>
-  <p>57 laws and principles of software engineering as a building: code on the ground floor, decisions on the roof. The ground floor (coding and design principles) is open. The other floors are under construction.</p>
+  <p>57 laws and principles of software engineering as a building: code on the ground floor, decisions on the roof. The ground floor (coding and design principles) and floor 1 (quality and maintenance) are open. The other floors are under construction.</p>
 </header>
 
 <nav class="tabs" role="tablist" aria-label="Views">
   <button class="tab" role="tab" data-view="building">The building</button>
-  <button class="tab" role="tab" data-view="quiz">Which principle?</button>
+  <button class="tab" role="tab" data-view="quiz">Which law?</button>
   <button class="tab" role="tab" data-view="pairs">Tension pairs</button>
   <button class="tab" role="tab" data-view="cheat">Cheat sheet</button>
 </nav>
@@ -212,7 +227,7 @@ footer{margin-top:36px;font-size:12.5px;color:var(--muted);border-top:2px dashed
 <section id="v-quiz" hidden><div class="q-card" id="quiz"></div></section>
 <section id="v-pairs" hidden><div class="pairs" id="pairs"></div></section>
 <section id="v-cheat" hidden>
-  <div class="cheat-hd"><h2>Ground floor cheat sheet</h2><p id="printnote">To print this page, open the file from the Learning repo in your browser and use Print. Only this sheet is printed.</p></div>
+  <div class="cheat-hd"><h2>Cheat sheet: open floors</h2><p id="printnote">To print this page, open the file from the Learning repo in your browser and use Print. Only this sheet is printed.</p></div>
   <div class="cheat" id="cheat"></div>
 </section>
 
@@ -223,7 +238,7 @@ footer{margin-top:36px;font-size:12.5px;color:var(--muted);border-top:2px dashed
 /* ================= DATA ================= */
 const PARTS={
  VI:{n:"VI",name:"Coding & Design Principles",short:"Code",floor:"G",c:"p6",laws:["DRY","KISS","YAGNI","SOLID","Law of Demeter","Boy Scout Rule"],built:true},
- IV:{n:"IV",name:"Quality, Maintenance & Evolution",short:"Quality",floor:"1",c:"p4",laws:["Murphy’s Law","Postel’s Law","Broken Windows","Technical Debt","Linus’s Law","Kernighan’s Law","Pesticide Paradox","Testing Pyramid","Lehman’s Laws","Sturgeon’s Law"]},
+ IV:{n:"IV",name:"Quality, Maintenance & Evolution",short:"Quality",floor:"1",c:"p4",built:true,laws:["Murphy’s Law","Postel’s Law","Broken Windows","Technical Debt","Linus’s Law","Kernighan’s Law","Pesticide Paradox","Testing Pyramid","Lehman’s Laws","Sturgeon’s Law"]},
  V:{n:"V",name:"Scale, Performance & Growth",short:"Scale",floor:"2",c:"p5",laws:["Amdahl’s Law","Gustafson’s Law","Little’s Law","Metcalfe’s Law"]},
  I:{n:"I",name:"Architecture & Complexity",short:"Architecture",floor:"3",c:"p1",laws:["Gall’s Law","Leaky Abstractions","Tesler’s Law","CAP Theorem","Hyrum’s Law","Second-System Effect","Fallacies of Distributed Computing","Unintended Consequences"]},
  III:{n:"III",name:"Time, Estimation & Planning",short:"Time",floor:"4",c:"p3",laws:["Hofstadter’s Law","Parkinson’s Law","Ninety-Ninety Rule","Goodhart’s Law","Gilb’s Law","Knuth’s Optimisation Principle"]},
@@ -488,14 +503,372 @@ def price_with_vat(net, vat_applies):
  rel:[["law","dry"],["soon","Broken Windows"],["soon","Technical Debt"],["st","en","Entropy"],["st","td","Technical debt"]],
  cheat:{ask:"What small thing can I tidy while I’m here?",bend:"Big refactors: give them their own change."}}
 ];
+/* ================= FLOOR 1 · PART IV ================= */
+function picMurphy(){
+  const rows=[["Network call","timeout + retry"],["Disk write","backups + checks"],["User input","validate + limit"],["Third-party API","fallback + cache"],["Human operator","runbook + rollback"]];
+  return `<svg viewBox="0 0 340 214" role="img" aria-label="Five things that fail and the safety net for each">
+  <defs><marker id="mA" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0 0L8 4L0 8z" fill="var(--ink)"/></marker></defs>
+  <text x="79" y="18" text-anchor="middle" font-size="12.5" font-weight="800" style="fill:var(--bad)">Assume it fails</text>
+  <text x="260" y="18" text-anchor="middle" font-size="12.5" font-weight="800" style="fill:var(--good)">Plan for it</text>
+  ${rows.map(([a,b],i)=>{const y=30+i*36;return `<rect x="8" y="${y}" width="142" height="28" rx="14" fill="color-mix(in srgb,var(--bad) 10%,var(--surface))" stroke="var(--bad)" stroke-width="1.8"/>
+   <path d="M25 ${y+5} l-6 10 h6 l-4 8 l11 -12 h-6 l4 -6z" fill="var(--bad)"/>
+   <text x="40" y="${y+18}" font-size="11.5" font-weight="700">${a}</text>
+   <path d="M156 ${y+14} H180" stroke="var(--ink)" stroke-width="2" marker-end="url(#mA)"/>
+   <rect x="188" y="${y}" width="144" height="28" rx="14" fill="color-mix(in srgb,var(--good) 10%,var(--surface))" stroke="var(--good)" stroke-width="1.8"/>
+   <text x="260" y="${y+18}" text-anchor="middle" font-size="11.5" font-weight="700">${b}</text>`;}).join("")}</svg>`;
+}
+function picPostel(){
+  const ins=["␣2026-11-18␣","18/11/2026","2026-11-18T09:00","18 Nov 2026"];
+  return `<svg viewBox="0 0 340 214" role="img" aria-label="Messy date inputs pass through a funnel and come out in one strict format">
+  <text x="66" y="18" text-anchor="middle" font-size="12.5" font-weight="800" style="fill:var(--h5)">Tolerant in</text>
+  <text x="277" y="18" text-anchor="middle" font-size="12.5" font-weight="800" style="fill:var(--good)">Strict out</text>
+  ${ins.map((t,i)=>{const y=32+i*34,r=i%2?2.5:-2.5;return `<g transform="rotate(${r} 66 ${y+12})"><rect x="6" y="${y}" width="122" height="24" rx="5" fill="color-mix(in srgb,var(--h5) 10%,var(--surface))" stroke="var(--h5)" stroke-width="1.6"/><text x="67" y="${y+16}" text-anchor="middle" font-size="10.5" style="font-family:var(--font-m)">${t}</text></g>`;}).join("")}
+  <path d="M138 28 L210 86 L210 118 L138 174 Z" fill="color-mix(in srgb,var(--accent) 12%,var(--surface))" stroke="var(--accent)" stroke-width="2"/>
+  <text x="180" y="98" text-anchor="middle" font-size="10.5" font-weight="800">normalise</text><text x="180" y="111" text-anchor="middle" font-size="10.5" font-weight="800">at the edge</text>
+  <path d="M210 102 H222" stroke="var(--ink)" stroke-width="2"/>
+  <rect x="222" y="88" width="112" height="28" rx="6" fill="color-mix(in srgb,var(--good) 14%,var(--surface))" stroke="var(--good)" stroke-width="2.2"/>
+  <text x="278" y="107" text-anchor="middle" font-size="12" font-weight="800" style="font-family:var(--font-m)">2026-11-18</text>
+  <rect x="96" y="184" width="150" height="24" rx="5" fill="color-mix(in srgb,var(--bad) 10%,var(--surface))" stroke="var(--bad)" stroke-width="1.6" stroke-dasharray="4 3"/>
+  <text x="171" y="200" text-anchor="middle" font-size="10.5" font-weight="700" style="fill:var(--bad)">“31/02/2026” → rejected</text></svg>`;
+}
+function picBroken(){
+  const facade=(x0,cracks,label,col)=>{let g=`<rect x="${x0}" y="30" width="150" height="152" rx="3" fill="color-mix(in srgb,var(--ink) 5%,var(--surface))" stroke="var(--ink)" stroke-width="2"/>`;
+    let k=0;for(let r=0;r<4;r++)for(let c=0;c<3;c++){const wx=x0+14+c*44,wy=42+r*34,idx=r*3+c;
+      g+=`<rect x="${wx}" y="${wy}" width="34" height="24" rx="2" fill="var(--surface)" stroke="var(--ink)" stroke-width="1.5"/>`;
+      const ci=cracks.indexOf(idx);if(ci>=0){g+=`<path class="crk" style="animation-delay:${ci*.9}s" d="M${wx+6} ${wy+3} l7 8 l-4 4 l9 7 M${wx+13} ${wy+11} l10 -5 l6 3" fill="none" stroke="var(--bad)" stroke-width="2" stroke-linecap="round"/>`;}}
+    return g+`<text x="${x0+75}" y="20" text-anchor="middle" font-size="12.5" font-weight="800" style="fill:${col}">${label}</text>`;};
+  return `<svg viewBox="0 0 340 214" role="img" aria-label="One building's broken windows multiply; the other's single crack is fixed the same day">
+   ${facade(10,[4,0,8,2,10,6,11],"Left broken","var(--bad)")}${facade(180,[4],"Fixed fast","var(--good)")}
+   <circle cx="244" cy="88" r="13" fill="var(--good)"/><path d="M238 88 l4 4 l8 -9" fill="none" stroke="var(--surface)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+   <text x="85" y="202" text-anchor="middle" font-size="10.5" font-weight="800" style="fill:var(--bad)">one crack, then many</text>
+   <text x="255" y="202" text-anchor="middle" font-size="10.5" font-weight="800" style="fill:var(--good)">fixed the same day</text></svg>`;
+}
+function picDebt(){
+  const cells=[["“No time for design”","bad",0,0],["“Ship now, fix it next sprint”","good",1,0],["“What’s layering?”","bad",0,1],["“Now we know how we should have built it”","good",1,1]];
+  const wrap=(s,m)=>{const w=s.split(" "),L=[];let c="";for(const x of w){if(c&&(c+" "+x).length>m){L.push(c);c=x}else c=c?c+" "+x:x}if(c)L.push(c);return L;};
+  return `<svg viewBox="0 0 340 214" role="img" aria-label="Technical debt quadrant: reckless or prudent, deliberate or inadvertent">
+   <text x="126" y="24" text-anchor="middle" font-size="12" font-weight="800" style="fill:var(--bad)">Reckless</text>
+   <text x="262" y="24" text-anchor="middle" font-size="12" font-weight="800" style="fill:var(--good)">Prudent</text>
+   <text transform="rotate(-90 22 74)" x="22" y="74" text-anchor="middle" font-size="11" font-weight="800">Deliberate</text>
+   <text transform="rotate(-90 22 156)" x="22" y="156" text-anchor="middle" font-size="11" font-weight="800">Accidental</text>
+   ${cells.map(([t,c,cx,cy])=>{const x=58+cx*138,y=34+cy*82,L=wrap(t,17);return `<rect x="${x}" y="${y}" width="134" height="78" rx="10" fill="color-mix(in srgb,var(--${c}) ${c==="good"&&cx===1&&cy===0?18:10}%,var(--surface))" stroke="var(--${c})" stroke-width="${c==="good"&&cy===0?2.8:1.8}"/>${L.map((l,i)=>`<text x="${x+67}" y="${y+39-(L.length-1)*7+i*14}" text-anchor="middle" font-size="10.5" font-weight="700">${l}</text>`).join("")}`;}).join("")}
+   <text x="262" y="208" text-anchor="middle" font-size="10" font-weight="800" style="fill:var(--good)">↑ the smart loan</text></svg>`;
+}
+function picLinus(){
+  const eye=(x,y,cls="",d=0)=>`<g class="${cls}" style="animation-delay:${d}s"><ellipse cx="${x}" cy="${y}" rx="10" ry="6" fill="var(--surface)" stroke="var(--h2)" stroke-width="1.8"/><circle cx="${x}" cy="${y}" r="2.8" fill="var(--h2)"/></g>`;
+  const code=(x,y,w,h)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="6" fill="color-mix(in srgb,var(--ink) 5%,var(--surface))" stroke="var(--ink)" stroke-width="1.8"/>${[0,1,2,3,4,5].map(i=>`<path d="M${x+10} ${y+16+i*13} h${[50,34,58,40,52,30][i]*w/90}" stroke="var(--muted)" stroke-width="3" stroke-linecap="round"/>`).join("")}`;
+  const bug=(x,y,o)=>`<g opacity="${o}"><ellipse cx="${x}" cy="${y}" rx="5" ry="7" fill="var(--bad)"/><path d="M${x-5} ${y-2}h-4M${x-5} ${y+3}h-4M${x+5} ${y-2}h4M${x+5} ${y+3}h4" stroke="var(--bad)" stroke-width="1.5"/></g>`;
+  let ring="";for(let i=0;i<8;i++){const a=-Math.PI/2+i*Math.PI/4;ring+=eye(255+Math.cos(a)*72,108+Math.sin(a)*64,"eyein",i*.35);}
+  return `<svg viewBox="0 0 340 204" role="img" aria-label="One reviewer misses a bug; many reviewers around the code find it">
+   <text x="84" y="18" text-anchor="middle" font-size="12.5" font-weight="800">1 reviewer</text>
+   <text x="255" y="18" text-anchor="middle" font-size="12.5" font-weight="800">Many reviewers</text>
+   ${eye(84,40)}${code(36,58,96,96)}${bug(98,120,.3)}
+   ${code(215,64,80,88)}${bug(262,112,1)}${ring}
+   <circle class="found" cx="262" cy="112" r="13" fill="none" stroke="var(--bad)" stroke-width="2.5"/>
+   <text x="84" y="196" text-anchor="middle" font-size="10.5" font-weight="800" style="fill:var(--muted)">the bug stays hidden</text>
+   <text x="255" y="196" text-anchor="middle" font-size="10.5" font-weight="800" style="fill:var(--bad)">“shallow”: someone spots it</text></svg>`;
+}
+function picKernighan(){
+  const bar=(y,label,w,col,extra="")=>`<text x="20" y="${y-6}" font-size="10.5" font-weight="800">${label}</text><rect x="20" y="${y}" width="${w}" height="16" rx="4" fill="color-mix(in srgb,${col} 30%,var(--surface))" stroke="${col}" stroke-width="1.6"/>${extra}`;
+  return `<svg viewBox="0 0 340 196" role="img" aria-label="Debugging takes twice the effort of writing; clever code overflows your limit">
+   <defs><pattern id="kh" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="6" stroke="var(--bad)" stroke-width="2.5"/></pattern></defs>
+   <line x1="230" y1="22" x2="230" y2="186" stroke="var(--ink)" stroke-width="2" stroke-dasharray="5 4"/>
+   <text x="234" y="18" font-size="10" font-weight="800">your limit</text>
+   ${bar(42,"Write clever code",210,"var(--accent)")}
+   ${bar(80,"Debug it (twice as hard)",210,"var(--bad)",`<rect x="230" y="80" width="100" height="16" rx="4" fill="url(#kh)" stroke="var(--bad)" stroke-width="1.6"/><text x="280" y="76" text-anchor="middle" font-size="10" font-weight="800" style="fill:var(--bad)">✗ beyond you</text>`)}
+   <line x1="12" y1="112" x2="328" y2="112" stroke="var(--line)" stroke-width="1.5"/>
+   ${bar(140,"Write clear code",105,"var(--accent)")}
+   ${bar(178,"Debug it (twice as hard)",210,"var(--good)",`<text x="280" y="190" text-anchor="middle" font-size="10" font-weight="800" style="fill:var(--good)">✓ still fits</text>`)}</svg>`;
+}
+function picPesticide(){
+  const X=t=>40+t*2.86;let found="",present="",shade="";
+  for(let t=0;t<=100;t+=4){const yf=150-108*Math.exp(-t/22),yp=46+4*Math.sin(t/9);found+=(t?"L":"M")+X(t).toFixed(1)+" "+yf.toFixed(1);present+=(t?"L":"M")+X(t).toFixed(1)+" "+yp.toFixed(1);}
+  let back="";for(let t=100;t>=0;t-=4)back+="L"+X(t).toFixed(1)+" "+(150-108*Math.exp(-t/22)).toFixed(1);
+  shade=present+back+"Z";
+  const bugs=[20,48,76,96].map(t=>`<g><ellipse cx="${X(t)}" cy="${46+4*Math.sin(t/9)-11}" rx="4" ry="5.5" fill="var(--bad)"/><path d="M${X(t)-4} ${46+4*Math.sin(t/9)-12}h-3M${X(t)+4} ${46+4*Math.sin(t/9)-12}h3" stroke="var(--bad)" stroke-width="1.4"/></g>`).join("");
+  return `<svg viewBox="0 0 340 190" role="img" aria-label="The same tests find fewer new bugs over time while bugs remain in the code">
+   <path d="M40 18 V150 H326" fill="none" stroke="var(--muted)" stroke-width="1.5"/>
+   <path d="${shade}" fill="color-mix(in srgb,var(--bad) 9%,transparent)"/>
+   <path class="drawn" d="${present}" fill="none" stroke="var(--bad)" stroke-width="2.5" stroke-dasharray="6 4"/>${bugs}
+   <path class="drawn" d="${found}" fill="none" stroke="var(--h2)" stroke-width="3" stroke-linecap="round"/>
+   <text x="326" y="68" text-anchor="end" font-size="10.5" font-weight="800" style="fill:var(--bad)">bugs still in the code</text>
+   <text x="226" y="112" text-anchor="middle" font-size="12" font-weight="800" style="fill:var(--bad);font-family:var(--font-d)">blind spot</text>
+   <text x="326" y="140" text-anchor="end" font-size="10.5" font-weight="800" style="fill:var(--h2)">new bugs the tests find</text>
+   <text x="183" y="172" text-anchor="middle" font-size="10" style="fill:var(--muted)">the same tests, run after run →</text></svg>`;
+}
+function picPyramid(){
+  return `<svg viewBox="0 0 340 216" role="img" aria-label="A healthy test pyramid next to an upside-down ice-cream cone">
+   <text x="88" y="18" text-anchor="middle" font-size="12.5" font-weight="800" style="fill:var(--good)">Pyramid ✓</text>
+   <text x="255" y="18" text-anchor="middle" font-size="12.5" font-weight="800" style="fill:var(--bad)">Ice-cream cone ✗</text>
+   <path d="M88 30 L114 74 H62 Z" fill="color-mix(in srgb,var(--h1) 22%,var(--surface))" stroke="var(--h1)" stroke-width="2"/>
+   <path d="M62 74 H114 L138 120 H38 Z" fill="color-mix(in srgb,var(--h4) 22%,var(--surface))" stroke="var(--h4)" stroke-width="2"/>
+   <path d="M38 120 H138 L166 178 H10 Z" fill="color-mix(in srgb,var(--h3) 22%,var(--surface))" stroke="var(--h3)" stroke-width="2"/>
+   <text x="88" y="66" text-anchor="middle" font-size="10" font-weight="800">E2E</text>
+   <text x="88" y="101" text-anchor="middle" font-size="10.5" font-weight="800">Integration</text>
+   <text x="88" y="148" text-anchor="middle" font-size="12" font-weight="800">Unit</text>
+   <text x="88" y="164" text-anchor="middle" font-size="9.5">many · fast · cheap</text>
+   <circle cx="255" cy="64" r="44" fill="color-mix(in srgb,var(--h1) 22%,var(--surface))" stroke="var(--h1)" stroke-width="2"/>
+   <text x="255" y="60" text-anchor="middle" font-size="10.5" font-weight="800">Manual +</text><text x="255" y="74" text-anchor="middle" font-size="10.5" font-weight="800">E2E</text>
+   <path d="M215 100 H295 L255 188 Z" fill="color-mix(in srgb,var(--h4) 18%,var(--surface))" stroke="var(--h4)" stroke-width="2"/>
+   <path d="M224 120 H286 M236 146 H274" stroke="var(--h4)" stroke-width="1.5"/>
+   <text x="255" y="114" text-anchor="middle" font-size="9.5" font-weight="700">Integration</text>
+   <text x="255" y="138" text-anchor="middle" font-size="9.5" font-weight="700">Unit</text>
+   <text x="88" y="204" text-anchor="middle" font-size="10.5" font-weight="800" style="fill:var(--good)">feedback in minutes</text>
+   <text x="255" y="204" text-anchor="middle" font-size="10.5" font-weight="800" style="fill:var(--bad)">slow, flaky builds</text></svg>`;
+}
+function picLehman(){
+  const X=t=>40+t*2.86,ev=[[25,"OS update"],[55,"new rule"],[80,"new rival"]];
+  let good="";for(let t=0;t<=100;t+=5)good+=(t?"L":"M")+X(t)+" "+(92-0.42*t+2*Math.sin(t/6)).toFixed(1);
+  const bad=`M40 92 H${X(25)} V112 H${X(55)} V130 H${X(80)} V146 H326`;
+  return `<svg viewBox="0 0 340 196" role="img" aria-label="Usefulness over time: a maintained system keeps up, a neglected one drops each time the world changes">
+   <path d="M40 18 V158 H326" fill="none" stroke="var(--muted)" stroke-width="1.5"/>
+   <text x="34" y="26" text-anchor="end" font-size="9.5" style="fill:var(--muted)">useful</text>
+   ${ev.map(([t,l])=>`<line x1="${X(t)}" y1="24" x2="${X(t)}" y2="158" stroke="var(--line)" stroke-width="1.5" stroke-dasharray="3 3"/><path d="M${X(t)-5} 170 l5 -8 l5 8z" fill="var(--h6)"/><text x="${X(t)}" y="184" text-anchor="middle" font-size="9.5" font-weight="700">${l}</text>`).join("")}
+   <path class="drawn" d="${good}" fill="none" stroke="var(--good)" stroke-width="3" stroke-linecap="round"/>
+   <path class="drawn" d="${bad}" fill="none" stroke="var(--bad)" stroke-width="3" stroke-linejoin="round"/>
+   <text x="326" y="40" text-anchor="end" font-size="10.5" font-weight="800" style="fill:var(--good)">kept evolving</text>
+   <text x="326" y="140" text-anchor="end" font-size="10.5" font-weight="800" style="fill:var(--bad)">left alone</text></svg>`;
+}
+function picSturgeon(){
+  const gold=[3,17,28,42,46,59,61,75,88,94];let g="";
+  for(let i=0;i<100;i++){const x=12+(i%10)*16.5,y=14+Math.floor(i/10)*16.5,on=gold.includes(i);
+    g+=`<rect ${on?`class="gold" style="animation-delay:${gold.indexOf(i)*.3}s"`:""} x="${x}" y="${y}" width="13.5" height="13.5" rx="2.5" fill="${on?"var(--lit)":"color-mix(in srgb,var(--ink) 10%,var(--surface))"}" stroke="${on?"var(--ink)":"none"}" stroke-width="1.2"/>`;}
+  return `<svg viewBox="0 0 340 186" role="img" aria-label="A grid of 100 squares, 10 highlighted as worth your time">${g}
+   <text x="262" y="62" text-anchor="middle" font-size="38" font-weight="700" style="fill:var(--muted);font-family:var(--font-d)">90%</text>
+   <text x="262" y="80" text-anchor="middle" font-size="11" font-weight="700" style="fill:var(--muted)">forgettable</text>
+   <text x="262" y="134" text-anchor="middle" font-size="38" font-weight="700" style="fill:var(--h4);font-family:var(--font-d)">10%</text>
+   <text x="262" y="152" text-anchor="middle" font-size="11" font-weight="800">worth your time</text></svg>`;
+}
+Object.assign(GL,{
+ murphy:'<path d="M13 2L5 13h6l-2 9 9-12h-6l2-8z"/>',
+ postel:'<path d="M3 4h18l-7 8v7l-4 2v-9z"/>',
+ broken:'<rect x="4" y="4" width="16" height="16" rx="1"/><path d="M12 4v16M4 12h16"/><path d="M14 6l2 3-2 2 3 3"/>',
+ debt:'<rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 10h18M7 15h4"/>',
+ linus:'<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+ kernighan:'<circle cx="10" cy="10" r="6"/><path d="M14.5 14.5L21 21M8 10h4"/>',
+ pesticide:'<ellipse cx="12" cy="13.5" rx="5" ry="6"/><path d="M12 7.5V4M9 4l1.5 2M15 4l-1.5 2M7 11H3M7 15H3M17 11h4M17 15h4M12 7.5v12"/>',
+ pyramid:'<path d="M12 3L3 20h18z"/><path d="M7.5 12h9M5.2 16h13.6"/>',
+ lehman:'<path d="M3 20h18"/><path d="M5 17l4-5 4 3 6-8"/><path d="M15 7h4v4"/>',
+ sturgeon:'<path d="M12 3l2.6 5.5 6 .8-4.4 4.2 1.1 6L12 16.6 6.7 19.5l1.1-6L3.4 9.3l6-.8z"/>'
+});
+LAWS.push(
+{id:"murphy",part:"IV",name:"Murphy’s Law",sub:"Anything that can go wrong, will",gl:"murphy",
+ one:"If something can fail, sooner or later it will. Design for it.",
+ origin:"Attributed to Edward A. Murphy Jr., US Air Force rocket-sled tests, 1949",
+ pic:picMurphy,cap:"Each dependency fails eventually. Give every one a safety net.",
+ q:"What happens when this fails, not if?",
+ steps:[["List failure points","Networks, disks, inputs, partners, people."],["Assume each will fail","At the worst possible moment."],["Add a safety net","Timeouts, retries, fallbacks, rollback."],["Rehearse it","Test the failure path, not just the happy path."]],
+ before:`import requests
+
+def get_rates():
+    resp = requests.get(RATES_URL)
+    return resp.json()`,
+ whyB:"No timeout, no retry, no plan B. One slow provider hangs checkout for everyone.",
+ after:`import requests
+
+def get_rates():
+    for attempt in range(3):
+        try:
+            resp = requests.get(RATES_URL, timeout=2)
+            resp.raise_for_status()
+            return resp.json()
+        except requests.RequestException:
+            log.warning("rates attempt %d failed", attempt + 1)
+    return cached_rates()          # plan B`,
+ whyA:"Timeouts, retries, a log line and a fallback. Failure is expected and handled.",
+ ex:[["tech","Netflix’s Chaos Monkey switches off servers on purpose, so engineers have to build systems that survive it."],["air","Airliners carry several independent hydraulic systems, and crews drill engine-failure checklists."],["health","Hospitals keep backup generators and test them regularly."],["home","A spare tyre and a phone charger in the car."]],
+ bend:[["Murphy says","Expect failure."],["But match the effort","A hobby script doesn’t need circuit breakers. Scale defences to how likely and how costly the failure is."]],
+ rel:[["name","Postel’s Law"],["name","Testing Pyramid"],["st","in","Inversion"],["st","bs","Black swan"]],
+ cheat:{ask:"What happens when this fails, not if?",bend:"Low-impact code: scale defences to the cost."}},
+{id:"postel",part:"IV",name:"Postel’s Law",sub:"The robustness principle",gl:"postel",
+ one:"Be strict in what you send and tolerant in what you accept.",
+ origin:"Jon Postel, early internet protocol specifications (TCP), 1980–81",
+ pic:picPostel,cap:"Accept harmless variety, send one clean format, and still reject nonsense.",
+ q:"Am I strict about my output and sensible about messy input?",
+ steps:[["Send exactly to spec","Your output should never surprise anyone."],["Accept harmless variety","Spaces, case, common formats."],["Normalise once, at the edge","Clean it on the way in, then trust it inside."],["Reject the dangerous","Invalid or ambiguous input fails loudly."]],
+ before:`from datetime import datetime
+
+def parse_date(s):
+    return datetime.strptime(s, "%Y-%m-%d").date()
+
+parse_date(" 2026-11-18 ")   # ValueError`,
+ whyB:"A trailing space from a partner system crashes the whole import.",
+ after:`from datetime import datetime
+
+FORMATS = ("%Y-%m-%d", "%d/%m/%Y", "%d %b %Y")
+
+def parse_date(s):
+    s = s.strip()
+    for fmt in FORMATS:
+        try:
+            return datetime.strptime(s, fmt).date()
+        except ValueError:
+            pass
+    raise ValueError(f"Unrecognised date: {s!r}")`,
+ whyA:"Tolerates the common variations, normalises at the edge and still fails loudly on nonsense.",
+ ex:[["tech","Early web browsers displayed messy HTML instead of refusing it, which helped the web grow fast."],["home","Postal services still deliver letters with small address mistakes."],["air","Pilots and controllers send messages in strict standard phrases, but ask “say again” when a call is unclear."],["biz","A supplier portal that accepts spreadsheets in several layouts but always sends invoices in one standard format."]],
+ bend:[["Postel says","Be tolerant of input."],["But don’t over-tolerate","Others start relying on your quirks, and loose parsing opens security holes. Where you control both sides, be strict both ways."]],
+ rel:[["name","Murphy’s Law"],["name","Hyrum’s Law"],["law","demeter"],["law","kiss"]],
+ cheat:{ask:"Strict output, sensible input?",bend:"Boundaries you control: be strict both ways."}},
+{id:"broken",part:"IV",name:"Broken Windows",sub:"Visible neglect invites more",gl:"broken",
+ one:"Small, visible messes signal that nobody cares, and more mess follows. Fix them fast.",
+ origin:"James Q. Wilson & George Kelling, 1982; applied to code by Hunt & Thomas, 1999",
+ pic:picBroken,cap:"Leave one crack and others follow. Fix it the same day and the standard holds.",
+ q:"What small mess here is saying “nobody minds”?",
+ steps:[["Spot the broken windows","Failing tests, warnings, dead code, ignored alerts."],["Fix it or board it up","Repair now, or label it with a ticket."],["Keep the build green","Treat red as stop-the-line."],["Make the standard visible","Linters and CI enforce it for everyone."]],
+ before:`# build output: 247 warnings
+
+@pytest.mark.skip          # broken, fix later
+def test_refund():
+    ...`,
+ whyB:"Hundreds of warnings and silent skips tell everyone the standard is “whatever”.",
+ after:`# CI fails on any new warning
+
+@pytest.mark.xfail(reason="BUG-482: refund rounding",
+                   strict=True)
+def test_refund():
+    ...`,
+ whyA:"Known failures are labelled and tracked; anything new stops the build.",
+ ex:[["nature","Experiments found people drop more litter where litter is already lying around."],["home","One dish left in the sink soon becomes a pile."],["tech","A codebase with hundreds of warnings quietly gains more, because nobody can spot the new ones."],["biz","A shabby shop front puts customers off before they step inside."]],
+ bend:[["Broken Windows says","Fix small messes fast."],["But it’s a rule of thumb","Its use in policing is hotly debated. In code, don’t let chasing zero mess block important work."]],
+ rel:[["law","scout"],["name","Technical Debt"],["name","Lehman’s Laws"],["st","en","Entropy"]],
+ cheat:{ask:"What small mess says “nobody minds”?",bend:"Don’t let tidying block urgent work."}},
+{id:"debt",part:"IV",name:"Technical Debt",sub:"Shortcuts charge interest",gl:"debt",st:["td","Technical debt"],
+ one:"A shortcut now is a loan. You repay it later, with interest.",
+ origin:"Ward Cunningham, 1992",
+ pic:picDebt,cap:"Martin Fowler’s debt quadrant: only the prudent, deliberate kind is a smart loan.",
+ q:"Is this debt deliberate and worth it, and when will we repay it?",
+ steps:[["Make it visible","Debt sits in the same backlog as features."],["Price the interest","How much does it slow each change?"],["Budget repayment","A fixed share of every sprint."],["Prevent the reckless kind","Reviews, tests and recorded decisions."]],
+ b5:"practice",
+ before:"Shortcuts live in “TODO” comments.\nNobody knows what they cost.\nClean-up waits for a “refactoring sprint” that never comes.",
+ whyB:"Interest compounds silently until every change is slow.",
+ after:"Each debt item is a backlog ticket with an owner and an estimate of the slowdown.\nA fixed share of every sprint pays it down.",
+ whyA:"The loan is on the books and being repaid.",
+ ex:[["money","Like a credit card: handy in an emergency, ruinous if you only ever pay the minimum."],["tech","Y2K: two-digit years saved memory in the 1960s and 70s, then cost billions to fix before 2000."],["gov","Deferred maintenance on roads and railways turns into far bigger repair bills."],["home","Ignoring a small roof leak until the ceiling needs replacing."]],
+ bend:[["Debt sounds bad","Avoid shortcuts."],["But a loan can be smart","Deliberate, prudent debt to hit a real deadline is fine, as long as you record it and repay it."]],
+ rel:[["law","scout"],["name","Broken Windows"],["name","Lehman’s Laws"],["law","yagni"]],
+ cheat:{ask:"Deliberate, worth it, and when do we repay?",bend:"A real deadline, if recorded and repaid."}},
+{id:"linus",part:"IV",name:"Linus’s Law",sub:"Given enough eyeballs, all bugs are shallow",gl:"linus",
+ one:"The more people who review code, the faster its bugs are found, if they’re the right people.",
+ origin:"Eric S. Raymond, <i>The Cathedral and the Bazaar</i>, 1999, named after Linus Torvalds",
+ pic:picLinus,cap:"With enough reviewers, someone spots the bug that one person misses.",
+ q:"Have enough of the right people looked at this?",
+ steps:[["Make it reviewable","Small changes people can actually read."],["Pick the right eyes","Include someone who knows the risky area."],["Add tireless eyes","Static analysis, fuzzing, automated checks."],["Reward finders","Thank reviewers; consider bug bounties."]],
+ b5:"practice",
+ before:"One author.\nA 2,000-line change.\nMerged on a Friday evening with no review.",
+ whyB:"One pair of eyes on the riskiest kind of change.",
+ after:"Small pull requests.\nTwo reviewers, one who knows the risky area.\nStatic analysis and fuzzing on every change.",
+ whyA:"More, better eyes, plus machines that never get tired.",
+ ex:[["tech","The Heartbleed bug sat in widely used OpenSSL for about two years: plenty of users, very few reviewers."],["health","NHS breast screening has two readers look at every mammogram."],["biz","Bug bounty programmes pay outsiders to find security flaws."],["home","Asking a friend to proofread your CV before you send it."]],
+ bend:[["Linus says","More eyes, fewer bugs."],["But popular isn’t reviewed","Eyes only help if they’re expert and actually looking. Large groups can also assume someone else checked."]],
+ rel:[["name","Testing Pyramid"],["name","Pesticide Paradox"],["name","Ringelmann Effect"],["name","Kernighan’s Law"]],
+ cheat:{ask:"Have the right people looked at this?",bend:"Popular code isn’t necessarily reviewed code."}},
+{id:"kernighan",part:"IV",name:"Kernighan’s Law",sub:"Debugging is twice as hard",gl:"kernighan",
+ one:"Debugging is twice as hard as writing code, so code written at the edge of your cleverness is beyond your ability to debug.",
+ origin:"Brian Kernighan & P. J. Plauger, <i>The Elements of Programming Style</i>, 1970s",
+ pic:picKernighan,cap:"Write at half your cleverness, so debugging still fits inside your limit.",
+ q:"Could I debug this at 3 a.m. during an outage?",
+ steps:[["Write for the debugger","That’s future, tired you."],["Prefer clear to clever","Plain steps over compact tricks."],["Make state visible","Good names, small functions, useful logs."],["Leave headroom","Spare brainpower for when things go wrong."]],
+ before:`total = sum(p * q for p, q in
+            ((i["price"], i.get("qty", 1))
+             for i in items if i.get("ok")) if q)`,
+ whyB:"Compact and clever. Now find the bug at 3 a.m.",
+ after:`total = 0
+for item in items:
+    if not item.get("ok"):
+        continue
+    qty = item.get("qty", 1)
+    total += item["price"] * qty`,
+ whyA:"Longer, but every step can be read, logged and stepped through.",
+ ex:[["health","Electronic prescribing replaced handwriting that was easy to write and hard to read."],["home","Labelling the fuse box for whoever has to fix it in the dark."],["air","Cockpits favour clear displays and checklists that crews can read under stress."],["people","Writing a handover note your replacement can follow on their first day."]],
+ bend:[["Kernighan says","Clear beats clever."],["But hot paths may need tricks","When performance really matters, keep the clever part small, comment why, and test it heavily."]],
+ rel:[["law","kiss"],["name","Linus’s Law"],["law","scout"]],
+ cheat:{ask:"Could I debug this at 3 a.m.?",bend:"Hot paths: isolate, comment and test the clever bit."}},
+{id:"pesticide",part:"IV",name:"Pesticide Paradox",sub:"Old tests stop finding new bugs",gl:"pesticide",
+ one:"Running the same tests again and again finds fewer and fewer new bugs.",
+ origin:"Boris Beizer, <i>Software Testing Techniques</i>, 1990",
+ pic:picPesticide,cap:"The suite stays green while new kinds of bug build up where it never looks.",
+ q:"What kinds of bug would our tests never catch?",
+ steps:[["Test every fixed bug","Each fix adds a regression test."],["Vary the test types","Property-based, fuzz, exploratory."],["Review the suite","What does it never exercise?"],["Measure its strength","Mutation testing shows weak spots."]],
+ before:`def test_discount():
+    assert apply_discount(100, 10) == 90
+    assert apply_discount(50, 10) == 45`,
+ whyB:"The same two examples every run. They’ll pass forever, whatever new bugs appear.",
+ after:`from hypothesis import given, strategies as st
+
+@given(st.floats(0, 1e6), st.integers(0, 100))
+def test_discount_never_negative(price, pct):
+    assert 0 <= apply_discount(price, pct) <= price`,
+ whyA:"Hypothesis tries hundreds of new inputs each run, hunting for ones nobody thought of.",
+ ex:[["food","The name comes from farming: pests become resistant to a pesticide used over and over."],["health","Bacteria develop resistance to antibiotics that are overused."],["tech","Spam filters must keep learning, because spammers adapt to old rules."],["biz","The same audit checklist every year misses new kinds of risk."]],
+ bend:[["Refresh your tests","Old tests lose power."],["But keep the old ones","They still guard against regressions. Add new kinds of test; don’t delete working ones."]],
+ rel:[["name","Testing Pyramid"],["name","Linus’s Law"],["name","Murphy’s Law"],["st","gl","Goodhart’s law"]],
+ cheat:{ask:"What kind of bug would our tests never catch?",bend:"Don’t delete old regression tests."}},
+{id:"pyramid",part:"IV",name:"Testing Pyramid",sub:"Many small tests, few big ones",gl:"pyramid",
+ one:"Have lots of fast, narrow tests and only a few slow, end-to-end ones.",
+ origin:"Mike Cohn, <i>Succeeding with Agile</i>, 2009",
+ pic:picPyramid,cap:"A wide base of unit tests gives fast feedback. An upside-down cone gives slow, flaky builds.",
+ q:"Is each thing tested at the cheapest level that can catch it?",
+ steps:[["Base: unit tests","Many, fast, isolated."],["Middle: integration","Test the seams between parts."],["Top: a few journeys","End-to-end only for key user paths."],["Watch the shape","Track build time and flaky tests."]],
+ before:`def test_vat_on_checkout(browser):
+    browser.get("/basket")
+    browser.find("#add-item").click()
+    browser.find("#checkout").click()
+    assert "£120.00" in browser.page_source`,
+ whyB:"A browser test to check a sum: slow, flaky, and it breaks for reasons unrelated to VAT.",
+ after:`def test_add_vat():                 # unit: milliseconds
+    assert add_vat(100) == 120
+
+def test_checkout_journey(browser):  # one journey test
+    ...`,
+ whyA:"The rule is checked in milliseconds; one journey test covers the path end to end.",
+ ex:[["air","Aircraft parts are bench-tested, then systems, and only then come a few test flights."],["food","A chef tastes each sauce before plating the whole dish."],["transport","Car parts are tested by the thousand; full crash tests are few and expensive."],["gov","Building inspections check materials and foundations long before the final sign-off."]],
+ bend:[["The pyramid says","Mostly unit tests."],["But shapes vary","Apps that mostly glue services together may suit a “testing trophy” with more integration tests."]],
+ rel:[["name","Pesticide Paradox"],["name","Murphy’s Law"],["name","Kernighan’s Law"]],
+ cheat:{ask:"Is this tested at the cheapest level that can catch it?",bend:"Glue-heavy apps: more integration tests."}},
+{id:"lehman",part:"IV",name:"Lehman’s Laws",sub:"Software must keep evolving",gl:"lehman",
+ one:"Software that’s in use must keep changing, or it slowly becomes less useful.",
+ origin:"Meir M. Lehman, from 1974",
+ pic:picLehman,cap:"The world keeps changing. A system left alone drops a step each time.",
+ q:"Are we funding this system to keep up with a changing world?",
+ steps:[["Expect change","Budget for it from the start."],["Fight complexity","Simplify as you go."],["Keep a steady pace","Change at a rate users and the team can absorb."],["Retire on purpose","Replace what’s no longer worth evolving."]],
+ b5:"practice",
+ before:"The project ends at go-live.\nThe team disbands; the system is “done”.\nFive years later it no longer fits the business.",
+ whyB:"Treated like a building that’s finished, not a product that lives.",
+ after:"A product team owns it for its whole life.\nA steady budget for upgrades and clean-up.\nChanges arrive at a pace users can absorb.",
+ whyA:"Treated as a living product.",
+ ex:[["tech","Phone apps stop working when the operating system updates and nobody maintains them."],["gov","Laws need amending as society and technology change."],["biz","A product catalogue still built around tax rules from years ago."],["home","A house needs regular care: roof, boiler, paintwork."]],
+ bend:[["Lehman says","Keep changing."],["But not too fast","Constant redesigns exhaust users. Change at the pace people can absorb."]],
+ rel:[["name","Technical Debt"],["name","Broken Windows"],["law","scout"],["st","en","Entropy"]],
+ cheat:{ask:"Are we funding it to keep up?",bend:"Don’t change faster than users can absorb."}},
+{id:"sturgeon",part:"IV",name:"Sturgeon’s Law",sub:"Ninety percent of everything is rubbish",gl:"sturgeon",
+ one:"Most of anything is mediocre, so the skill is in filtering.",
+ origin:"Theodore Sturgeon, science-fiction author, 1950s",
+ pic:picSturgeon,cap:"Most of anything is forgettable. Spend your time on the 10%.",
+ q:"Is this in the 10% worth my time?",
+ steps:[["Expect most to be weak","Libraries, answers, ideas, including your own."],["Filter fast","Use quality signals, not first results."],["Curate defaults","Keep a short list of trusted choices."],["Kill your weak ideas early","Most of yours are in the 90% too."]],
+ b5:"practice",
+ before:"Search the package registry.\nInstall the first result whose name matches.\nFind out later it was abandoned years ago.",
+ whyB:"The first result is rarely the best one.",
+ after:"Check recent releases, open issues, maintainers, licence and real users before adopting.\nKeep a team list of trusted defaults.",
+ whyA:"A quick filter keeps you in the useful 10%.",
+ ex:[["home","Sturgeon’s point: most science fiction is poor, but so is most of everything, and the best is very good."],["tech","Package registries are full of abandoned and copycat packages."],["food","Most restaurants on a tourist street are forgettable; a little research finds the good ones."],["biz","Most ideas from a brainstorm won’t survive, and that’s fine."]],
+ bend:[["Sturgeon says","Most things are mediocre."],["But don’t turn cynical","10% of everything is good, including in the field you’re quick to dismiss."]],
+ rel:[["st","pa","Pareto principle"],["name","Linus’s Law"],["law","kiss"]],
+ cheat:{ask:"Is this in the 10% worth my time?",bend:"Don’t dismiss a whole field."}}
+);
+LAWS.forEach(l=>{l.part=l.part||"VI";});
+
 const BYID=Object.fromEntries(LAWS.map(l=>[l.id,l]));
+const BYNAME=Object.fromEntries(LAWS.map(l=>[l.name,l]));
+const floorName=P=>P.floor==="G"?"Ground floor":"Floor "+P.floor;
 const esc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
 const ic=(p,cls="ic")=>`<svg class="${cls}" viewBox="0 0 24 24" aria-hidden="true">${p}</svg>`;
 const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
 const HUES=["h1","h2","h3","h4","h5","h6"];
 
 /* ================= BUILDING ================= */
-let curPart="VI",curLaw="dry";
+let curPart="IV",curLaw="murphy";
 function bldRender(){
   const svg=document.getElementById("bld");const X0=36,W=288,FH=58,TOP=80;let g="";
   /* crane */
@@ -515,16 +888,15 @@ function bldRender(){
       <text x="${X0+40}" y="${y+41}" class="soon">${P.built?`${n} laws · open`:`${n} laws · soon`}</text>
       ${wins}</g>`;});
   const gy=TOP+7*FH;
-  g+=`<path d="M8 ${gy} H352" stroke="var(--ink)" stroke-width="3"/><rect x="${X0+W/2-74}" y="${gy-26}" width="16" height="24" fill="var(--ink)" pointer-events="none"/>
+  g+=`<path d="M8 ${gy} H352" stroke="var(--ink)" stroke-width="3"/><rect x="${X0+W-12-136-28}" y="${gy-26}" width="16" height="24" fill="var(--ink)" pointer-events="none"/>
      <text x="180" y="${gy+20}" text-anchor="middle" font-size="11" style="fill:var(--muted)">Tap a floor · lit windows are open laws</text>`;
   svg.innerHTML=`<defs><pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="8" stroke="var(--line)" stroke-width="3"/></pattern></defs>`+g;
 }
 function planRender(scroll){
   const P=PARTS[curPart],host=document.getElementById("plan");
-  const ids=P.built?LAWS.map(l=>l.id):[];
-  host.innerHTML=`<div class="plan" id="planbox" style="--c:var(--${P.c})">
+    host.innerHTML=`<div class="plan" id="planbox" style="--c:var(--${P.c})">
     <div class="plan-hd"><h2>Floor ${P.floor} · ${esc(P.name)}</h2><span>Part ${P.n} · ${P.laws.length} laws</span></div>
-    <div class="rooms">${P.built?LAWS.map(l=>`<button class="room" style="--c:var(--${P.c})" data-law="${l.id}" aria-current="${l.id===curLaw}"><span class="door"><span class="gl">${ic(GL[l.gl])}</span><b>${esc(l.name)}</b></span><small>${esc(l.one)}</small><span class="go">Open →</span></button>`).join("")
+    <div class="rooms">${P.built?LAWS.filter(l=>l.part===curPart).map(l=>`<button class="room" style="--c:var(--${P.c})" data-law="${l.id}" aria-current="${l.id===curLaw}"><span class="door"><span class="gl">${ic(GL[l.gl])}</span><b>${esc(l.name)}</b></span><small>${esc(l.one)}</small><span class="go">Open →</span></button>`).join("")
       :P.laws.map(n=>`<div class="room soon"><b>${esc(n)}</b><span class="tag">Under construction</span></div>`).join("")}</div>
     ${P.built?"":`<p style="font-size:13.5px;color:var(--muted);margin:10px 0 0">This floor is next on the build list. Every law will get the same 8-block page as the ground floor.</p>`}
   </div>`;
@@ -532,7 +904,7 @@ function planRender(scroll){
   if(scroll) document.getElementById("planbox").scrollIntoView({behavior:reduce?"auto":"smooth",block:"start"});
 }
 (function(){const svg=document.getElementById("bld");
-  const act=n=>{curPart=n.dataset.part;bldRender();planRender(true);if(PARTS[curPart].built)lawRender(false);else document.getElementById("lawhost").innerHTML="";};
+  const act=n=>{curPart=n.dataset.part;if(PARTS[curPart].built&&BYID[curLaw].part!==curPart)curLaw=LAWS.find(l=>l.part===curPart).id;bldRender();planRender(true);if(PARTS[curPart].built)lawRender(false);else document.getElementById("lawhost").innerHTML="";};
   svg.addEventListener("click",e=>{const n=e.target.closest(".floor");if(n)act(n);});
   svg.addEventListener("keydown",e=>{const n=e.target.closest(".floor");if(n&&(e.key==="Enter"||e.key===" ")){e.preventDefault();act(n);}});})();
 
@@ -540,21 +912,22 @@ function planRender(scroll){
 function relChip(r){
   if(r[0]==="law"){const l=BYID[r[1]];return `<a class="chip" href="#law-${l.id}">${esc(l.name)}</a>`;}
   if(r[0]==="st") return `<a class="chip st" href="${stHref(r[1])}" target="_top" title="Opens in Super Thinking (book 1)">${esc(r[2])} ↔ book 1</a>`;
+  const hit=BYNAME[r[1]];if(hit)return `<a class="chip" href="#law-${hit.id}">${esc(hit.name)}</a>`;
   return `<span class="chip off" title="Coming soon">${esc(r[1])} · soon</span>`;
 }
 function lawRender(scroll){
-  const L=BYID[curLaw],host=document.getElementById("lawhost"),k=LAWS.indexOf(L);
-  const prev=LAWS[(k-1+LAWS.length)%LAWS.length],next=LAWS[(k+1)%LAWS.length];
-  host.innerHTML=`<article class="law" id="lawbox" style="--c:var(--p6)">
-    <div class="blk hero"><div class="kick">Ground floor · Part VI · Law ${k+1} of ${LAWS.length}</div>
+  const L=BYID[curLaw],host=document.getElementById("lawhost"),P=PARTS[L.part],FL=LAWS.filter(l=>l.part===L.part),k=FL.indexOf(L);
+  const prev=FL[(k-1+FL.length)%FL.length],next=FL[(k+1)%FL.length];
+  host.innerHTML=`<article class="law" id="lawbox" style="--c:var(--${P.c})">
+    <div class="blk hero"><div class="kick">${floorName(P)} · Part ${P.n} · Law ${k+1} of ${FL.length}</div>
       <h2><mark>${esc(L.name)}</mark></h2><div class="sub">${esc(L.sub)}</div>
-      <p class="one">${esc(L.one)}</p><span class="origin">Origin: ${L.origin}</span></div>
+      <p class="one">${esc(L.one)}</p><span class="origin">Origin: ${L.origin}</span>${L.st?`<div><a class="stb" href="${stHref(L.st[0])}" target="_top">Also in Super Thinking ↔ ${esc(L.st[1])}</a></div>`:""}</div>
     <figure class="blk pic ${reduce?"":"anim"}">${L.pic()}<figcaption>${esc(L.cap)}</figcaption></figure>
     <div class="blk ask"><span class="qm">?</span><div><small>Ask yourself</small><b>${esc(L.q)}</b></div></div>
     <div class="blk"><p class="subh">How to apply it</p><div class="steps">${L.steps.map(([t,d],i)=>`<div class="step" style="--h:var(--${HUES[i%6]})"><div class="hd"><span class="badge">${i+1}</span><h4>${esc(t)}</h4></div><p>${esc(d)}</p></div>`).join("")}</div></div>
-    <div class="blk"><p class="subh">In code</p><div class="ba">
-      <div><div class="t">BEFORE</div><pre>${esc(L.before)}</pre><p class="why">${esc(L.whyB)}</p></div>
-      <div class="after"><div class="t">AFTER</div><pre>${esc(L.after)}</pre><p class="why">${esc(L.whyA)}</p></div></div></div>
+    <div class="blk"><p class="subh">${L.b5==="practice"?"In practice":"In code"}</p><div class="ba">
+      <div><div class="t">BEFORE</div>${L.b5==="practice"?`<div class="flow">${esc(L.before)}</div>`:`<pre>${esc(L.before)}</pre>`}<p class="why">${esc(L.whyB)}</p></div>
+      <div class="after"><div class="t">AFTER</div>${L.b5==="practice"?`<div class="flow">${esc(L.after)}</div>`:`<pre>${esc(L.after)}</pre>`}<p class="why">${esc(L.whyA)}</p></div></div></div>
     <div class="blk"><p class="subh">Seen in the real world</p><div class="xgrid">${L.ex.map(([f,t])=>{const F=FIELD[f];return `<div class="xcard" style="--h:var(--${F[1]})"><span class="xi">${ic(F[2])}</span><div><span class="xs">${F[0]}</span><p>${esc(t)}</p></div></div>`;}).join("")}</div></div>
     <div class="blk bend"><div class="side"><b>${esc(L.bend[0][0])}</b>${esc(L.bend[0][1])}</div><span class="vs">but</span><div class="side"><b>${esc(L.bend[1][0])}</b>${esc(L.bend[1][1])}</div></div>
     <div class="blk rel"><span style="font-weight:800;margin-right:2px">Related:</span>${L.rel.map(relChip).join("")}</div>
@@ -573,28 +946,43 @@ const QZ=[
  {q:"VAT changes from 20% to 21%, and you find the rate hard-coded in nine files.",a:"dry",o:["dry","kiss","demeter"],why:"One piece of knowledge, nine copies. Give the rate one home."},
  {q:"A teammate adds a plugin system “in case we need more formats”. Only CSV has ever been used.",a:"yagni",o:["yagni","solid","dry"],why:"Built for a guess. Every unused format still costs testing and upkeep."},
  {q:"order.customer.address.postcode breaks every time the Address class changes.",a:"demeter",o:["demeter","dry","scout"],why:"The caller reaches through three objects. Ask the order for the postcode instead."},
- {q:"A simple age check is written as a nested lambda that nobody on the team can read.",a:"kiss",o:["kiss","yagni","solid"],why:"Clever beats nobody. The plain one-liner says the rule directly."},
+ {q:"A simple age check is written as a nested lambda that nobody on the team can read.",a:"kiss",o:["kiss","yagni","solid"],why:"The plain one-liner says the rule directly."},
  {q:"While fixing a bug, you rename x2 to discount_rate and delete a stale TODO from 2021.",a:"scout",o:["scout","kiss","dry"],why:"A small clean-up near your change, shipped with it."},
  {q:"Adding Excel export means editing the Report class yet again.",a:"solid",o:["solid","yagni","demeter"],why:"Open/closed: new formats should be new classes, not edits to Report."},
  {q:"Two functions looked identical, one for shipping rules and one for tax, so you merged them. Now a tax change breaks shipping.",a:"dry",o:["dry","kiss","solid"],why:"DRY over-applied. They looked alike but were different knowledge that changes for different reasons."},
  {q:"A Square subclass breaks code that sets a Rectangle’s width and height separately.",a:"solid",o:["solid","demeter","kiss"],why:"Liskov substitution: a subtype must work everywhere its parent does."},
  {q:"A class must implement 12 interface methods but only uses 2 of them.",a:"solid",o:["solid","yagni","dry"],why:"Interface segregation: split the fat interface into small, focused ones."},
- {q:"Your team agrees every pull request leaves one thing a little tidier.",a:"scout",o:["scout","dry","yagni"],why:"Small, continuous clean-up as a team habit."}
+ {q:"Your team agrees every pull request leaves one thing a little tidier.",a:"scout",o:["scout","dry","yagni"],why:"Small, continuous clean-up as a team habit."},
+ {q:"A payment call has no timeout, and one slow provider freezes checkout for every customer.",a:"murphy",o:["murphy","sturgeon","lehman"],why:"It was always going to be slow one day. Timeouts, retries and a fallback plan for it."},
+ {q:"Your import crashes because a partner sends dates with a trailing space.",a:"postel",o:["postel","murphy","pesticide"],why:"Accept harmless variation, normalise it at the edge, and send strictly."},
+ {q:"The build shows 300 warnings, so nobody notices when new ones appear.",a:"broken",o:["broken","sturgeon","linus"],why:"Visible neglect hides new problems and invites more."},
+ {q:"A launch shortcut from two years ago now makes every change take twice as long.",a:"debt",o:["debt","lehman","kernighan"],why:"That’s the interest on an unpaid loan."},
+ {q:"A clever one-line regex nobody understands fails during an outage at 3 a.m.",a:"kernighan",o:["kernighan","linus","postel"],why:"Debugging is twice as hard as writing. Clever code leaves no headroom."},
+ {q:"Your tests have passed for six months straight, yet customers keep finding new bugs.",a:"pesticide",o:["pesticide","pyramid","murphy"],why:"The same tests stop finding new kinds of bug. Vary and refresh them."},
+ {q:"CI takes 90 minutes because almost every test drives a browser.",a:"pyramid",o:["pyramid","pesticide","broken"],why:"An upside-down pyramid. Move checks down to fast unit tests."},
+ {q:"A popular open-source library had a serious security bug for years despite thousands of users.",a:"linus",o:["linus","sturgeon","debt"],why:"Many users isn’t the same as many expert reviewers. That’s the limit of Linus’s Law."},
+ {q:"A system “finished” five years ago no longer fits how the business works.",a:"lehman",o:["lehman","debt","broken"],why:"Software in use must keep evolving, or it slowly loses its usefulness."},
+ {q:"You try twenty note-taking apps; only two are any good.",a:"sturgeon",o:["sturgeon","pesticide","linus"],why:"Most of anything is mediocre. The skill is filtering."}
 ];
 const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
-const qz={order:shuffle(QZ.map((_,i)=>i)),pos:0,score:0,answered:0,picked:null};
+const qz={floor:"all",order:[],pos:0,score:0,answered:0,picked:null};
+function qzReset(){const ids=QZ.map((_,i)=>i).filter(i=>qz.floor==="all"||BYID[QZ[i].a].part===qz.floor);Object.assign(qz,{order:shuffle(ids),pos:0,score:0,answered:0,picked:null});QZ.forEach(q=>delete q._o);}
 function qzRender(){
-  const box=document.getElementById("quiz");
-  if(qz.pos>=qz.order.length){box.innerHTML=`<div class="q-meta"><span>Done</span><span>${qz.score}/${QZ.length}</span></div><p class="q-text">You matched ${qz.score} of ${QZ.length} situations.</p><button class="btn primary" id="qr" style="width:100%">Shuffle and play again</button>`;
-    document.getElementById("qr").onclick=()=>{Object.assign(qz,{order:shuffle(qz.order),pos:0,score:0,answered:0,picked:null});qzRender();};return;}
+  const box=document.getElementById("quiz"),N=qz.order.length;
+  const filt=`<div class="qf" role="group" aria-label="Choose floor">${[["all","All open floors"],["VI","Ground floor"],["IV","Floor 1"]].map(([k,l])=>`<button data-f="${k}" aria-pressed="${qz.floor===k}">${l}</button>`).join("")}</div>`;
+  if(qz.pos>=N){box.innerHTML=filt+`<div class="q-meta"><span>Done</span><span>${qz.score}/${N}</span></div><p class="q-text">You matched ${qz.score} of ${N} situations.</p><button class="btn primary" id="qr" style="width:100%">Shuffle and play again</button>`;
+    document.getElementById("qr").onclick=()=>{qzReset();qzRender();};}
+  else{
   const q=QZ[qz.order[qz.pos]];if(!q._o)q._o=shuffle(q.o);const done=qz.picked!==null;
-  box.innerHTML=`<div class="q-meta"><span>Situation ${qz.pos+1} of ${QZ.length}</span><span>Score ${qz.score}/${qz.answered}</span></div><p class="q-text">${esc(q.q)}</p>
-   <div class="q-opts">${q._o.map(id=>{const l=BYID[id],cls=done?(id===q.a?"right":(id===qz.picked?"wrong":"")):"";return `<button class="q-opt ${cls}" style="--c:var(--p6)" data-id="${id}" ${done?"disabled":""}><span class="gl">${ic(GL[l.gl])}</span><span>${esc(l.name)}</span></button>`;}).join("")}</div>
+  box.innerHTML=filt+`<div class="q-meta"><span>Situation ${qz.pos+1} of ${N}</span><span>Score ${qz.score}/${qz.answered}</span></div><p class="q-text">${esc(q.q)}</p>
+   <div class="q-opts">${q._o.map(id=>{const l=BYID[id],cls=done?(id===q.a?"right":(id===qz.picked?"wrong":"")):"";return `<button class="q-opt ${cls}" style="--c:var(--${PARTS[l.part].c})" data-id="${id}" ${done?"disabled":""}><span class="gl">${ic(GL[l.gl])}</span><span>${esc(l.name)}</span></button>`;}).join("")}</div>
    ${done?`<div class="q-fb"><span class="verdict ${qz.picked===q.a?"ok":"no"}">${qz.picked===q.a?"Right.":"Not quite. It’s "+esc(BYID[q.a].name)+"."}</span><span>${esc(q.why)}</span>
    <a class="btn" href="#law-${q.a}" style="text-decoration:none;color:inherit;text-align:center">Open the ${esc(BYID[q.a].name)} page</a><button class="btn primary" id="qn">Next situation →</button></div>`:""}`;
   box.querySelectorAll(".q-opt").forEach(b=>b.onclick=()=>{if(qz.picked!==null)return;qz.picked=b.dataset.id;qz.answered++;if(qz.picked===q.a)qz.score++;qzRender();});
-  const n=document.getElementById("qn");if(n)n.onclick=()=>{qz.pos++;qz.picked=null;qzRender();};
+  const n=document.getElementById("qn");if(n)n.onclick=()=>{qz.pos++;qz.picked=null;qzRender();};}
+  box.querySelectorAll("[data-f]").forEach(b=>b.onclick=()=>{qz.floor=b.dataset.f;qzReset();qzRender();});
 }
+qzReset();
 
 /* ================= PAIRS ================= */
 const PAIRS=[
@@ -602,28 +990,34 @@ const PAIRS=[
  {a:["law","yagni"],b:["law","solid"],t:"Build only what’s needed, or design for extension?",r:"Keep code clean so it’s cheap to extend, but don’t add extension points until a second real case appears."},
  {a:["law","scout"],b:["law","yagni"],t:"Tidy as you go, or don’t do unneeded work?",r:"Tidy only what today’s change touches. Anything bigger gets its own ticket."},
  {a:["law","demeter"],b:["law","kiss"],t:"Hide the insides, or keep the API small?",r:"Apply Demeter to objects with behaviour. Let plain data be read directly."},
- {a:["law","yagni"],b:["st","op","Preserving optionality","Keep choices open so you can adapt later."],t:"Don’t build for guesses, or keep doors open?",r:"Keep options open cheaply (clean code, standard formats) rather than building speculative features."}
+ {a:["law","yagni"],b:["st","op","Preserving optionality","Keep choices open so you can adapt later."],t:"Don’t build for guesses, or keep doors open?",r:"Keep options open cheaply (clean code, standard formats) rather than building speculative features."},
+ {a:["law","murphy"],b:["law","yagni"],t:"Prepare for failure, or don’t build for guesses?",r:"Networks and disks will fail, so handling that isn’t speculation. Scale the defences to how likely and costly each failure is."},
+ {a:["law","postel"],b:["law","broken"],t:"Tolerate mess, or fix every mess?",r:"Tolerate harmless variety at the edges, then normalise it. Inside your own system, keep things clean."},
+ {a:["law","debt"],b:["law","yagni"],t:"Take a shortcut now, or build only what’s needed?",r:"YAGNI skips features; debt cuts quality. Skip features freely, but cut quality only on purpose, and write it down."},
+ {a:["law","pyramid"],b:["law","pesticide"],t:"Lots of fast small tests, or keep changing your tests?",r:"Keep the pyramid shape, but refresh every layer with new kinds of test."},
+ {a:["law","lehman"],b:["law","kiss"],t:"Keep evolving, or keep it simple?",r:"Evolve what users need, and simplify as you go so each change stays cheap."}
 ];
 function pairsRender(){
-  const side=s=>{if(s[0]==="law"){const l=BYID[s[1]];return `<a class="side" href="#law-${l.id}" style="--c:var(--p6);text-decoration:none;color:inherit"><span style="color:var(--p6)">${ic(GL[l.gl])}</span><b>${esc(l.name)}</b><small>${esc(l.one)}</small><span class="open">Open page →</span></a>`;}
+  const side=s=>{if(s[0]==="law"){const l=BYID[s[1]],c=PARTS[l.part].c;return `<a class="side" href="#law-${l.id}" style="--c:var(--${c});text-decoration:none;color:inherit"><span style="color:var(--${c})">${ic(GL[l.gl])}</span><b>${esc(l.name)}</b><small>${esc(l.one)}</small><span class="open">Open page →</span></a>`;}
     return `<a class="side" href="${stHref(s[1])}" target="_top" style="--c:var(--p7);text-decoration:none;color:inherit;border-style:dashed"><b>${esc(s[2])}</b><small>${esc(s[3])}</small><span class="open">Open in book 1 ↔</span></a>`;};
   document.getElementById("pairs").innerHTML=PAIRS.map(p=>`<article class="pair"><p class="tension">${esc(p.t)}</p><div class="sides">${side(p.a)}<span class="vs">vs</span>${side(p.b)}</div><p class="resolve"><b>Rule of thumb:</b>${esc(p.r)}</p></article>`).join("");
 }
 
 /* ================= CHEAT SHEET ================= */
 function cheatRender(){
-  document.getElementById("cheat").innerHTML=LAWS.map(l=>`<div class="cs"><div class="top"><span class="gl">${ic(GL[l.gl])}</span><div><b>${esc(l.name)}</b><div style="font-size:11.5px;color:var(--muted);font-weight:700">${esc(l.sub)}</div></div></div>
-    <p class="one">${esc(l.one)}</p><dl><dt>Ask</dt><dd>${esc(l.cheat.ask)}</dd><dt>Bend for</dt><dd>${esc(l.cheat.bend)}</dd></dl></div>`).join("");
+  const open=["VI","IV"];
+  document.getElementById("cheat").outerHTML=`<div id="cheat">${open.map(k=>{const P=PARTS[k];return `<h3 class="cfloor" style="--c:var(--${P.c})">${floorName(P)} · ${esc(P.name)}</h3><div class="cheat">${LAWS.filter(l=>l.part===k).map(l=>`<div class="cs" style="--c:var(--${P.c})"><div class="top"><span class="gl">${ic(GL[l.gl])}</span><div><b>${esc(l.name)}</b><div style="font-size:11.5px;color:var(--muted);font-weight:700">${esc(l.sub)}</div></div></div>
+    <p class="one">${esc(l.one)}</p><dl><dt>Ask</dt><dd>${esc(l.cheat.ask)}</dd><dt>Bend for</dt><dd>${esc(l.cheat.bend)}</dd></dl></div>`).join("")}</div>`;}).join("")}</div>`;
   if(location.protocol==="file:"||/github\.io$/.test(location.hostname)){
     const n=document.getElementById("printnote");n.innerHTML=`<button class="btn" id="pr">Print cheat sheet</button>`;
     document.getElementById("pr").onclick=()=>{try{window.print()}catch(e){}};}
 }
 
 /* ================= ROUTING ================= */
-const BEST={building:"Tap a floor to see its laws, then tap a law to open its page.",quiz:"Read a real situation and pick the principle it’s about.",pairs:"Principles that pull against each other, with a rule of thumb for choosing.",cheat:"All ground-floor principles on one page."};
+const BEST={building:"Tap a floor to see its laws, then tap a law to open its page.",quiz:"Read a real situation and pick the law it’s about. Filter by floor.",pairs:"Principles that pull against each other, with a rule of thumb for choosing.",cheat:"Every open law on one page, grouped by floor."};
 function route(scroll){
   let h=location.hash.slice(1),v=h;
-  if(h.startsWith("law-")&&BYID[h.slice(4)]){curLaw=h.slice(4);curPart="VI";v="building";}
+  if(h.startsWith("law-")&&BYID[h.slice(4)]){curLaw=h.slice(4);curPart=BYID[curLaw].part;v="building";}
   if(!BEST[v])v="building";
   document.querySelectorAll(".tab").forEach(t=>t.setAttribute("aria-selected",t.dataset.view===v));
   ["building","quiz","pairs","cheat"].forEach(x=>document.getElementById("v-"+x).hidden=x!==v);
