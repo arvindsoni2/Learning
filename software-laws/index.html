@@ -203,6 +203,8 @@ input[type=range]{width:100%;accent-color:var(--accent);height:28px}
 @keyframes drip{0%{transform:translateY(0);opacity:0}10%{opacity:1}85%{opacity:1}100%{transform:translateY(-140px);opacity:0}}
 .drip{opacity:.9}
 .anim .drip{animation:drip 3.3s ease-in infinite both}
+@keyframes grow{0%{transform:scaleX(0)}60%,100%{transform:scaleX(1)}}
+.anim .grow{transform-box:fill-box;transform-origin:left center;animation:grow 2.2s ease-out both}
 footer{margin-top:36px;font-size:12.5px;color:var(--muted);border-top:2px dashed var(--line);padding-top:14px}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 @media print{
@@ -220,7 +222,7 @@ footer{margin-top:36px;font-size:12.5px;color:var(--muted);border-top:2px dashed
 <header>
   <div class="eyebrow">Learning series · Book 2</div>
   <h1>Software Laws, mapped</h1>
-  <p>57 laws and principles of software engineering as a building: code on the ground floor, decisions on the roof. Four floors are open: code, quality, scale (with live calculators) and architecture. The top three floors are under construction.</p>
+  <p>57 laws and principles of software engineering as a building: code on the ground floor, decisions on the roof. Five floors are open: code, quality, scale (with live calculators), architecture and time. The top two floors are under construction.</p>
 </header>
 
 <nav class="tabs" role="tablist" aria-label="Views">
@@ -255,7 +257,7 @@ const PARTS={
  IV:{n:"IV",name:"Quality, Maintenance & Evolution",short:"Quality",floor:"1",c:"p4",built:true,laws:["Murphy’s Law","Postel’s Law","Broken Windows","Technical Debt","Linus’s Law","Kernighan’s Law","Pesticide Paradox","Testing Pyramid","Lehman’s Laws","Sturgeon’s Law"]},
  V:{n:"V",name:"Scale, Performance & Growth",short:"Scale",floor:"2",c:"p5",built:true,laws:["Amdahl’s Law","Gustafson’s Law","Little’s Law","Metcalfe’s Law"]},
  I:{n:"I",name:"Architecture & Complexity",short:"Architecture",floor:"3",c:"p1",built:true,laws:["Gall’s Law","Leaky Abstractions","Tesler’s Law","CAP Theorem","Hyrum’s Law","Second-System Effect","Fallacies of Distributed Computing","Unintended Consequences"]},
- III:{n:"III",name:"Time, Estimation & Planning",short:"Time",floor:"4",c:"p3",laws:["Hofstadter’s Law","Parkinson’s Law","Ninety-Ninety Rule","Goodhart’s Law","Gilb’s Law","Knuth’s Optimisation Principle"]},
+ III:{n:"III",name:"Time, Estimation & Planning",short:"Time",floor:"4",c:"p3",built:true,laws:["Hofstadter’s Law","Parkinson’s Law","Ninety-Ninety Rule","Goodhart’s Law","Gilb’s Law","Knuth’s Optimisation Principle"]},
  II:{n:"II",name:"People, Teams & Organisations",short:"People",floor:"5",c:"p2",laws:["Conway’s Law","Brooks’s Law","Dunbar’s Number","Ringelmann Effect","Price’s Law","Putt’s Law","Peter Principle","Inverse Conway Manoeuvre","Bus Factor","Dilbert Principle"]},
  VII:{n:"VII",name:"Decision-Making & Biases",short:"Decisions",floor:"6",c:"p7",laws:["Occam’s Razor","Hanlon’s Razor","Sunk Cost Fallacy","Dunning–Kruger","Confirmation Bias","First Principles","Pareto Principle","Lindy Effect","Hype Cycle","Amara’s Law","Planning Fallacy","Survivorship Bias","Chesterton’s Fence"]}
 };
@@ -285,6 +287,7 @@ const FIELD={
  people:["Teams","h6",'<circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0 1 12 0"/><circle cx="17" cy="9" r="2.5"/><path d="M16 14.2A5 5 0 0 1 21 19"/>'],
  science:["Science","h2",'<path d="M9 3h6M10 3v6L5 18a1.5 1.5 0 0 0 1.3 2.2h11.4A1.5 1.5 0 0 0 19 18l-5-9V3"/><path d="M7.5 14h9"/>'],
  learn:["Learning","h4",'<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5V5.5"/>'],
+ sport:["Sport","h3",'<circle cx="12" cy="12" r="8.5"/><path d="M6 6.5c2.8 2.3 2.8 8.7 0 11M18 6.5c-2.8 2.3-2.8 8.7 0 11"/>'],
  transport:["Transport","h4",'<rect x="4" y="6" width="16" height="10" rx="2"/><circle cx="8" cy="18" r="1.8"/><circle cx="16" cy="18" r="1.8"/><path d="M4 11h16"/>']
 };
 
@@ -1286,6 +1289,195 @@ total = sum(prices.values())`,
  rel:[["st","gl","Goodhart’s law"],["st","sy","Systems thinking"],["name","Murphy’s Law"],["name","Gall’s Law"]],
  cheat:{ask:"If it works as intended, what will people do differently?",bend:"Inaction has consequences too: pilot and adjust."}}
 );
+/* ================= FLOOR 4 · PART III ================= */
+function picHofstadter(){
+  const rows=[["First guess",2,"h2"],["+ a buffer",3,"h2"],["+ more buffer",4,"h2"],["Actual",7,"bad"]],S=30,X0=104;
+  return `<svg viewBox="0 0 340 200" role="img" aria-label="Estimates grow with buffers, but the actual time is still longer">
+   ${rows.map(([l,w,c],i)=>{const y=18+i*38;return `<text x="${X0-8}" y="${y+18}" text-anchor="end" font-size="11.5" font-weight="800" style="${c==="bad"?"fill:var(--bad)":""}">${l}</text>
+    <rect class="grow" style="animation-delay:${i*.5}s" x="${X0}" y="${y}" width="${w*S}" height="26" rx="5" fill="color-mix(in srgb,var(--${c}) ${c==="bad"?24:14}%,var(--surface))" stroke="var(--${c})" stroke-width="2"/>
+    <text x="${X0+w*S-8}" y="${y+18}" text-anchor="end" font-size="11" font-weight="800">${w} wk</text>`;}).join("")}
+   ${[0,1,2,3,4,5,6,7].map(k=>`<line x1="${X0+k*S}" y1="166" x2="${X0+k*S}" y2="172" stroke="var(--muted)"/>`).join("")}
+   <path d="M${X0} 166 H${X0+7*S}" stroke="var(--muted)" stroke-width="1.5"/>
+   <text x="${X0+3.5*S}" y="190" text-anchor="middle" font-size="10.5" font-weight="800" style="fill:var(--bad)">still longer, even allowing for Hofstadter’s Law</text></svg>`;
+}
+function picParkinson(){
+  const X0=88,D=17.5,rows=[["Given 2 days",2],["Given 1 week",7],["Given 2 weeks",14]];
+  return `<svg viewBox="0 0 340 196" role="img" aria-label="The same two-day task stretches to fill whatever time it is given">
+   <text x="${X0}" y="16" font-size="10.5" font-weight="800" style="fill:var(--h3)">■ real work (2 days)</text>
+   <text x="${X0+130}" y="16" font-size="10.5" font-weight="800" style="fill:var(--h4)">■ expansion</text>
+   ${rows.map(([l,d],i)=>{const y=32+i*48;return `<text x="${X0-8}" y="${y+18}" text-anchor="end" font-size="11" font-weight="800">${l}</text>
+    <rect class="grow" style="animation-delay:${i*.6}s" x="${X0}" y="${y}" width="${d*D}" height="26" rx="5" fill="color-mix(in srgb,var(--h4) 18%,var(--surface))" stroke="var(--h4)" stroke-width="1.6"/>
+    <rect x="${X0}" y="${y}" width="${2*D}" height="26" rx="5" fill="color-mix(in srgb,var(--h3) 40%,var(--surface))" stroke="var(--h3)" stroke-width="2"/>
+    <path d="M${X0+d*D} ${y-4} v34" stroke="var(--bad)" stroke-width="2.5"/>
+    <text x="${X0+d*D+(d===14?-6:6)}" y="${y+42}" text-anchor="${d===14?"end":"start"}" font-size="10" font-weight="800" style="fill:var(--bad)">done on day ${d}</text>`;}).join("")}
+   <text x="${X0}" y="190" font-size="10" style="fill:var(--muted)">red line = deadline</text></svg>`;
+}
+function picNinety(){
+  return `<svg viewBox="0 0 340 196" role="img" aria-label="Progress races to 90 percent, then crawls through a long tail">
+   <path d="M40 16 V160 H326" fill="none" stroke="var(--muted)" stroke-width="1.5"/>
+   <text x="34" y="24" text-anchor="end" font-size="9.5" style="fill:var(--muted)">100%</text>
+   <text x="34" y="46" text-anchor="end" font-size="9.5" font-weight="800" style="fill:var(--h1)">90%</text>
+   <line x1="40" y1="42" x2="326" y2="42" stroke="var(--h1)" stroke-dasharray="4 4"/>
+   <path class="drawn" d="M40 160 C70 80 90 50 120 44 S250 38 322 20" fill="none" stroke="var(--h2)" stroke-width="3.5" stroke-linecap="round"/>
+   <circle cx="120" cy="44" r="5" fill="var(--h1)"/>
+   <text x="124" y="70" font-size="11" font-weight="800" style="fill:var(--h1)">“I’m almost done!”</text>
+   <path d="M40 176 H118" stroke="var(--h3)" stroke-width="3"/><text x="79" y="190" text-anchor="middle" font-size="10" font-weight="800" style="fill:var(--h3)">first 90%</text>
+   <path d="M124 176 H326" stroke="var(--bad)" stroke-width="3"/><text x="225" y="190" text-anchor="middle" font-size="10" font-weight="800" style="fill:var(--bad)">the “other” 90%: the long tail</text>
+   <text x="222" y="104" text-anchor="middle" font-size="10.5" style="fill:var(--muted)">tests · accessibility · security</text>
+   <text x="222" y="120" text-anchor="middle" font-size="10.5" style="fill:var(--muted)">deployment · docs · that one bug</text></svg>`;
+}
+function picGoodhart(){
+  const P=(i,title,body)=>{const x=6+i*112;return `<rect x="${x}" y="8" width="104" height="150" rx="10" fill="var(--surface)" stroke="var(--ink)" stroke-width="2"/><text x="${x+52}" y="26" text-anchor="middle" font-size="10.5" font-weight="800">${i+1}. ${title}</text>${body(x)}`;};
+  const bug=(x,y,c="var(--bad)")=>`<ellipse cx="${x}" cy="${y}" rx="6" ry="8" fill="${c}"/><path d="M${x-6} ${y-3}h-4M${x-6} ${y+3}h-4M${x+6} ${y-3}h4M${x+6} ${y+3}h4M${x-2} ${y-8}l-2 -4M${x+2} ${y-8}l2 -4" stroke="${c}" stroke-width="1.5"/>`;
+  return `<svg viewBox="0 0 340 196" role="img" aria-label="Story: rewarding low bug counts leads to bugs going unreported">
+   ${P(0,"Want fewer bugs",x=>`${bug(x+38,74)}${bug(x+66,92)}<path d="M${x+52} 108 v26 m-8 -8 l8 8 l8 -8" fill="none" stroke="var(--good)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><text x="${x+52}" y="150" text-anchor="middle" font-size="9.5" style="fill:var(--muted)">the real goal</text>`)}
+   ${P(1,"Reward low counts",x=>`<path d="M${x+36} 50 h32 v14 a16 16 0 0 1 -32 0z" fill="var(--lit)" stroke="var(--ink)" stroke-width="1.8"/><path d="M${x+52} 80 v14 M${x+42} 98 h20" stroke="var(--ink)" stroke-width="2.5"/><text x="${x+52}" y="120" text-anchor="middle" font-size="10.5" font-weight="800">fewest bugs</text><text x="${x+52}" y="134" text-anchor="middle" font-size="10.5" font-weight="800">wins a bonus</text><text x="${x+52}" y="150" text-anchor="middle" font-size="9.5" style="fill:var(--muted)">the target</text>`)}
+   ${P(2,"Bugs “vanish”",x=>`<rect x="${x+16}" y="44" width="72" height="22" rx="4" fill="color-mix(in srgb,var(--good) 14%,var(--surface))" stroke="var(--good)" stroke-width="1.5"/><text x="${x+52}" y="59" text-anchor="middle" font-size="9.5" font-weight="800" style="fill:var(--good)">0 bugs filed ✓</text>${bug(x+36,96)}${bug(x+70,104)}<path d="M${x+16} 112 q36 -18 72 0 v8 h-72z" fill="var(--h4)" opacity=".85"/><text x="${x+52}" y="136" text-anchor="middle" font-size="9.5" font-weight="700">swept under the rug</text><text x="${x+52}" y="150" text-anchor="middle" font-size="9.5" style="fill:var(--muted)">or relabelled</text>`)}
+   <text x="170" y="184" text-anchor="middle" font-size="10.5" font-weight="800" style="fill:var(--bad)">the number improved · the software didn’t</text></svg>`;
+}
+function picGilb(){
+  return `<svg viewBox="0 0 340 180" role="img" aria-label="A spectrum from no data to measuring as a target, with the sweet spot in the middle">
+   <defs><marker id="gbA" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0 0L8 4L0 8z" fill="var(--ink)"/></marker></defs>
+   <rect x="8" y="64" width="96" height="44" rx="8" fill="color-mix(in srgb,var(--bad) 12%,var(--surface))" stroke="var(--bad)" stroke-width="2"/>
+   <text x="56" y="84" text-anchor="middle" font-size="11" font-weight="800">Flying blind</text><text x="56" y="99" text-anchor="middle" font-size="9">“can’t measure it”</text>
+   <rect x="114" y="56" width="112" height="60" rx="10" fill="color-mix(in srgb,var(--good) 16%,var(--surface))" stroke="var(--good)" stroke-width="2.8"/>
+   <text x="170" y="80" text-anchor="middle" font-size="12" font-weight="800" style="fill:var(--good)">Measure to learn</text><text x="170" y="97" text-anchor="middle" font-size="9">rough, used wisely</text>
+   <rect x="236" y="64" width="96" height="44" rx="8" fill="color-mix(in srgb,var(--bad) 12%,var(--surface))" stroke="var(--bad)" stroke-width="2"/>
+   <text x="284" y="84" text-anchor="middle" font-size="11" font-weight="800">Number = target</text><text x="284" y="99" text-anchor="middle" font-size="9">gamed, distorted</text>
+   <path d="M56 136 C56 152 120 152 150 124" fill="none" stroke="var(--ink)" stroke-width="2" marker-end="url(#gbA)"/>
+   <text x="10" y="160" font-size="10.5" font-weight="800" style="fill:var(--h2)">Gilb:</text><text x="10" y="173" font-size="10.5" font-weight="800" style="fill:var(--h2)">measure something</text>
+   <path d="M284 136 C284 152 220 152 190 124" fill="none" stroke="var(--ink)" stroke-width="2" marker-end="url(#gbA)"/>
+   <text x="330" y="160" text-anchor="end" font-size="10.5" font-weight="800" style="fill:var(--h5)">Goodhart:</text><text x="330" y="173" text-anchor="end" font-size="10.5" font-weight="800" style="fill:var(--h5)">don’t make it a target</text>
+   <text x="170" y="28" text-anchor="middle" font-size="12" font-weight="800">Where good measurement lives</text></svg>`;
+}
+function picKnuth(){
+  const F=[["database query",78,true],["page templates",9],["JSON parsing",6],["other",6.5],["config lookups",0.5,false,true]];
+  return `<svg viewBox="0 0 340 214" role="img" aria-label="A profile shows one database query takes most of the time; the hand-optimised code barely registers">
+   <text x="10" y="18" font-size="12" font-weight="800">Where the time actually goes (profiler)</text>
+   ${F.map(([n,p,hot,mine],i)=>{const y=32+i*32,w=Math.max(3,p*2.3);return `<text x="104" y="${y+15}" text-anchor="end" font-size="10.5" font-weight="700">${n}</text>
+    <rect class="grow" style="animation-delay:${i*.3}s" x="110" y="${y}" width="${w}" height="20" rx="4" fill="color-mix(in srgb,var(--${hot?"h1":"h2"}) ${hot?32:16}%,var(--surface))" stroke="var(--${hot?"h1":"h2"})" stroke-width="1.6"/>
+    <text x="${110+w+6}" y="${y+15}" font-size="10.5" font-weight="800">${p}%</text>`;}).join("")}
+   <text x="120" y="${32+14.5}" font-size="10" font-weight="800">optimise here</text>
+   <rect x="168" y="162" width="160" height="22" rx="11" fill="color-mix(in srgb,var(--bad) 12%,var(--surface))" stroke="var(--bad)" stroke-width="1.6"/>
+   <text x="248" y="177" text-anchor="middle" font-size="10" font-weight="800" style="fill:var(--bad)">← you spent a week here</text>
+   <text x="170" y="206" text-anchor="middle" font-size="10.5" font-weight="800" style="fill:var(--muted)">measure first, then optimise the hot spot</text></svg>`;
+}
+Object.assign(GL,{
+ hofstadter:'<circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6"/>',
+ parkinson:'<path d="M6 3h12M6 21h12M7 3c0 6 10 6 10 9s-10 3-10 9M17 3c0 6-10 6-10 9s10 3 10 9"/>',
+ ninety:'<rect x="2" y="9" width="20" height="6" rx="3"/><path d="M4.5 12h12"/>',
+ goodhart:'<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1"/>',
+ gilb:'<rect x="2" y="8" width="20" height="8" rx="1.5"/><path d="M6 8v3M10 8v4M14 8v3M18 8v4"/>',
+ knuth:'<path d="M4 17a8 8 0 1 1 16 0"/><path d="M12 17l4-5"/>'
+});
+LAWS.push(
+{id:"hofstadter",part:"III",name:"Hofstadter’s Law",sub:"It always takes longer than you expect",gl:"hofstadter",
+ one:"Things always take longer than you expect, even when you allow for this law.",
+ origin:"Douglas Hofstadter, <i>Gödel, Escher, Bach</i>, 1979",
+ pic:picHofstadter,cap:"Adding buffer to a guess doesn’t fix the guess. Past actuals do better.",
+ q:"How long did similar work actually take last time?",
+ steps:[["Look at past actuals","Find similar past work and how long it really took."],["Estimate in ranges","“Likely 5 weeks, 85% sure by 7.”"],["Keep one shared buffer","At the end, not padded into every task."],["Re-forecast as you learn","Update the range as work completes."]],
+ before:`estimate_weeks = 2          # gut feel, happy path`,
+ whyB:"A gut estimate pictures everything going right.",
+ after:`import statistics
+
+past = [3.5, 5, 4, 7, 6]   # weeks similar projects really took
+likely = statistics.median(past)                 # 5
+safe = statistics.quantiles(past, n=20)[16]     # about 7
+
+print(f"Likely {likely} weeks; 85% sure by {safe:.0f}")`,
+ whyA:"Past actuals already include the surprises your gut forgets.",
+ ex:[["gov","The Sydney Opera House was planned to take about four years and opened after fourteen."],["learn","Students asked for a worst-case finish date for their thesis still mostly missed it."],["home","A kitchen renovation that was “two weeks, tops”."],["tech","Software teams that compare estimates with actuals find a consistent optimism gap."]],
+ bend:[["Hofstadter says","It’ll take longer."],["But don’t pad every task","Padded tasks expand to fill the time (Parkinson). Keep one shared buffer at the end."]],
+ rel:[["name","Parkinson’s Law"],["name","Ninety-Ninety Rule"],["name","Planning Fallacy"],["name","Brooks’s Law"]],
+ cheat:{ask:"How long did similar work really take?",bend:"Don’t pad every task; keep one buffer."}},
+{id:"parkinson",part:"III",name:"Parkinson’s Law",sub:"Work fills the time available",gl:"parkinson",
+ one:"Work expands to fill the time available for it.",
+ origin:"C. Northcote Parkinson, <i>The Economist</i>, 1955",
+ pic:picParkinson,cap:"The same two days of real work, stretched to fill whatever deadline it’s given.",
+ q:"What’s the shortest sensible time box for this?",
+ steps:[["Time-box it","Set a short, fixed window."],["Define “done” first","So you know when to stop."],["Ship, then improve","Feedback beats polishing in private."],["Watch for bikeshedding","Small topics that eat big meetings."]],
+ b5:"practice",
+ before:"A task estimated at 2 days is given 2 weeks.\nPolishing, side quests and meetings fill the gap.\nIt ships on day 14.",
+ whyB:"The deadline, not the work, set the length.",
+ after:"A 2-day time box with a clear definition of done.\nShip on day 2, then improve from real feedback.",
+ whyA:"The work, not the calendar, sets the length.",
+ ex:[["gov","Parkinson’s original example: Admiralty staff kept growing while the Royal Navy’s fleet shrank."],["learn","Students start essays the night before the deadline, however long they’re given."],["biz","A meeting booked for an hour lasts an hour, whatever the agenda."],["tech","Data grows to fill whatever storage is available."]],
+ bend:[["Parkinson says","Work fills the time."],["But don’t squeeze too hard","Deadlines that are too tight cause shortcuts and debt. Time-box sensibly."]],
+ rel:[["name","Hofstadter’s Law"],["name","Ninety-Ninety Rule"],["name","Technical Debt"],["law","yagni"]],
+ cheat:{ask:"What’s the shortest sensible time box?",bend:"Too-tight deadlines breed shortcuts."}},
+{id:"ninety",part:"III",name:"Ninety-Ninety Rule",sub:"The last 10% takes the other 90%",gl:"ninety",
+ one:"The first 90% of the work takes 90% of the time. The last 10% takes the other 90%.",
+ origin:"Tom Cargill, Bell Labs, 1980s",
+ pic:picNinety,cap:"“Almost done” arrives fast. Done takes as long again.",
+ q:"What does “done” really include here?",
+ steps:[["Define done fully","Tests, errors, edge cases, accessibility, security, docs."],["Do the hard parts early","Don’t leave the scary 10% till last."],["Count finished slices","Not percentages."],["Re-forecast the tail","Estimate the last 10% on its own."]],
+ b5:"practice",
+ before:"Progress reported as “90% done” for three weeks running.\nThe last 10% (edge cases, error handling, accessibility, deployment) was never estimated.",
+ whyB:"Percent-complete hides the long tail.",
+ after:"Work split into thin slices, each fully finished.\nProgress = slices done, not a percentage.\nThe tail is estimated on its own.",
+ whyA:"Done means done, slice by slice.",
+ ex:[["home","A new house looks finished long before the snagging list is cleared."],["tech","The demo works in a week; making it production-ready takes as long again."],["learn","The first draft of an essay is quick; editing it into shape takes longer."],["gov","Broadband roll-outs reach most homes quickly; the last few rural homes cost the most."]],
+ bend:[["The rule says","The tail is long."],["But not everything needs it","For a prototype or experiment, stopping at 90% can be exactly right."]],
+ rel:[["name","Hofstadter’s Law"],["name","Parkinson’s Law"],["name","Technical Debt"],["st","pa","Pareto principle"]],
+ cheat:{ask:"What does “done” really include?",bend:"Prototypes can stop at 90%."}},
+{id:"goodhart",part:"III",name:"Goodhart’s Law",sub:"Targets ruin measures",gl:"goodhart",st:["gl","Goodhart’s law"],
+ one:"When a measure becomes a target, it stops being a good measure.",
+ origin:"Charles Goodhart, 1975; this wording by Marilyn Strathern, 1997",
+ pic:picGoodhart,cap:"Reward the number and people will move the number, not the thing it measured.",
+ q:"How could people hit this number without achieving the goal?",
+ steps:[["Name the real goal","The outcome, not the number."],["Use several measures","Balance speed with quality."],["Measure to learn","Not to rank or reward individuals."],["Review and rotate","Refresh measures before they decay."]],
+ b5:"practice",
+ before:"One target: story points per sprint, tied to bonuses.\nPoints inflate; delivery doesn’t change.",
+ whyB:"The number went up. Nothing else did.",
+ after:"A small, balanced set: lead time, failed changes, customer outcomes.\nReviewed together for learning, never ranked per person.",
+ whyA:"Hard to game all of them at once.",
+ ex:[["tech","Rewarding test coverage produces tests that run code but check nothing."],["tech","Counting lines of code rewards bloated, copy-pasted code."],["health","Hospital waiting-time targets can lead to waits being reclassified instead of shortened."],["learn","Teaching to the test raises scores without deeper understanding."]],
+ bend:[["Goodhart says","Don’t target one number."],["But you still need numbers","That’s Gilb’s Law. Measure several signals and apply judgement."]],
+ rel:[["name","Gilb’s Law"],["name","Unintended Consequences"],["name","Sturgeon’s Law"]],
+ cheat:{ask:"How could people hit the number but miss the goal?",bend:"You still need numbers (Gilb)."}},
+{id:"gilb",part:"III",name:"Gilb’s Law",sub:"Measure something rather than nothing",gl:"gilb",
+ one:"Anything you need to quantify can be measured in some way that beats not measuring it at all.",
+ origin:"Tom Gilb, <i>Principles of Software Engineering Management</i>, 1988",
+ pic:picGilb,cap:"Gilb pushes you out of blindness; Goodhart stops you overshooting into targets.",
+ q:"What rough signal would tell us if this is getting better?",
+ steps:[["Name the quality","What do you actually care about?"],["Pick a rough proxy","Imperfect is fine."],["Track it for a few cycles","Look for trends, not exact values."],["Refine the proxy","Improve it once you understand it."]],
+ before:`# "Search quality can't be measured."
+# ...so nobody knows if last month's change helped.`,
+ whyB:"No signal at all, so every change is a guess.",
+ after:`searches = load_search_log()
+no_click = sum(1 for s in searches if not s.clicked)
+
+print(f"Searches with no click: {no_click / len(searches):.0%}")
+# rough and imperfect, and far better than nothing`,
+ whyA:"A crude measure that shows the trend.",
+ ex:[["health","A 0–10 pain score is crude, but it guides treatment far better than nothing."],["biz","Customer survey scores are rough, but they show whether things are improving."],["home","Bathroom scales beat “I feel lighter”."],["learn","Practice tests show progress long before the real exam."]],
+ bend:[["Gilb says","Measure something."],["But don’t make it a target","Then Goodhart’s Law kicks in. And don’t measure just to measure."]],
+ rel:[["name","Goodhart’s Law"],["name","Knuth’s Optimisation Principle"],["st","by","Bayesian updating"]],
+ cheat:{ask:"What rough signal would show improvement?",bend:"Don’t turn it into a target."}},
+{id:"knuth",part:"III",name:"Knuth’s Optimisation Principle",sub:"Measure before you optimise",gl:"knuth",
+ one:"Don’t optimise code before you know where the time actually goes.",
+ origin:"Donald Knuth, 1974: “premature optimization is the root of all evil”",
+ pic:picKnuth,cap:"The profiler points at the real hot spot, rarely where you guessed.",
+ q:"Have I measured where the time actually goes?",
+ steps:[["Make it work","Then make it clear."],["Measure","Profile with realistic data."],["Optimise the hot spot","The few lines that really matter."],["Measure again","Confirm it helped."]],
+ before:`from functools import lru_cache
+
+# a week spent caching config lookups
+@lru_cache(maxsize=None)
+def get_setting(key):
+    ...`,
+ whyB:"Clever work on code that’s 0.5% of the runtime.",
+ after:`import cProfile
+
+cProfile.run("handle_request(sample)", sort="cumtime")
+# shows 78% of the time in one database query: fix that first`,
+ whyA:"Measure first, and the profiler shows where effort pays off.",
+ ex:[["biz","Factories speed up their bottleneck machine, not the ones that are already waiting."],["transport","Widening a road does little if the real hold-up is one junction."],["home","Switching to cheaper teabags while ignoring the energy bill."],["sport","Buying expensive kit before fixing technique."]],
+ bend:[["Knuth says","Don’t optimise early."],["But not never","Knuth’s full point: do optimise the critical few percent. And design choices like data structures are hard to change later."]],
+ rel:[["name","Amdahl’s Law"],["law","kiss"],["name","Kernighan’s Law"],["st","pa","Pareto principle"]],
+ cheat:{ask:"Have I measured where the time goes?",bend:"The critical few percent, and big design choices."}}
+);
 LAWS.forEach(l=>{l.part=l.part||"VI";});
 
 const BYID=Object.fromEntries(LAWS.map(l=>[l.id,l]));
@@ -1297,7 +1489,7 @@ const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
 const HUES=["h1","h2","h3","h4","h5","h6"];
 
 /* ================= BUILDING ================= */
-let curPart="I",curLaw="gall";
+let curPart="III",curLaw="hofstadter";
 function bldRender(){
   const svg=document.getElementById("bld");const X0=36,W=288,FH=58,TOP=80;let g="";
   /* crane */
@@ -1405,14 +1597,20 @@ const QZ=[
  {q:"You fix a typo in an error message and a customer’s script that searched for the old text breaks.",a:"hyrum",o:["hyrum","postel","leaky"],why:"With enough users, even error text becomes something people rely on."},
  {q:"Version 2 of the CRM tries to include every feature every department ever asked for.",a:"second",o:["second","gall","yagni"],why:"Classic second-system bloat. Set a scope budget and ship in steps."},
  {q:"A checkout loop calls a remote pricing service 50 times, with no timeout.",a:"fallacies",o:["fallacies","little","murphy"],why:"It assumes the network is reliable and latency is zero."},
- {q:"A rule meant to improve uptime makes teams deploy rarely, so releases get bigger and riskier.",a:"unintended",o:["unintended","broken","murphy"],why:"The rule changed behaviour in a way that worked against its own goal."}
+ {q:"A rule meant to improve uptime makes teams deploy rarely, so releases get bigger and riskier.",a:"unintended",o:["unintended","broken","murphy"],why:"The rule changed behaviour in a way that worked against its own goal."},
+ {q:"Your estimate already included a generous buffer, and the project still ran three weeks late.",a:"hofstadter",o:["hofstadter","parkinson","ninety"],why:"It takes longer than expected even when you allow for that. Forecast from past actuals."},
+ {q:"A two-day task is given a two-week deadline, and it ships on day 14.",a:"parkinson",o:["parkinson","hofstadter","knuth"],why:"Work expanded to fill the time it was given."},
+ {q:"The feature has been “90% done” for three Fridays in a row.",a:"ninety",o:["ninety","hofstadter","parkinson"],why:"The last 10% (edge cases, errors, polish) takes as long as the first 90%."},
+ {q:"Engineers get bonuses for low bug counts, and bugs start being filed as “improvements”.",a:"goodhart",o:["goodhart","gilb","unintended"],why:"The measure became a target, so people moved the number instead of the quality."},
+ {q:"The team says developer experience can’t be measured, so nobody knows whether changes help.",a:"gilb",o:["gilb","goodhart","sturgeon"],why:"A rough measure beats none. Pick a proxy and watch the trend."},
+ {q:"A developer spends a week hand-tuning config lookups that take 0.5% of the runtime.",a:"knuth",o:["knuth","amdahl","kiss"],why:"Optimising before measuring. The profiler would have pointed elsewhere."}
 ];
 const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
 const qz={floor:"all",order:[],pos:0,score:0,answered:0,picked:null};
 function qzReset(){const ids=QZ.map((_,i)=>i).filter(i=>qz.floor==="all"||BYID[QZ[i].a].part===qz.floor);Object.assign(qz,{order:shuffle(ids),pos:0,score:0,answered:0,picked:null});QZ.forEach(q=>delete q._o);}
 function qzRender(){
   const box=document.getElementById("quiz"),N=qz.order.length;
-  const filt=`<div class="qf" role="group" aria-label="Choose floor">${[["all","All open floors"],["VI","Ground"],["IV","Floor 1"],["V","Floor 2"],["I","Floor 3"]].map(([k,l])=>`<button data-f="${k}" aria-pressed="${qz.floor===k}">${l}</button>`).join("")}</div>`;
+  const filt=`<div class="qf" role="group" aria-label="Choose floor">${[["all","All open floors"],["VI","Ground"],["IV","Floor 1"],["V","Floor 2"],["I","Floor 3"],["III","Floor 4"]].map(([k,l])=>`<button data-f="${k}" aria-pressed="${qz.floor===k}">${l}</button>`).join("")}</div>`;
   if(qz.pos>=N){box.innerHTML=filt+`<div class="q-meta"><span>Done</span><span>${qz.score}/${N}</span></div><p class="q-text">You matched ${qz.score} of ${N} situations.</p><button class="btn primary" id="qr" style="width:100%">Shuffle and play again</button>`;
     document.getElementById("qr").onclick=()=>{qzReset();qzRender();};}
   else{
@@ -1445,7 +1643,10 @@ const PAIRS=[
  {a:["law","gall"],b:["law","second"],t:"Grow it, or rebuild it properly?",r:"If you must rebuild, do it in small working steps. A “proper” rebuild in one go combines both failure modes."},
  {a:["law","tesler"],b:["law","kiss"],t:"Hide the complexity, or keep it simple?",r:"Simplify what you can. What remains must live somewhere, and it’s usually better in the product than with every user."},
  {a:["law","hyrum"],b:["law","lehman"],t:"Never break users, or keep evolving?",r:"Keep evolving, but through versions, deprecation notices and migration paths."},
- {a:["law","cap"],b:["law","fallacies"],t:"Choose your trade-off, or assume the network works?",r:"The fallacies say partitions will happen; CAP says decide in advance what each feature does when they do."}
+ {a:["law","cap"],b:["law","fallacies"],t:"Choose your trade-off, or assume the network works?",r:"The fallacies say partitions will happen; CAP says decide in advance what each feature does when they do."},
+ {a:["law","gilb"],b:["law","goodhart"],t:"Measure it, or don’t make it a target?",r:"Measure to learn, with several rough signals. Never tie a single number to rewards."},
+ {a:["law","parkinson"],b:["law","hofstadter"],t:"Shorter deadlines, or longer estimates?",r:"Time-box the work tightly, but forecast delivery from past actuals and keep one shared buffer."},
+ {a:["law","ninety"],b:["law","yagni"],t:"Finish properly, or stop at good enough?",r:"Production code needs the last 10%. Prototypes and experiments can stop at 90%."}
 ];
 function pairsRender(){
   const side=s=>{if(s[0]==="law"){const l=BYID[s[1]],c=PARTS[l.part].c;return `<a class="side" href="#law-${l.id}" style="--c:var(--${c});text-decoration:none;color:inherit"><span style="color:var(--${c})">${ic(GL[l.gl])}</span><b>${esc(l.name)}</b><small>${esc(l.one)}</small><span class="open">Open page →</span></a>`;}
@@ -1455,7 +1656,7 @@ function pairsRender(){
 
 /* ================= CHEAT SHEET ================= */
 function cheatRender(){
-  const open=["VI","IV","V","I"];
+  const open=["VI","IV","V","I","III"];
   document.getElementById("cheat").outerHTML=`<div id="cheat">${open.map(k=>{const P=PARTS[k];return `<h3 class="cfloor" style="--c:var(--${P.c})">${floorName(P)} · ${esc(P.name)}</h3><div class="cheat">${LAWS.filter(l=>l.part===k).map(l=>`<div class="cs" style="--c:var(--${P.c})"><div class="top"><span class="gl">${ic(GL[l.gl])}</span><div><b>${esc(l.name)}</b><div style="font-size:11.5px;color:var(--muted);font-weight:700">${esc(l.sub)}</div></div></div>
     <p class="one">${esc(l.one)}</p><dl><dt>Ask</dt><dd>${esc(l.cheat.ask)}</dd><dt>Bend for</dt><dd>${esc(l.cheat.bend)}</dd></dl></div>`).join("")}</div>`;}).join("")}</div>`;
   if(location.protocol==="file:"||/github\.io$/.test(location.hostname)){
