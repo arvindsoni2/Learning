@@ -189,6 +189,17 @@ svg text{font-family:var(--font-b);fill:var(--ink)}
 .anim .eyein{animation:eyeIn 7s infinite both}
 .anim .found{animation:found 7s infinite both}
 .anim .gold{animation:goldpulse 2.6s ease-in-out infinite}
+.calc{display:grid;gap:10px;text-align:left}
+.ctl{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+.ctl label{font-size:13px;font-weight:700;display:grid;gap:2px}
+.ctl output{font-family:var(--font-m);font-weight:700;color:var(--accent)}
+input[type=range]{width:100%;accent-color:var(--accent);height:28px}
+.calc .big{font-family:var(--font-d);font-size:19px;line-height:1.3;margin:0}
+.calc .big b{color:var(--accent)}
+.calc svg{width:100%;height:auto;display:block}
+.presets{display:flex;gap:6px;flex-wrap:wrap}
+.presets button{border:2px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 12px;font-size:13px;font-weight:700;cursor:pointer}
+.presets button[aria-pressed="true"]{border-color:var(--ink);background:var(--ink);color:var(--bg)}
 footer{margin-top:36px;font-size:12.5px;color:var(--muted);border-top:2px dashed var(--line);padding-top:14px}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 @media print{
@@ -206,7 +217,7 @@ footer{margin-top:36px;font-size:12.5px;color:var(--muted);border-top:2px dashed
 <header>
   <div class="eyebrow">Learning series · Book 2</div>
   <h1>Software Laws, mapped</h1>
-  <p>57 laws and principles of software engineering as a building: code on the ground floor, decisions on the roof. The ground floor (coding and design principles) and floor 1 (quality and maintenance) are open. The other floors are under construction.</p>
+  <p>57 laws and principles of software engineering as a building: code on the ground floor, decisions on the roof. The ground floor (coding), floor 1 (quality) and floor 2 (scale, with live calculators) are open. The other floors are under construction.</p>
 </header>
 
 <nav class="tabs" role="tablist" aria-label="Views">
@@ -239,7 +250,7 @@ footer{margin-top:36px;font-size:12.5px;color:var(--muted);border-top:2px dashed
 const PARTS={
  VI:{n:"VI",name:"Coding & Design Principles",short:"Code",floor:"G",c:"p6",laws:["DRY","KISS","YAGNI","SOLID","Law of Demeter","Boy Scout Rule"],built:true},
  IV:{n:"IV",name:"Quality, Maintenance & Evolution",short:"Quality",floor:"1",c:"p4",built:true,laws:["Murphy’s Law","Postel’s Law","Broken Windows","Technical Debt","Linus’s Law","Kernighan’s Law","Pesticide Paradox","Testing Pyramid","Lehman’s Laws","Sturgeon’s Law"]},
- V:{n:"V",name:"Scale, Performance & Growth",short:"Scale",floor:"2",c:"p5",laws:["Amdahl’s Law","Gustafson’s Law","Little’s Law","Metcalfe’s Law"]},
+ V:{n:"V",name:"Scale, Performance & Growth",short:"Scale",floor:"2",c:"p5",built:true,laws:["Amdahl’s Law","Gustafson’s Law","Little’s Law","Metcalfe’s Law"]},
  I:{n:"I",name:"Architecture & Complexity",short:"Architecture",floor:"3",c:"p1",laws:["Gall’s Law","Leaky Abstractions","Tesler’s Law","CAP Theorem","Hyrum’s Law","Second-System Effect","Fallacies of Distributed Computing","Unintended Consequences"]},
  III:{n:"III",name:"Time, Estimation & Planning",short:"Time",floor:"4",c:"p3",laws:["Hofstadter’s Law","Parkinson’s Law","Ninety-Ninety Rule","Goodhart’s Law","Gilb’s Law","Knuth’s Optimisation Principle"]},
  II:{n:"II",name:"People, Teams & Organisations",short:"People",floor:"5",c:"p2",laws:["Conway’s Law","Brooks’s Law","Dunbar’s Number","Ringelmann Effect","Price’s Law","Putt’s Law","Peter Principle","Inverse Conway Manoeuvre","Bus Factor","Dilbert Principle"]},
@@ -269,6 +280,8 @@ const FIELD={
  money:["Finance","h3",'<circle cx="12" cy="12" r="8.5"/><path d="M14.5 9a2.5 2.5 0 0 0-4.5 1.5V16M8.5 13h5M8.5 16h7"/>'],
  food:["Food","h6",'<path d="M7 3v8a2 2 0 0 0 2 2v8M5 3v5M9 3v5M17 21V3c-2.2 0-3.5 3-3.5 7.5H17"/>'],
  people:["Teams","h6",'<circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0 1 12 0"/><circle cx="17" cy="9" r="2.5"/><path d="M16 14.2A5 5 0 0 1 21 19"/>'],
+ science:["Science","h2",'<path d="M9 3h6M10 3v6L5 18a1.5 1.5 0 0 0 1.3 2.2h11.4A1.5 1.5 0 0 0 19 18l-5-9V3"/><path d="M7.5 14h9"/>'],
+ learn:["Learning","h4",'<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5V5.5"/>'],
  transport:["Transport","h4",'<rect x="4" y="6" width="16" height="10" rx="2"/><circle cx="8" cy="18" r="1.8"/><circle cx="16" cy="18" r="1.8"/><path d="M4 11h16"/>']
 };
 
@@ -857,6 +870,170 @@ def test_checkout_journey(browser):  # one journey test
  rel:[["st","pa","Pareto principle"],["name","Linus’s Law"],["law","kiss"]],
  cheat:{ask:"Is this in the 10% worth my time?",bend:"Don’t dismiss a whole field."}}
 );
+/* ================= FLOOR 2 · PART V (live calculators) ================= */
+const fmt=(x,d=1)=>{const v=Math.abs(x)>=100?Math.round(x):+x.toFixed(d);return v.toLocaleString("en-GB");};
+const slider=(id,label,min,max,step,val)=>`<label for="${id}">${label} <output id="${id}-o"></output><input type="range" id="${id}" min="${min}" max="${max}" step="${step}" value="${val}"></label>`;
+const $=id=>document.getElementById(id);
+function chartAxes(W,H,L,R,T,B,ymax,xlab){
+  return [0,ymax/2,ymax].map(v=>{const y=H-B-(v/ymax)*(H-T-B);return `<line x1="${L}" x2="${W-R}" y1="${y.toFixed(1)}" y2="${y.toFixed(1)}" stroke="var(--line)"/><text x="${L-5}" y="${(y+3).toFixed(1)}" text-anchor="end" font-size="9" style="fill:var(--muted)">${fmt(v,0)}×</text>`;}).join("")+
+   `<text x="${L}" y="${H-6}" font-size="9" style="fill:var(--muted)">1</text><text x="${W-R}" y="${H-6}" text-anchor="end" font-size="9" style="fill:var(--muted)">${xlab}</text>`;
+}
+/* Amdahl */
+function calcAmdahl(){return `<div class="calc"><div class="ctl">${slider("am-p","Share of the work that can run in parallel",50,99,1,90)}${slider("am-n","Processors (or people)",1,64,1,8)}</div>
+  <p class="big" id="am-out"></p><svg viewBox="0 0 320 160" id="am-svg" role="img" aria-label="Speed-up curve with its ceiling"></svg></div>`;}
+function initAmdahl(){
+  const draw=()=>{const p=+$("am-p").value/100,n=+$("am-n").value;$("am-p-o").textContent=Math.round(p*100)+"%";$("am-n-o").textContent=n;
+    const S=k=>1/((1-p)+p/k),cap=1/(1-p),s=S(n);
+    $("am-out").innerHTML=`${n} processor${n>1?"s":""} → <b>${fmt(s)}× faster</b>. Ceiling: <b>${fmt(cap,0)}×</b>, however many you add.`;
+    const W=320,H=160,L=34,R=12,T=14,B=24,ym=Math.max(cap,2)*1.08,X=k=>L+(k-1)/63*(W-L-R),Y=v=>H-B-(v/ym)*(H-T-B);
+    let d="";for(let k=1;k<=64;k++)d+=(k===1?"M":"L")+X(k).toFixed(1)+" "+Y(S(k)).toFixed(1);
+    $("am-svg").innerHTML=chartAxes(W,H,L,R,T,B,ym,"64 processors")+`<line x1="${L}" x2="${W-R}" y1="${Y(cap).toFixed(1)}" y2="${Y(cap).toFixed(1)}" stroke="var(--bad)" stroke-dasharray="5 4" stroke-width="1.5"/>
+     <text x="${W-R}" y="${(Y(cap)-4).toFixed(1)}" text-anchor="end" font-size="10" font-weight="800" style="fill:var(--bad)">ceiling ${fmt(cap,0)}×</text>
+     <path d="${d}" fill="none" stroke="var(--accent)" stroke-width="3"/><circle cx="${X(n).toFixed(1)}" cy="${Y(s).toFixed(1)}" r="5.5" fill="var(--accent)" stroke="var(--surface)" stroke-width="2"/>`;};
+  ["am-p","am-n"].forEach(i=>$(i).addEventListener("input",draw));draw();
+}
+/* Gustafson */
+function calcGustafson(){return `<div class="calc"><div class="ctl">${slider("gu-a","Share that must run in sequence",1,50,1,10)}${slider("gu-n","Processors",1,64,1,32)}</div>
+  <p class="big" id="gu-out"></p><svg viewBox="0 0 320 170" id="gu-svg" role="img" aria-label="Amdahl and Gustafson speed-ups compared"></svg></div>`;}
+function initGustafson(){
+  const draw=()=>{const a=+$("gu-a").value/100,n=+$("gu-n").value;$("gu-a-o").textContent=Math.round(a*100)+"%";$("gu-n-o").textContent=n;
+    const A=k=>1/(a+(1-a)/k),G=k=>k-a*(k-1);
+    $("gu-out").innerHTML=`With ${n} processors: the <b>same job ${fmt(A(n))}× faster</b> (Amdahl), or a <b>${fmt(G(n))}× bigger job</b> in the same time (Gustafson).`;
+    const W=320,H=170,L=34,R=12,T=14,B=24,ym=64,X=k=>L+(k-1)/63*(W-L-R),Y=v=>H-B-(v/ym)*(H-T-B);
+    let da="",dg="";for(let k=1;k<=64;k++){da+=(k===1?"M":"L")+X(k).toFixed(1)+" "+Y(A(k)).toFixed(1);dg+=(k===1?"M":"L")+X(k).toFixed(1)+" "+Y(G(k)).toFixed(1);}
+    $("gu-svg").innerHTML=chartAxes(W,H,L,R,T,B,ym,"64 processors")+`<path d="M${X(1)} ${Y(1)} L${X(64)} ${Y(64)}" stroke="var(--muted)" stroke-dasharray="3 4"/>
+     <path d="${dg}" fill="none" stroke="var(--good)" stroke-width="3"/><path d="${da}" fill="none" stroke="var(--accent)" stroke-width="3"/>
+     <circle cx="${X(n)}" cy="${Y(G(n))}" r="5" fill="var(--good)" stroke="var(--surface)" stroke-width="2"/><circle cx="${X(n)}" cy="${Y(A(n))}" r="5" fill="var(--accent)" stroke="var(--surface)" stroke-width="2"/>
+     <text x="${W-R-4}" y="${(Y(G(64))-6).toFixed(1)}" text-anchor="end" font-size="10" font-weight="800" style="fill:var(--good)">bigger job (Gustafson)</text>
+     <text x="${W-R}" y="${(Y(A(64))-6).toFixed(1)}" text-anchor="end" font-size="10" font-weight="800" style="fill:var(--accent)">same job (Amdahl)</text>`;};
+  ["gu-a","gu-n"].forEach(i=>$(i).addEventListener("input",draw));draw();
+}
+/* Little */
+const LIT={
+ web:{tab:"Website",lam:["Requests arriving per second",10,2000,10,800],w:["Seconds each request takes",0.05,2,0.05,0.25],unit:"requests in flight",tip:"Size the worker pool above this, with headroom for bursts."},
+ cafe:{tab:"Café",lam:["Customers arriving per minute",0.5,10,0.5,2],w:["Minutes each customer stays",5,90,5,15],unit:"customers inside",tip:"That’s roughly how many seats you need on average."},
+ ae:{tab:"A&E",lam:["Patients arriving per hour",2,40,1,12],w:["Hours each patient stays",0.5,8,0.5,4],unit:"patients in the department",tip:"That’s the average number of cubicles in use."}
+};
+let litMode="web";
+function calcLittle(){return `<div class="calc"><div class="presets" role="group" aria-label="Example">${Object.entries(LIT).map(([k,v])=>`<button data-lm="${k}" aria-pressed="${k===litMode}">${v.tab}</button>`).join("")}</div>
+  <div class="ctl" id="li-ctl"></div><p class="big" id="li-out"></p><svg viewBox="0 0 340 170" id="li-svg" role="img" aria-label="Items flowing into a system, the number inside, and flowing out"></svg></div>`;}
+function initLittle(){
+  const build=()=>{const M=LIT[litMode];$("li-ctl").innerHTML=slider("li-l",M.lam[0],...M.lam.slice(1))+slider("li-w",M.w[0],...M.w.slice(1));
+    ["li-l","li-w"].forEach(i=>$(i).addEventListener("input",draw));draw();};
+  const draw=()=>{const M=LIT[litMode],lam=+$("li-l").value,w=+$("li-w").value,L=lam*w;$("li-l-o").textContent=fmt(lam,2);$("li-w-o").textContent=fmt(w,2);
+    $("li-out").innerHTML=`L = λ × W = ${fmt(lam,2)} × ${fmt(w,2)} = <b>${fmt(L)} ${M.unit}</b>. ${M.tip}`;
+    const per=Math.max(1,Math.ceil(L/120)),nd=Math.round(L/per);let dots="";
+    for(let i=0;i<nd;i++){const x=88+(i%15)*11,y=40+Math.floor(i/15)*11;dots+=`<circle cx="${x}" cy="${y}" r="4" fill="var(--h2)" opacity=".85"/>`;}
+    $("li-svg").innerHTML=`<defs><marker id="lA" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0 0L8 4L0 8z" fill="var(--ink)"/></marker></defs>
+     <rect x="76" y="26" width="180" height="104" rx="10" fill="color-mix(in srgb,var(--h2) 8%,var(--surface))" stroke="var(--ink)" stroke-width="2"/>${dots}
+     <path d="M8 78 H70" stroke="var(--ink)" stroke-width="2.5" marker-end="url(#lA)"/><text x="36" y="68" text-anchor="middle" font-size="12" font-weight="800">λ in</text>
+     <path d="M262 78 H326" stroke="var(--ink)" stroke-width="2.5" marker-end="url(#lA)"/><text x="296" y="68" text-anchor="middle" font-size="12" font-weight="800">out</text>
+     <text x="166" y="18" text-anchor="middle" font-size="11" font-weight="800">L = ${fmt(L)} inside${per>1?` (each dot = ${per})`:""}</text>
+     <path d="M76 146 H256" stroke="var(--h6)" stroke-width="2" marker-end="url(#lA)"/><text x="166" y="162" text-anchor="middle" font-size="11" font-weight="800" style="fill:var(--h6)">W = time each spends inside</text>`;};
+  document.querySelectorAll("[data-lm]").forEach(b=>b.onclick=()=>{litMode=b.dataset.lm;document.querySelectorAll("[data-lm]").forEach(x=>x.setAttribute("aria-pressed",x===b));build();});
+  build();
+}
+/* Metcalfe */
+function calcMetcalfe(){return `<div class="calc"><div class="ctl">${slider("me-n","Users on the network",2,30,1,8)}</div>
+  <p class="big" id="me-out"></p><svg viewBox="0 0 340 200" id="me-svg" role="img" aria-label="Network graph with every possible connection drawn"></svg></div>`;}
+function initMetcalfe(){
+  const draw=()=>{const n=+$("me-n").value,links=n*(n-1)/2,n2=2*n,l2=n2*(n2-1)/2;$("me-n-o").textContent=n;
+    $("me-out").innerHTML=`${n} users → <b>${fmt(links)} possible connections</b>. Double to ${n2} users and you get ${fmt(l2)} (${fmt(l2/links)}× as many).`;
+    const cx=100,cy=100,r=82,P=[];for(let i=0;i<n;i++){const a=-Math.PI/2+i*2*Math.PI/n;P.push([cx+r*Math.cos(a),cy+r*Math.sin(a)]);}
+    let e="";for(let i=0;i<n;i++)for(let j=i+1;j<n;j++)e+=`M${P[i][0].toFixed(1)} ${P[i][1].toFixed(1)}L${P[j][0].toFixed(1)} ${P[j][1].toFixed(1)}`;
+    $("me-svg").innerHTML=`<path d="${e}" stroke="var(--h5)" stroke-width="${n>18?0.6:1}" opacity=".55" fill="none"/>${P.map(([x,y])=>`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${n>18?4:5.5}" fill="var(--surface)" stroke="var(--h5)" stroke-width="2"/>`).join("")}
+     <text x="265" y="44" text-anchor="middle" font-size="12" font-weight="800" style="fill:var(--muted)">users</text>
+     <text x="265" y="74" text-anchor="middle" font-size="30" font-weight="700" style="font-family:var(--font-d)">${n}</text>
+     <text x="265" y="114" text-anchor="middle" font-size="12" font-weight="800" style="fill:var(--muted)">connections</text>
+     <text x="265" y="148" text-anchor="middle" font-size="30" font-weight="700" style="fill:var(--h5);font-family:var(--font-d)">${fmt(links)}</text>
+     <text x="265" y="172" text-anchor="middle" font-size="10" style="fill:var(--muted)">n × (n − 1) ÷ 2</text>`;};
+  $("me-n").addEventListener("input",draw);draw();
+}
+Object.assign(GL,{
+ amdahl:'<path d="M9 2h6v4l3 4v12H6V10l3-4z"/><path d="M6 14h12"/>',
+ gustafson:'<path d="M4 20L20 4M14 4h6v6M4 14v6h6"/>',
+ little:'<rect x="3" y="7" width="18" height="10" rx="2"/><circle cx="8" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="16" cy="12" r="1.5"/>',
+ metcalfe:'<circle cx="5" cy="6" r="2"/><circle cx="19" cy="6" r="2"/><circle cx="12" cy="19" r="2"/><path d="M7 6h10M6 8l5 9M18 8l-5 9"/>'
+});
+LAWS.push(
+{id:"amdahl",part:"V",name:"Amdahl’s Law",sub:"The serial part sets the ceiling",gl:"amdahl",
+ one:"Adding processors only speeds up the part that can run in parallel. The part that can’t caps the whole job.",
+ origin:"Gene Amdahl, 1967",
+ pic:calcAmdahl,init:initAmdahl,cap:"Drag the sliders: even at 90% parallel, the job never runs more than 10× faster.",
+ q:"Which part of this can’t be split up, and how big is it?",
+ steps:[["Measure first","Find where the time actually goes."],["Find the serial part","The step everything waits for."],["Shrink it first","That’s where the real gain is."],["Then add capacity","Only once the bottleneck is small."]],
+ before:`from concurrent.futures import ProcessPoolExecutor
+
+with ProcessPoolExecutor(64) as pool:
+    results = list(pool.map(score, orders))  # 10% of runtime
+
+report = build_report(results)               # 90%, one core`,
+ whyB:"64 processes on the part that was only 10% of the runtime. The job gets about 1.1× faster.",
+ after:`results = [score(o) for o in orders]        # leave as is
+
+# profile, then fix the real bottleneck
+report = build_report_fast(results)          # 6× faster`,
+ whyA:"Make the serial step 6× faster and the whole job runs about 4× faster, on one core.",
+ ex:[["food","More chefs can chop faster, but the bread still needs 40 minutes in the oven."],["air","Faster check-in doesn’t help if everyone then queues at one security lane."],["biz","Hiring more analysts doesn’t help if every report waits for one manager’s sign-off."],["home","More builders can’t make concrete set any faster."]],
+ bend:[["Amdahl says","The serial part caps you."],["But the job can grow","With more capacity you can tackle a bigger problem instead. That’s Gustafson’s Law."]],
+ rel:[["name","Gustafson’s Law"],["name","Little’s Law"],["name","Brooks’s Law"],["st","sy","Systems thinking"]],
+ cheat:{ask:"What can’t be split up, and how big is it?",bend:"When the job itself can grow (Gustafson)."}},
+{id:"gustafson",part:"V",name:"Gustafson’s Law",sub:"Bigger problems scale better",gl:"gustafson",
+ one:"More computing power usually goes into bigger problems, not the same problem faster, and bigger problems scale well.",
+ origin:"John L. Gustafson, 1988",
+ pic:calcGustafson,init:initGustafson,cap:"Same inputs, two questions: how much faster (Amdahl) or how much more (Gustafson)?",
+ q:"With more capacity, should we go faster, or do more in the same time?",
+ steps:[["Decide what “more” means","The same job sooner, or a bigger job?"],["Find work that grows","More data, finer detail, more cases."],["Keep the serial part fixed","Setup and reporting shouldn’t grow."],["Scale out for the bigger job","Use the capacity on the part that grows."]],
+ before:`# 64 cores, the same small job
+forecast(region="UK", days=1, grid_km=10)
+# finishes sooner, then the cores sit idle`,
+ whyB:"Amdahl’s view: the same answer a bit sooner, and spare capacity wasted.",
+ after:`# 64 cores, a bigger job in the same time
+forecast(region="Europe", days=10, grid_km=2)
+# a far more useful forecast, same wait`,
+ whyA:"Gustafson’s view: spend the capacity on a bigger, more valuable job.",
+ ex:[["science","Weather services use bigger supercomputers for finer grids and longer forecasts, not the same forecast faster."],["tech","AI models have grown in step with the computing power available to train them."],["biz","A bigger support team takes on more customers rather than answering the same ones faster."],["home","Animated films use more computing power for richer detail, not shorter rendering times."]],
+ bend:[["Gustafson says","Grow the job."],["But only if bigger is better","If users just want the same answer sooner, Amdahl’s ceiling still applies."]],
+ rel:[["name","Amdahl’s Law"],["name","Metcalfe’s Law"],["name","Little’s Law"]],
+ cheat:{ask:"Go faster, or do more in the same time?",bend:"When users want the same answer sooner."}},
+{id:"little",part:"V",name:"Little’s Law",sub:"L = λ × W",gl:"little",
+ one:"The average number of things in a system equals how fast they arrive times how long each stays.",
+ origin:"John Little, 1961",
+ pic:calcLittle,init:initLittle,cap:"Try the website, café and A&E examples. The same formula sizes all three.",
+ q:"How many are arriving, and how long does each one stay?",
+ steps:[["Measure arrivals (λ)","Per second, minute or hour."],["Measure time inside (W)","Use the same time unit."],["Multiply for load (L)","That’s the average number inside."],["Size above it","Add headroom for bursts and peaks."]],
+ before:`from concurrent.futures import ThreadPoolExecutor
+
+# "100 workers should be plenty"
+pool = ThreadPoolExecutor(max_workers=100)
+# traffic: 800 requests/s, each takes 0.25 s`,
+ whyB:"A guess. 800 × 0.25 means 200 requests are in flight on average, so half of them queue.",
+ after:`arrivals_per_s = 800
+seconds_each = 0.25
+in_flight = arrivals_per_s * seconds_each     # L = λW = 200
+
+pool = ThreadPoolExecutor(max_workers=int(in_flight * 1.5))`,
+ whyA:"Sized from the formula, with 50% headroom for bursts.",
+ ex:[["food","A café with 2 customers arriving a minute, each staying 15 minutes, has about 30 people inside."],["health","An A&E seeing 12 arrivals an hour, each staying 4 hours, averages 48 patients in the department."],["biz","Kanban teams limit work in progress because, at the same arrival rate, less in progress means shorter lead times."],["transport","Cars on a stretch of motorway = cars entering per minute × minutes to cross it."]],
+ bend:[["Little says","Load = rate × time."],["But it’s an average","It hides bursts. Queues grow sharply as you near full capacity, so plan for peaks, not just the mean."]],
+ rel:[["name","Amdahl’s Law"],["name","Murphy’s Law"],["name","Parkinson’s Law"]],
+ cheat:{ask:"Arrival rate × time inside = how many?",bend:"Bursty traffic: plan for peaks, not averages."}},
+{id:"metcalfe",part:"V",name:"Metcalfe’s Law",sub:"Value grows with connections",gl:"metcalfe",
+ one:"A network’s value grows roughly with the square of its users, because the possible connections do.",
+ origin:"Robert Metcalfe, 1980s",
+ pic:calcMetcalfe,init:initMetcalfe,cap:"Each new user can connect to everyone already there, so connections grow much faster than users.",
+ q:"Does each new user make this more valuable for everyone else?",
+ steps:[["Count connections","Not just users."],["Start dense","Win one tight group before spreading."],["Make connecting easy","Invites, sharing, open standards."],["Watch connection quality","Useful links, not just more of them."]],
+ b5:"practice",
+ before:"Launch to everyone at once.\nUsers are thinly spread and few know each other.\nThe network feels empty, and people leave.",
+ whyB:"Lots of users, few useful connections.",
+ after:"Launch inside one tight group: a campus, a team, a city.\nConnections are dense, so value is high from day one.\nGrowth spreads outward from there.",
+ whyA:"Dense first, then wide.",
+ ex:[["tech","One fax machine is useless; millions of them make each one valuable."],["money","Card networks are valuable because shops and shoppers are both on them."],["people","You join the messaging app your friends already use."],["learn","The more people speak a language, the more useful it is to learn."]],
+ bend:[["Metcalfe says","Value grows like n²."],["But not every link is equal","Researchers argue real value grows more slowly, closer to n log n, and noise and spam grow with the network too."]],
+ rel:[["name","Gustafson’s Law"],["name","Dunbar’s Number"],["st","cm","Critical mass"],["st","mt","Moat"]],
+ cheat:{ask:"Does each new user make it better for everyone?",bend:"Noisy networks: quality beats count."}}
+);
 LAWS.forEach(l=>{l.part=l.part||"VI";});
 
 const BYID=Object.fromEntries(LAWS.map(l=>[l.id,l]));
@@ -868,7 +1045,7 @@ const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
 const HUES=["h1","h2","h3","h4","h5","h6"];
 
 /* ================= BUILDING ================= */
-let curPart="IV",curLaw="murphy";
+let curPart="V",curLaw="amdahl";
 function bldRender(){
   const svg=document.getElementById("bld");const X0=36,W=288,FH=58,TOP=80;let g="";
   /* crane */
@@ -936,6 +1113,7 @@ function lawRender(scroll){
       <button class="btn primary" id="tofloor">Floor ↑</button>
       <a class="btn" href="#law-${next.id}" style="text-decoration:none;color:inherit;text-align:right">${esc(next.name)} →</a>
     </nav></article>`;
+  if(L.init)L.init();
   document.getElementById("tofloor").onclick=()=>document.getElementById("planbox").scrollIntoView({behavior:reduce?"auto":"smooth",block:"start"});
   document.querySelectorAll(".room[data-law]").forEach(r=>r.setAttribute("aria-current",r.dataset.law===curLaw));
   if(scroll) document.getElementById("lawbox").scrollIntoView({behavior:reduce?"auto":"smooth",block:"start"});
@@ -962,14 +1140,19 @@ const QZ=[
  {q:"CI takes 90 minutes because almost every test drives a browser.",a:"pyramid",o:["pyramid","pesticide","broken"],why:"An upside-down pyramid. Move checks down to fast unit tests."},
  {q:"A popular open-source library had a serious security bug for years despite thousands of users.",a:"linus",o:["linus","sturgeon","debt"],why:"Many users isn’t the same as many expert reviewers. That’s the limit of Linus’s Law."},
  {q:"A system “finished” five years ago no longer fits how the business works.",a:"lehman",o:["lehman","debt","broken"],why:"Software in use must keep evolving, or it slowly loses its usefulness."},
- {q:"You try twenty note-taking apps; only two are any good.",a:"sturgeon",o:["sturgeon","pesticide","linus"],why:"Most of anything is mediocre. The skill is filtering."}
+ {q:"You try twenty note-taking apps; only two are any good.",a:"sturgeon",o:["sturgeon","pesticide","linus"],why:"Most of anything is mediocre. The skill is filtering."},
+ {q:"You add 32 servers, but the nightly job only gets 15% faster because one step runs on a single machine.",a:"amdahl",o:["amdahl","gustafson","little"],why:"The serial step caps the speed-up. Shrink it before adding more servers."},
+ {q:"With a bigger cluster, the data team models every store daily instead of every region monthly, in the same run time.",a:"gustafson",o:["gustafson","amdahl","metcalfe"],why:"More capacity went into a bigger problem, not the same one faster."},
+ {q:"400 requests arrive each second and each takes half a second. About how many are in progress at once? (200)",a:"little",o:["little","amdahl","murphy"],why:"L = λ × W = 400 × 0.5 = 200."},
+ {q:"A messaging app becomes far more useful once most of your friends have joined.",a:"metcalfe",o:["metcalfe","gustafson","sturgeon"],why:"Each new user adds possible connections for everyone already there."},
+ {q:"A café owner works out she needs about 30 seats from customer arrivals and how long people stay.",a:"little",o:["little","metcalfe","amdahl"],why:"2 arrivals a minute × 15 minutes each = about 30 people inside."}
 ];
 const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
 const qz={floor:"all",order:[],pos:0,score:0,answered:0,picked:null};
 function qzReset(){const ids=QZ.map((_,i)=>i).filter(i=>qz.floor==="all"||BYID[QZ[i].a].part===qz.floor);Object.assign(qz,{order:shuffle(ids),pos:0,score:0,answered:0,picked:null});QZ.forEach(q=>delete q._o);}
 function qzRender(){
   const box=document.getElementById("quiz"),N=qz.order.length;
-  const filt=`<div class="qf" role="group" aria-label="Choose floor">${[["all","All open floors"],["VI","Ground floor"],["IV","Floor 1"]].map(([k,l])=>`<button data-f="${k}" aria-pressed="${qz.floor===k}">${l}</button>`).join("")}</div>`;
+  const filt=`<div class="qf" role="group" aria-label="Choose floor">${[["all","All open floors"],["VI","Ground"],["IV","Floor 1"],["V","Floor 2"]].map(([k,l])=>`<button data-f="${k}" aria-pressed="${qz.floor===k}">${l}</button>`).join("")}</div>`;
   if(qz.pos>=N){box.innerHTML=filt+`<div class="q-meta"><span>Done</span><span>${qz.score}/${N}</span></div><p class="q-text">You matched ${qz.score} of ${N} situations.</p><button class="btn primary" id="qr" style="width:100%">Shuffle and play again</button>`;
     document.getElementById("qr").onclick=()=>{qzReset();qzRender();};}
   else{
@@ -995,7 +1178,10 @@ const PAIRS=[
  {a:["law","postel"],b:["law","broken"],t:"Tolerate mess, or fix every mess?",r:"Tolerate harmless variety at the edges, then normalise it. Inside your own system, keep things clean."},
  {a:["law","debt"],b:["law","yagni"],t:"Take a shortcut now, or build only what’s needed?",r:"YAGNI skips features; debt cuts quality. Skip features freely, but cut quality only on purpose, and write it down."},
  {a:["law","pyramid"],b:["law","pesticide"],t:"Lots of fast small tests, or keep changing your tests?",r:"Keep the pyramid shape, but refresh every layer with new kinds of test."},
- {a:["law","lehman"],b:["law","kiss"],t:"Keep evolving, or keep it simple?",r:"Evolve what users need, and simplify as you go so each change stays cheap."}
+ {a:["law","lehman"],b:["law","kiss"],t:"Keep evolving, or keep it simple?",r:"Evolve what users need, and simplify as you go so each change stays cheap."},
+ {a:["law","amdahl"],b:["law","gustafson"],t:"Go faster, or do more?",r:"Same job sooner: find and shrink the serial part. Bigger job in the same time: scale out."},
+ {a:["law","metcalfe"],b:["law","sturgeon"],t:"More users, or better ones?",r:"Value comes from useful connections. Growth that adds mostly noise can make the network worse."},
+ {a:["law","little"],b:["law","murphy"],t:"Plan for the average, or the bad day?",r:"Use Little’s Law for the average load, then add headroom for the peaks Murphy promises."}
 ];
 function pairsRender(){
   const side=s=>{if(s[0]==="law"){const l=BYID[s[1]],c=PARTS[l.part].c;return `<a class="side" href="#law-${l.id}" style="--c:var(--${c});text-decoration:none;color:inherit"><span style="color:var(--${c})">${ic(GL[l.gl])}</span><b>${esc(l.name)}</b><small>${esc(l.one)}</small><span class="open">Open page →</span></a>`;}
@@ -1005,7 +1191,7 @@ function pairsRender(){
 
 /* ================= CHEAT SHEET ================= */
 function cheatRender(){
-  const open=["VI","IV"];
+  const open=["VI","IV","V"];
   document.getElementById("cheat").outerHTML=`<div id="cheat">${open.map(k=>{const P=PARTS[k];return `<h3 class="cfloor" style="--c:var(--${P.c})">${floorName(P)} · ${esc(P.name)}</h3><div class="cheat">${LAWS.filter(l=>l.part===k).map(l=>`<div class="cs" style="--c:var(--${P.c})"><div class="top"><span class="gl">${ic(GL[l.gl])}</span><div><b>${esc(l.name)}</b><div style="font-size:11.5px;color:var(--muted);font-weight:700">${esc(l.sub)}</div></div></div>
     <p class="one">${esc(l.one)}</p><dl><dt>Ask</dt><dd>${esc(l.cheat.ask)}</dd><dt>Bend for</dt><dd>${esc(l.cheat.bend)}</dd></dl></div>`).join("")}</div>`;}).join("")}</div>`;
   if(location.protocol==="file:"||/github\.io$/.test(location.hostname)){
