@@ -205,6 +205,10 @@ input[type=range]{width:100%;accent-color:var(--accent);height:28px}
 .anim .drip{animation:drip 3.3s ease-in infinite both}
 @keyframes grow{0%{transform:scaleX(0)}60%,100%{transform:scaleX(1)}}
 .anim .grow{transform-box:fill-box;transform-origin:left center;animation:grow 2.2s ease-out both}
+@keyframes climb{0%{transform:translateY(114px)}20%{transform:translateY(76px)}40%{transform:translateY(38px)}60%,100%{transform:translateY(0)}}
+.anim .climb{animation:climb 5s ease-in-out infinite}
+@keyframes busgo{0%{transform:translateX(-90px)}100%{transform:translateX(360px)}}
+.anim .bus{animation:busgo 6s linear infinite}
 footer{margin-top:36px;font-size:12.5px;color:var(--muted);border-top:2px dashed var(--line);padding-top:14px}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 @media print{
@@ -222,7 +226,7 @@ footer{margin-top:36px;font-size:12.5px;color:var(--muted);border-top:2px dashed
 <header>
   <div class="eyebrow">Learning series · Book 2</div>
   <h1>Software Laws, mapped</h1>
-  <p>57 laws and principles of software engineering as a building: code on the ground floor, decisions on the roof. Five floors are open: code, quality, scale (with live calculators), architecture and time. The top two floors are under construction.</p>
+  <p>57 laws and principles of software engineering as a building: code on the ground floor, decisions on the roof. Six floors are open: code, quality, scale (with live calculators), architecture, time and people. The top floor (decisions) is under construction.</p>
 </header>
 
 <nav class="tabs" role="tablist" aria-label="Views">
@@ -258,7 +262,7 @@ const PARTS={
  V:{n:"V",name:"Scale, Performance & Growth",short:"Scale",floor:"2",c:"p5",built:true,laws:["Amdahl’s Law","Gustafson’s Law","Little’s Law","Metcalfe’s Law"]},
  I:{n:"I",name:"Architecture & Complexity",short:"Architecture",floor:"3",c:"p1",built:true,laws:["Gall’s Law","Leaky Abstractions","Tesler’s Law","CAP Theorem","Hyrum’s Law","Second-System Effect","Fallacies of Distributed Computing","Unintended Consequences"]},
  III:{n:"III",name:"Time, Estimation & Planning",short:"Time",floor:"4",c:"p3",built:true,laws:["Hofstadter’s Law","Parkinson’s Law","Ninety-Ninety Rule","Goodhart’s Law","Gilb’s Law","Knuth’s Optimisation Principle"]},
- II:{n:"II",name:"People, Teams & Organisations",short:"People",floor:"5",c:"p2",laws:["Conway’s Law","Brooks’s Law","Dunbar’s Number","Ringelmann Effect","Price’s Law","Putt’s Law","Peter Principle","Inverse Conway Manoeuvre","Bus Factor","Dilbert Principle"]},
+ II:{n:"II",name:"People, Teams & Organisations",short:"People",floor:"5",c:"p2",built:true,laws:["Conway’s Law","Brooks’s Law","Dunbar’s Number","Ringelmann Effect","Price’s Law","Putt’s Law","Peter Principle","Inverse Conway Manoeuvre","Bus Factor","Dilbert Principle"]},
  VII:{n:"VII",name:"Decision-Making & Biases",short:"Decisions",floor:"6",c:"p7",laws:["Occam’s Razor","Hanlon’s Razor","Sunk Cost Fallacy","Dunning–Kruger","Confirmation Bias","First Principles","Pareto Principle","Lindy Effect","Hype Cycle","Amara’s Law","Planning Fallacy","Survivorship Bias","Chesterton’s Fence"]}
 };
 const ORDER=["VII","II","III","I","V","IV","VI"]; /* top to bottom */
@@ -288,6 +292,7 @@ const FIELD={
  science:["Science","h2",'<path d="M9 3h6M10 3v6L5 18a1.5 1.5 0 0 0 1.3 2.2h11.4A1.5 1.5 0 0 0 19 18l-5-9V3"/><path d="M7.5 14h9"/>'],
  learn:["Learning","h4",'<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5V5.5"/>'],
  sport:["Sport","h3",'<circle cx="12" cy="12" r="8.5"/><path d="M6 6.5c2.8 2.3 2.8 8.7 0 11M18 6.5c-2.8 2.3-2.8 8.7 0 11"/>'],
+ history:["History","h6",'<path d="M3 9l9-5 9 5M5 9v9M9.5 9v9M14.5 9v9M19 9v9M3 20h18"/>'],
  transport:["Transport","h4",'<rect x="4" y="6" width="16" height="10" rx="2"/><circle cx="8" cy="18" r="1.8"/><circle cx="16" cy="18" r="1.8"/><path d="M4 11h16"/>']
 };
 
@@ -1478,6 +1483,287 @@ cProfile.run("handle_request(sample)", sort="cumtime")
  rel:[["name","Amdahl’s Law"],["law","kiss"],["name","Kernighan’s Law"],["st","pa","Pareto principle"]],
  cheat:{ask:"Have I measured where the time goes?",bend:"The critical few percent, and big design choices."}}
 );
+/* ================= FLOOR 5 · PART II ================= */
+function picConway(){
+  return `<svg viewBox="0 0 368 230" role="img" aria-label="Three teams and three services: the system mirrors which teams talk">
+    <defs><marker id="cwA" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0 0L8 4L0 8z" fill="var(--ink)"/></marker></defs>
+    <text x="85" y="16" text-anchor="middle" font-size="12" font-weight="800">Your organisation</text>
+    <text x="285" y="16" text-anchor="middle" font-size="12" font-weight="800">Your system</text>
+    <g stroke="var(--ink)" stroke-width="2.5"><line x1="40" y1="72" x2="85" y2="165"/><line x1="130" y1="72" x2="85" y2="165"/></g>
+    <line x1="62" y1="82" x2="108" y2="82" stroke="var(--bad)" stroke-width="2" stroke-dasharray="4 4"/>
+    <text x="85" y="100" text-anchor="middle" font-size="8.5" style="fill:var(--bad)" font-weight="800">never talk</text>
+    ${[["Web",40,72,"h2",-1],["Mobile",130,72,"h5",-1],["Data",85,165,"h3",1]].map(([t,x,y,h,d])=>`<circle cx="${x}" cy="${y}" r="20" fill="color-mix(in srgb,var(--${h}) 18%,var(--surface))" stroke="var(--${h})" stroke-width="2.5"/><circle cx="${x}" cy="${y-6}" r="5" fill="var(--${h})"/><path d="M${x-9} ${y+10}a9 8 0 0 1 18 0" fill="var(--${h})"/><text x="${x}" y="${d<0?y-27:y+36}" text-anchor="middle" font-size="11" font-weight="800">${t} team</text>`).join("")}
+    <path d="M166 120 H198" stroke="var(--ink)" stroke-width="2.5" marker-end="url(#cwA)"/>
+    <text x="182" y="111" text-anchor="middle" font-size="10" font-weight="800">mirrors</text>
+    <g stroke="var(--ink)" stroke-width="2.5"><line x1="240" y1="72" x2="285" y2="165"/><line x1="330" y1="72" x2="285" y2="165"/></g>
+    <line x1="272" y1="72" x2="298" y2="72" stroke="var(--bad)" stroke-width="2" stroke-dasharray="4 4"/>
+    ${[["Web app",240,72,"h2"],["Mobile app",330,72,"h5"],["Data API",285,165,"h3"]].map(([t,x,y,h])=>`<rect x="${x-30}" y="${y-16}" width="60" height="32" rx="5" fill="color-mix(in srgb,var(--${h}) 18%,var(--surface))" stroke="var(--${h})" stroke-width="2.5"/><text x="${x}" y="${y+4}" text-anchor="middle" font-size="9.5" font-weight="800">${t}</text>`).join("")}
+    <text x="285" y="212" text-anchor="middle" font-size="10" style="fill:var(--bad)" font-weight="800">no link → duplicated features</text></svg>`;
+}
+const net=(cx,cy,r,n,newFrom=99)=>{const P=[];for(let i=0;i<n;i++){const a=-Math.PI/2+i*2*Math.PI/n;P.push([cx+r*Math.cos(a),cy+r*Math.sin(a)]);}
+  let e="";for(let i=0;i<n;i++)for(let j=i+1;j<n;j++)e+=`M${P[i][0].toFixed(1)} ${P[i][1].toFixed(1)}L${P[j][0].toFixed(1)} ${P[j][1].toFixed(1)}`;
+  return `<path d="${e}" stroke="var(--h2)" stroke-width="1.1" opacity=".5" fill="none"/>`+P.map(([x,y],i)=>`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="7" fill="${i>=newFrom?"color-mix(in srgb,var(--h4) 40%,var(--surface))":"var(--surface)"}" stroke="${i>=newFrom?"var(--h4)":"var(--h2)"}" stroke-width="2"/>`).join("");};
+function picBrooks(){
+  return `<svg viewBox="0 0 340 218" role="img" aria-label="Four people have six conversations; eight people have twenty-eight">
+   <text x="82" y="18" text-anchor="middle" font-size="12" font-weight="800">The late project</text>
+   <text x="252" y="18" text-anchor="middle" font-size="12" font-weight="800">“Add 4 more people”</text>
+   ${net(82,100,50,4)}${net(252,100,62,8,4)}
+   <text x="82" y="178" text-anchor="middle" font-size="11" font-weight="800">4 people · 6 links</text>
+   <text x="252" y="182" text-anchor="middle" font-size="11" font-weight="800" style="fill:var(--bad)">8 people · 28 links</text>
+   <circle cx="150" cy="204" r="5" fill="color-mix(in srgb,var(--h4) 40%,var(--surface))" stroke="var(--h4)" stroke-width="2"/>
+   <text x="160" y="208" font-size="10" font-weight="700" style="fill:var(--h4)">new: still learning the system</text></svg>`;
+}
+function picDunbar(){
+  const R=[[5,16,"closest"],[15,32,"close friends"],[50,50,"friends"],[150,70,"stable relationships"],[500,92,"acquaintances"]];
+  return `<svg viewBox="0 0 340 214" role="img" aria-label="Nested circles of relationships: 5, 15, 50, 150, 500">
+   ${R.slice().reverse().map(([n,r],i)=>`<circle cx="104" cy="106" r="${r}" fill="color-mix(in srgb,var(--h${n===150?1:2}) ${n===150?18:6+i*3}%,var(--surface))" stroke="${n===150?"var(--h1)":"var(--h2)"}" stroke-width="${n===150?3:1.5}"/>`).join("")}
+   ${R.map(([n,r,l],i)=>{const y=34+i*36,an=[-70,-40,-15,10,35][i]*Math.PI/180;return `<path d="M${(104+r*Math.cos(an)).toFixed(1)} ${(106+r*Math.sin(an)).toFixed(1)} L214 ${y-4} H222" fill="none" stroke="var(--muted)" stroke-width="1"/>
+    <text x="226" y="${y}" font-size="${n===150?14:12}" font-weight="800" style="${n===150?"fill:var(--h1);font-family:var(--font-d)":"font-family:var(--font-d)"}">${n}</text>
+    <text x="226" y="${y+13}" font-size="10" font-weight="700" style="${n===150?"fill:var(--h1)":"fill:var(--muted)"}">${l}</text>`;}).join("")}</svg>`;
+}
+function picRingelmann(){
+  const D=[[1,100],[2,93],[3,85],[4,77],[5,70],[8,49]];
+  return `<svg viewBox="0 0 340 222" role="img" aria-label="Effort per person falls as more people pull the rope">
+   <text x="10" y="16" font-size="12" font-weight="800">People on the rope → effort per person</text>
+   ${D.map(([n,p],i)=>{const y=28+i*31;let dots="";for(let k=0;k<n;k++)dots+=`<circle cx="${12+k*7}" cy="${y+10}" r="2.8" fill="var(--h6)"/>`;
+    return `${dots}<text x="84" y="${y+14}" text-anchor="end" font-size="11" font-weight="800">${n}</text>
+     <rect class="grow" style="animation-delay:${i*.3}s" x="92" y="${y}" width="${p*2.1}" height="20" rx="4" fill="color-mix(in srgb,var(--${p<75?"bad":"h3"}) 22%,var(--surface))" stroke="var(--${p<75?"bad":"h3"})" stroke-width="1.6"/>
+     <text x="${92+p*2.1+6}" y="${y+14}" font-size="10.5" font-weight="800">${p}%</text>`;}).join("")}
+   <text x="170" y="218" text-anchor="middle" font-size="10" style="fill:var(--muted)">Ringelmann’s rope experiments, as commonly reported</text></svg>`;
+}
+function calcPrice(){return `<div class="calc"><div class="ctl">${slider("pr-n","People in the group",4,400,1,100)}</div>
+  <p class="big" id="pr-out"></p><svg viewBox="0 0 340 214" id="pr-svg" role="img" aria-label="Dots for each person; the square root of them highlighted as producing half the work"></svg></div>`;}
+function initPrice(){
+  const draw=()=>{const n=+$("pr-n").value,k=Math.round(Math.sqrt(n));$("pr-n-o").textContent=n;
+    $("pr-out").innerHTML=`About <b>${k} of ${n}</b> people produce half the output. The other ${n-k} share the rest.`;
+    const cols=Math.ceil(Math.sqrt(n*1.6)),size=Math.min(16,320/cols),rows=Math.ceil(n/cols);let g="";
+    for(let i=0;i<n;i++){const x=10+(i%cols)*size,y=10+Math.floor(i/cols)*size,on=i<k;
+      g+=`<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${(size-2).toFixed(1)}" height="${(size-2).toFixed(1)}" rx="${size/4}" fill="${on?"var(--lit)":"color-mix(in srgb,var(--ink) 12%,var(--surface))"}" stroke="${on?"var(--ink)":"none"}" stroke-width="1"/>`;}
+    const h=20+rows*size;$("pr-svg").setAttribute("viewBox",`0 0 340 ${Math.max(h,60)}`);$("pr-svg").innerHTML=g;};
+  $("pr-n").addEventListener("input",draw);draw();
+}
+function picPutt(){
+  const L=[["Top executives",22,90],["Middle managers",56,56],["Senior engineers",90,22]];
+  return `<svg viewBox="0 0 340 206" role="img" aria-label="Technical skill falls and management power rises up the hierarchy">
+   <rect x="128" y="10" width="10" height="10" rx="2" fill="color-mix(in srgb,var(--h2) 40%,var(--surface))" stroke="var(--h2)"/><text x="142" y="19" font-size="10.5" font-weight="800" style="fill:var(--h2)">understands the tech</text>
+   <rect x="128" y="26" width="10" height="10" rx="2" fill="color-mix(in srgb,var(--h6) 40%,var(--surface))" stroke="var(--h6)"/><text x="142" y="35" font-size="10.5" font-weight="800" style="fill:var(--h6)">makes the decisions</text>
+   ${L.map(([n,t,m],i)=>{const y=52+i*46;return `<text x="120" y="${y+20}" text-anchor="end" font-size="11" font-weight="800">${n}</text>
+    <rect x="128" y="${y+4}" width="${t*2}" height="14" rx="3" fill="color-mix(in srgb,var(--h2) 40%,var(--surface))" stroke="var(--h2)" stroke-width="1.4"/>
+    <rect x="128" y="${y+22}" width="${m*2}" height="14" rx="3" fill="color-mix(in srgb,var(--h6) 40%,var(--surface))" stroke="var(--h6)" stroke-width="1.4"/>`;}).join("")}
+   <text x="170" y="198" text-anchor="middle" font-size="10.5" font-weight="800" style="fill:var(--bad)">knowledge and authority point opposite ways</text></svg>`;
+}
+function picPeter(){
+  const R=["Engineer","Senior engineer","Tech lead","Manager","Director"];
+  return `<svg viewBox="0 0 340 214" role="img" aria-label="A person climbs a career ladder and gets stuck at the first role they are not suited to">
+   <path d="M60 16 V200 M120 16 V200" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/>
+   ${R.map((r,i)=>{const y=182-i*38;const stuck=i===3,ok=i<3;return `<path d="M60 ${y} H120" stroke="var(--ink)" stroke-width="3"/>
+     <text x="134" y="${y+4}" font-size="11.5" font-weight="800" style="${stuck?"fill:var(--bad)":i>3?"fill:var(--muted)":""}">${r}</text>
+     ${ok?tick(250,y-1):stuck?`<path d="M246 ${y-5} l9 9 M255 ${y-5} l-9 9" stroke="var(--bad)" stroke-width="2.6" stroke-linecap="round"/>`:""}`;}).join("")}
+   <g class="climb"><circle cx="90" cy="37" r="7" fill="var(--surface)" stroke="var(--h2)" stroke-width="2"/><path d="M90 44 v12 M90 56 l-6 12 M90 56 l6 12 M82 49 h16" stroke="var(--h2)" stroke-width="2" stroke-linecap="round"/></g>
+   <text x="264" y="${182-3*38+4}" font-size="10" font-weight="800" style="fill:var(--bad)">stuck here</text>
+   <text x="264" y="${182-1*38+4}" font-size="10" font-weight="700" style="fill:var(--muted)">great here</text>
+   <text x="170" y="212" text-anchor="middle" font-size="10" style="fill:var(--muted)">each promotion rewards the last job, not the next</text></svg>`;
+}
+function picInverse(){
+  const box=(x,y,w,t,c)=>`<rect x="${x}" y="${y}" width="${w}" height="34" rx="8" fill="color-mix(in srgb,var(--${c}) 14%,var(--surface))" stroke="var(--${c})" stroke-width="2"/><text x="${x+w/2}" y="${y+21}" text-anchor="middle" font-size="10.5" font-weight="800">${t}</text>`;
+  const arr=(x1,x2,y)=>`<path d="M${x1} ${y} H${x2}" stroke="var(--ink)" stroke-width="2" marker-end="url(#ivA)"/>`;
+  return `<svg viewBox="0 0 340 200" role="img" aria-label="Classic Conway: org shapes the system. Inverse: choose the system, shape teams to match">
+   <defs><marker id="ivA" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0 0L8 4L0 8z" fill="var(--ink)"/></marker></defs>
+   <text x="10" y="18" font-size="12" font-weight="800" style="fill:var(--muted)">Conway: by accident</text>
+   ${box(10,28,128,"today’s teams","h6")}${arr(142,192,45)}${box(198,28,132,"whatever system results","h6")}
+   <text x="10" y="104" font-size="12" font-weight="800" style="fill:var(--good)">Inverse Conway: on purpose</text>
+   ${box(10,114,96,"target system","h3")}${arr(110,128,131)}${box(134,114,88,"shape teams","h3")}${arr(226,244,131)}${box(250,114,80,"system follows","h3")}
+   ${[0,1,2].map(i=>`<rect x="${144+i*24}" y="160" width="18" height="14" rx="3" fill="color-mix(in srgb,var(--h3) 25%,var(--surface))" stroke="var(--h3)" stroke-width="1.4"/>`).join("")}
+   <text x="178" y="192" text-anchor="middle" font-size="9.5" font-weight="700" style="fill:var(--muted)">one team per service: orders · payments · delivery</text></svg>`;
+}
+function picBus(){
+  const K=["deploys","billing","database","passwords","docs"];
+  const person=(x,y,c)=>`<circle cx="${x}" cy="${y-6}" r="5" fill="${c}"/><path d="M${x-8} ${y+8}a8 7 0 0 1 16 0" fill="${c}"/>`;
+  let L="",R="";K.forEach((k,i)=>{const y=34+i*24;L+=`<rect x="8" y="${y-9}" width="58" height="18" rx="4" fill="var(--surface)" stroke="var(--muted)" stroke-width="1.2"/><text x="37" y="${y+4}" text-anchor="middle" font-size="9" font-weight="700">${k}</text><path d="M66 ${y} L118 90" stroke="var(--bad)" stroke-width="1.4"/>`;
+    R+=`<rect x="186" y="${y-9}" width="58" height="18" rx="4" fill="var(--surface)" stroke="var(--muted)" stroke-width="1.2"/><text x="215" y="${y+4}" text-anchor="middle" font-size="9" font-weight="700">${k}</text>`;
+    [0,1].forEach(j=>{const py=30+((i+j)%5)*24;R+=`<path d="M244 ${y} L294 ${py+4}" stroke="var(--good)" stroke-width="1.2" opacity=".7"/>`;});});
+  for(let i=0;i<5;i++)R+=person(306,30+i*24+6,"var(--good)");
+  return `<svg viewBox="0 0 340 222" role="img" aria-label="One person holds all the knowledge versus knowledge spread across a team">
+   <text x="80" y="16" text-anchor="middle" font-size="12" font-weight="800" style="fill:var(--bad)">Bus factor = 1</text>
+   <text x="256" y="16" text-anchor="middle" font-size="12" font-weight="800" style="fill:var(--good)">Bus factor = 3+</text>
+   ${L}${person(130,96,"var(--bad)")}<text x="130" y="122" text-anchor="middle" font-size="9.5" font-weight="800">“ask Alice”</text>
+   <line x1="170" y1="24" x2="170" y2="150" stroke="var(--line)" stroke-width="2" stroke-dasharray="4 4"/>${R}
+   <path d="M4 196 H336" stroke="var(--muted)" stroke-width="1.5"/>
+   <g class="bus"><rect x="20" y="166" width="54" height="24" rx="5" fill="var(--lit)" stroke="var(--ink)" stroke-width="1.8"/><rect x="26" y="171" width="10" height="8" rx="1" fill="var(--surface)" stroke="var(--ink)"/><rect x="40" y="171" width="10" height="8" rx="1" fill="var(--surface)" stroke="var(--ink)"/><rect x="54" y="171" width="10" height="8" rx="1" fill="var(--surface)" stroke="var(--ink)"/><circle cx="32" cy="191" r="4.5" fill="var(--ink)"/><circle cx="62" cy="191" r="4.5" fill="var(--ink)"/></g>
+   <text x="170" y="216" text-anchor="middle" font-size="10" font-weight="800" style="fill:var(--muted)">holiday, illness or a new job: same effect</text></svg>`;
+}
+function picDilbert(){
+  const P=(i,title,body)=>{const x=6+i*112;return `<rect x="${x}" y="8" width="104" height="150" rx="10" fill="var(--surface)" stroke="var(--ink)" stroke-width="2"/><text x="${x+52}" y="26" text-anchor="middle" font-size="10.5" font-weight="800">${i+1}. ${title}</text>${body(x)}`;};
+  return `<svg viewBox="0 0 340 196" role="img" aria-label="Satirical story: a struggling coder is promoted to manager to move them away from the code">
+   ${P(0,"Struggling coder",x=>`${fig(x+40,62,"var(--h2)")}<rect x="${x+56}" y="86" width="34" height="22" rx="2" fill="var(--surface)" stroke="var(--ink)" stroke-width="1.5"/><path d="M${x+52} 110 h42" stroke="var(--ink)" stroke-width="2"/><ellipse cx="${x+73}" cy="97" rx="4" ry="5" fill="var(--bad)"/><text x="${x+52}" y="140" text-anchor="middle" font-size="9.5" style="fill:var(--muted)">bugs keep piling up</text>`)}
+   ${P(1,"“Promoted!”",x=>`${fig(x+52,62,"var(--h2)")}<path d="M${x+52} 70 l-3 4 3 12 3 -12z" fill="var(--bad)"/><path d="M${x+76} 50 l6 -10 l6 10" fill="none" stroke="var(--good)" stroke-width="2.5" stroke-linecap="round"/><path d="M${x+82} 40 v20" stroke="var(--good)" stroke-width="2.5"/><text x="${x+52}" y="140" text-anchor="middle" font-size="9.5" style="fill:var(--muted)">away from the code</text>`)}
+   ${P(2,"Problem moved",x=>`${fig(x+30,62,"var(--h2)")}<path d="M${x+30} 70 l-3 4 3 12 3 -12z" fill="var(--bad)"/>${fig(x+64,72,"var(--muted)")}${fig(x+86,72,"var(--muted)")}<text x="${x+75}" y="62" text-anchor="middle" font-size="14" font-weight="800" style="fill:var(--h4)">? ?</text><text x="${x+52}" y="140" text-anchor="middle" font-size="9.5" style="fill:var(--muted)">the team notices</text>`)}
+   <text x="170" y="184" text-anchor="middle" font-size="10.5" font-weight="800" style="fill:var(--h6)">satire, with a grain of truth</text></svg>`;
+}
+Object.assign(GL,{
+ conway:'<rect x="9" y="3" width="6" height="5" rx="1"/><rect x="3" y="16" width="6" height="5" rx="1"/><rect x="15" y="16" width="6" height="5" rx="1"/><path d="M12 8v4M6 16v-4h12v4"/>',
+ brooks:'<circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0 1 12 0"/><path d="M19 8v6M16 11h6"/>',
+ dunbar:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5.5"/><circle cx="12" cy="12" r="2"/>',
+ ringelmann:'<path d="M2 14h20"/><circle cx="6" cy="8" r="2"/><circle cx="12" cy="8" r="2"/><circle cx="18" cy="8" r="2"/>',
+ price:'<path d="M3 13l3-1 3 8 5-17h7"/>',
+ putt:'<path d="M10 3h4l-1 3 2 11-3 4-3-4 2-11z"/>',
+ peter:'<path d="M7 3v18M17 3v18M7 7h10M7 12h10M7 17h10"/>',
+ inverse:'<path d="M4 8h14l-3-3M20 16H6l3 3"/>',
+ bus:'<rect x="3" y="5" width="18" height="12" rx="2"/><path d="M3 11h18"/><circle cx="7.5" cy="19" r="1.8"/><circle cx="16.5" cy="19" r="1.8"/>',
+ dilbert:'<rect x="3" y="8" width="18" height="12" rx="2"/><path d="M9 8V5h6v3"/>'
+});
+LAWS.push(
+{id:"conway",part:"II",name:"Conway’s Law",sub:"Systems mirror the org chart",gl:"conway",
+ one:"Systems end up mirroring the way the teams who build them communicate.",
+ origin:"Melvin Conway, 1968",
+ pic:picConway,cap:"Web and Mobile never talk, so their apps share nothing and repeat the same features.",
+ q:"Does our team structure match the architecture we want?",
+ steps:[["Map who talks to whom","Teams, meetings, hand-offs."],["Map the system","Modules, services, interfaces."],["Spot the mismatches","Where do the two maps differ from what you want?"],["Reshape the teams","Organise around the target architecture."]],
+ b5:"practice",
+ before:"Teams split by layer: UI team → API team → database team.\nEvery feature waits in three queues, with three hand-offs.",
+ whyB:"The architecture copies the hand-offs.",
+ after:"Teams split by business capability: orders, payments, delivery.\nEach team owns its service end to end and ships on its own.",
+ whyA:"Independent teams, independent services.",
+ ex:[["tech","Amazon’s small “two-pizza” teams went hand in hand with its move to independent services."],["gov","UK departmental websites mirrored the departments until GOV.UK rebuilt them around user needs."],["money","Separate logins for your current account and mortgage often trace back to separate bank divisions."],["health","Patient records split across systems, one per hospital department."]],
+ bend:[["Conway says","The system will copy the org."],["So use it","Design the teams you need for the system you want, rather than fighting the mirror."]],
+ rel:[["name","Inverse Conway Manoeuvre"],["name","Brooks’s Law"],["name","Dunbar’s Number"],["name","Bus Factor"]],
+ cheat:{ask:"Does our team structure match the architecture we want?",bend:"Use it: shape teams to the system you want."}},
+{id:"brooks",part:"II",name:"Brooks’s Law",sub:"More people, later project",gl:"brooks",
+ one:"Adding people to a late software project makes it later.",
+ origin:"Fred Brooks, <i>The Mythical Man-Month</i>, 1975",
+ pic:picBrooks,cap:"Doubling the team more than quadruples the conversations, and the new people need teaching first.",
+ q:"Will new people speed this up before the deadline, or slow it down?",
+ steps:[["Cut scope first","Focus on the must-haves."],["Move the date honestly","Better now than later."],["Add people early, if at all","And to work that splits cleanly."],["Protect the experts","Their time is the bottleneck."]],
+ b5:"practice",
+ before:"The project is six weeks late. Five contractors join.\nSenior engineers spend weeks onboarding them, and meetings double.",
+ whyB:"Ramp-up time plus many more conversations.",
+ after:"Scope cut to the must-haves, and the date moved by two weeks.\nNew people join the next project, or take a separate, well-defined piece.",
+ whyA:"Scope and time flex; the team stays stable.",
+ ex:[["health","Brooks’s own example: a pregnancy takes nine months however many people are assigned."],["food","More cooks in a small kitchen slow the meal down."],["biz","Late audits that add staff spend days briefing them before they help."],["tech","Late IT programmes that pile in consultants often slip further."]],
+ bend:[["Brooks says","Adding people late makes it later."],["But early is different","Early on, for work that splits cleanly, or with people who already know the system, more hands can help."]],
+ rel:[["name","Amdahl’s Law"],["name","Dunbar’s Number"],["name","Ringelmann Effect"],["name","Hofstadter’s Law"]],
+ cheat:{ask:"Will new people help before the deadline?",bend:"Early additions to cleanly separable work."}},
+{id:"dunbar",part:"II",name:"Dunbar’s Number",sub:"About 150 stable relationships",gl:"dunbar",
+ one:"People can keep about 150 stable relationships. Beyond that, a group needs structure.",
+ origin:"Robin Dunbar, anthropologist, 1990s",
+ pic:picDunbar,cap:"Relationships come in layers; around 150 is where knowing everyone stops working.",
+ q:"Is this group too big to coordinate informally?",
+ steps:[["Keep teams small","Around 5–9 people."],["Group teams into units","Under about 150."],["Add structure beyond that","Clear ownership, interfaces, written decisions."],["Design communication","Don’t rely on everyone knowing everyone."]],
+ b5:"practice",
+ before:"One department of 300 run like a start-up.\nEveryone in every channel; decisions made in hallway chats.",
+ whyB:"Informal coordination breaks at this size.",
+ after:"Teams of 6–8, grouped into units of under 150.\nClear ownership and written decisions.",
+ whyA:"Structure where informality runs out.",
+ ex:[["home","Studies of Christmas-card lists found people send cards to around 150 people on average."],["biz","Gore & Associates famously kept its sites to around 150 people."],["history","Military companies have long been sized at roughly 100 to 200 people."],["people","Village and community sizes in many societies cluster around this range."]],
+ bend:[["Dunbar suggests","About 150."],["But it’s debated","The real limit varies by person, and researchers dispute the exact figure. Use it as a nudge, not a rule."]],
+ rel:[["name","Conway’s Law"],["name","Brooks’s Law"],["name","Ringelmann Effect"],["name","Metcalfe’s Law"]],
+ cheat:{ask:"Too big to coordinate informally?",bend:"The exact number is debated."}},
+{id:"ringelmann",part:"II",name:"Ringelmann Effect",sub:"Bigger groups, less effort each",gl:"ringelmann",
+ one:"As a group grows, each person tends to put in less effort.",
+ origin:"Max Ringelmann, rope-pulling experiments, published 1913",
+ pic:picRingelmann,cap:"Each extra person on the rope adds less pull. Part is coordination, part is “someone else will”.",
+ q:"Does every person here know exactly what they own?",
+ steps:[["Keep groups small","Fewer people, clearer roles."],["Make contributions visible","Who did what is clear."],["Give clear ownership","One named owner per task."],["Make the work matter","People try harder when it counts."]],
+ b5:"practice",
+ before:"A code review assigned to a team of 12.\nEveryone assumes someone else will look at it.",
+ whyB:"Shared by everyone, owned by no one.",
+ after:"One named reviewer per change, plus one backup.\nOwnership is visible on the board.",
+ whyA:"Clear owner, real effort.",
+ ex:[["sport","Ringelmann’s rope-pulling tests: groups pulled less than the sum of individuals."],["people","An email to the whole team asking for a volunteer gets fewer replies than a direct ask."],["home","Chores in a shared house: the more housemates, the dirtier the kitchen."],["health","The bystander effect: people are less likely to help when others are around."]],
+ bend:[["Ringelmann says","Groups lose effort per person."],["But some work needs many hands","Then give each person a clear, visible part."]],
+ rel:[["name","Linus’s Law"],["name","Brooks’s Law"],["name","Dunbar’s Number"],["name","Bus Factor"]],
+ cheat:{ask:"Does everyone know exactly what they own?",bend:"Big jobs: give each person a visible part."}},
+{id:"price",part:"II",name:"Price’s Law",sub:"√N people do half the work",gl:"price",
+ one:"In a group of N people, about √N of them produce half the output.",
+ origin:"Derek de Solla Price, 1963, from studying scientific papers",
+ pic:calcPrice,init:initPrice,cap:"Slide the group size: the highlighted few grow much more slowly than the group.",
+ q:"Who are the few doing half the work, and what happens if they leave?",
+ steps:[["Find the key contributors","Look at real output, not titles."],["Support them","Remove their blockers."],["Spread their knowledge","Pair, document, rotate."],["Treat it as a rough pattern","Not a way to judge individuals."]],
+ b5:"practice",
+ before:"Assume output grows with headcount.\nDouble the team, expect double the output.",
+ whyB:"Output doesn’t scale with heads.",
+ after:"Know a few people carry much of the work.\nPair them with others, document, and remove single points of failure.",
+ whyA:"Grow capability, not just headcount.",
+ ex:[["science","Price found a small share of researchers wrote a large share of scientific papers."],["tech","In many open-source projects, a handful of maintainers write most of the code."],["biz","A few salespeople often bring in half the revenue."],["learn","A few students ask most of the questions in a class."]],
+ bend:[["Price suggests","√N do half the work."],["But it’s a rule of thumb","It’s an observed pattern, not a proven law. Don’t use it to rank people."]],
+ rel:[["st","pa","Pareto principle"],["name","Bus Factor"],["name","Sturgeon’s Law"],["name","Ringelmann Effect"]],
+ cheat:{ask:"Who does half the work, and what if they leave?",bend:"Rough pattern; never use it to rank people."}},
+{id:"putt",part:"II",name:"Putt’s Law",sub:"Who manages vs who understands",gl:"putt",
+ one:"Technology tends to be run by two groups: those who understand what they don’t manage, and those who manage what they don’t understand.",
+ origin:"Archibald Putt (a pen name), <i>Putt’s Law and the Successful Technocrat</i>, 1981",
+ pic:picPutt,cap:"Up the hierarchy, technical understanding falls as decision power rises.",
+ q:"Do the people deciding understand the work, and do the experts get a say?",
+ steps:[["Keep leaders close to the work","Demos, pairing, real exposure."],["Give experts a voice","In the room when decisions are made."],["Explain the why upwards","Options and trade-offs, in plain words."],["Create technical leadership roles","Staff and principal engineers."]],
+ b5:"practice",
+ before:"Technical decisions made in a steering meeting with no engineers present.",
+ whyB:"Authority without understanding.",
+ after:"Engineers present options and trade-offs; leaders decide with them in the room.",
+ whyA:"Understanding and authority together.",
+ ex:[["health","NHS trust boards include a medical director, so clinical knowledge is at the top table."],["air","Airlines have senior pilots in management roles."],["tech","Tech companies with CTOs who still read and review code."],["gov","Government digital teams with technical leaders in senior roles."]],
+ bend:[["Putt is satire","With a serious point."],["But it isn’t destiny","Leaders who stay curious and engineers who learn the business break the pattern."]],
+ rel:[["name","Peter Principle"],["name","Dilbert Principle"],["name","Conway’s Law"]],
+ cheat:{ask:"Do deciders understand, and do experts get a say?",bend:"It’s satire; curious leaders break it."}},
+{id:"peter",part:"II",name:"Peter Principle",sub:"Promoted to the level of incompetence",gl:"peter",st:["pe","Peter principle"],
+ one:"In a hierarchy, people tend to be promoted until they reach a role they’re not good at.",
+ origin:"Laurence J. Peter, <i>The Peter Principle</i>, 1969",
+ pic:picPeter,cap:"Each promotion is earned in the old job and judged in the new one.",
+ q:"Are we promoting for the next role, or rewarding the last one?",
+ steps:[["Define the next role’s skills","What does it really need?"],["Assess for those","Not past performance alone."],["Offer dual tracks","Expert and manager paths of equal status."],["Trial and allow moving back","Make it normal to return."]],
+ b5:"practice",
+ before:"The best engineer is promoted to manager as a reward.\nThe team loses its best engineer and gains a struggling manager.",
+ whyB:"A reward that changes the job.",
+ after:"A senior technical track with equal pay and status.\nManagement is a different job, tried out before committing.",
+ whyA:"People grow without leaving what they’re great at.",
+ ex:[["tech","Dual career ladders let engineers grow to staff or principal level without managing."],["sport","Star players don’t always make great managers."],["biz","The top salesperson promoted to sales manager."],["learn","Brilliant researchers made heads of department."]],
+ bend:[["Peter says","People rise until they struggle."],["But people can grow","With training, support and trial periods, many grow into new roles."]],
+ rel:[["name","Putt’s Law"],["name","Dilbert Principle"],["name","Dunning–Kruger"]],
+ cheat:{ask:"Promoting for the next role or the last one?",bend:"Training and trials help people grow."}},
+{id:"inverse",part:"II",name:"Inverse Conway Manoeuvre",sub:"Shape teams to get the system you want",gl:"inverse",
+ one:"If systems copy the org chart, design the teams you need for the system you want.",
+ origin:"Named at Thoughtworks in the 2010s; popularised by <i>Accelerate</i> and <i>Team Topologies</i>",
+ pic:picInverse,cap:"Instead of getting the system your teams happen to produce, choose the system and shape teams to match.",
+ q:"Which team structure would naturally produce the architecture we want?",
+ steps:[["Define target boundaries","The services or products you want."],["One long-lived team each","Stable, cross-functional."],["Give teams autonomy","Their own deploys, on-call and roadmap."],["Use clean interfaces","APIs, not tickets, between teams."]],
+ b5:"practice",
+ before:"Teams reshuffled every year by whoever is free.\nThe architecture drifts to match each reshuffle.",
+ whyB:"The system follows the reorg, not a plan.",
+ after:"Stable teams aligned to business capabilities: orders, payments, delivery.\nEach owns its service end to end.",
+ whyA:"The architecture follows the team design.",
+ ex:[["tech","Spotify’s squads were aligned to product areas so they could ship independently."],["gov","GOV.UK organised teams around services people use, like renewing a passport."],["health","Hospitals build teams around patient pathways, such as stroke units, rather than departments."],["biz","Amazon set up service teams first, and its architecture followed."]],
+ bend:[["Shape the teams","To get the architecture."],["But reorgs are costly","Every change disrupts people and work. Reshape deliberately, not every quarter."]],
+ rel:[["name","Conway’s Law"],["name","Dunbar’s Number"],["name","Gall’s Law"],["name","Brooks’s Law"]],
+ cheat:{ask:"Which team design would produce the system we want?",bend:"Reorgs are costly: change deliberately."}},
+{id:"bus",part:"II",name:"Bus Factor",sub:"How many people can you lose?",gl:"bus",
+ one:"The number of people who could leave before a project stalls. One is dangerous.",
+ origin:"Software folklore, 1990s (also called the “truck factor”)",
+ pic:picBus,cap:"If everything runs through one person, one absence stops everything.",
+ q:"If one person disappeared tomorrow, what would stop?",
+ steps:[["Find single points of knowledge","Who is the only one who can…?"],["Pair and rotate","On-call, deploys, reviews."],["Write decisions down","Short decision records and runbooks."],["Test it","The holiday test: does work continue?"]],
+ b5:"practice",
+ before:"Only Alice can deploy. The docs are “ask Alice”.\nEvery review waits for her.",
+ whyB:"Bus factor of one.",
+ after:"Deploys are scripted and rotated.\nDecisions are written down.\nAt least two people can review any area.",
+ whyA:"The team keeps going when anyone is away.",
+ ex:[["tech","The XZ Utils compression library, used across Linux, depended on one overstretched volunteer, and an attacker exploited that in 2024."],["biz","A small firm where only the owner knows the passwords."],["home","One person in the family knows how the bills and boiler work."],["health","A rural practice with a single GP struggles when they’re off sick."]],
+ bend:[["Raise the bus factor","Spread knowledge."],["But not everyone needs everything","Aim for at least two people per critical area, not everyone knowing it all."]],
+ rel:[["name","Price’s Law"],["name","Conway’s Law"],["name","Ringelmann Effect"],["name","Murphy’s Law"]],
+ cheat:{ask:"If one person vanished tomorrow, what stops?",bend:"Aim for two per area, not everyone."}},
+{id:"dilbert",part:"II",name:"Dilbert Principle",sub:"Satire: promoting people out of the way",gl:"dilbert",
+ one:"A satirical idea: companies sometimes promote their least effective people into management to limit the damage they can do.",
+ origin:"Scott Adams, cartoonist, 1990s (satire)",
+ pic:picDilbert,cap:"Satire: moving a problem upwards instead of solving it.",
+ q:"Is this promotion about the role, or about moving a problem?",
+ steps:[["Name the real problem","Performance, fit or something else?"],["Deal with it directly","Support, clear expectations, honest feedback."],["Make management a skill","Not a parking space."],["Train new managers","Before and after they start."]],
+ b5:"practice",
+ before:"A struggling engineer is moved into management to get them away from the code.",
+ whyB:"The problem is moved, not solved, and now it affects a whole team.",
+ after:"Performance is addressed directly, with support and clear expectations.\nManagers are chosen and trained for management.",
+ whyA:"Management becomes a real job, done by people suited to it.",
+ ex:[["biz","Being “kicked upstairs”: a grand title with little real responsibility."],["gov","Moving underperforming staff between departments instead of addressing the issue."],["people","Teams notice when promotions don’t match ability, and morale drops."],["sport","Moving an out-of-form player into an unclear role rather than having an honest conversation."]],
+ bend:[["It’s satire","Not a description of most companies."],["Use it as a warning sign","If promotions are used to avoid hard conversations, fix that."]],
+ rel:[["name","Peter Principle"],["name","Putt’s Law"]],
+ cheat:{ask:"Is this promotion about the role, or moving a problem?",bend:"It’s satire, not most companies."}}
+);
 LAWS.forEach(l=>{l.part=l.part||"VI";});
 
 const BYID=Object.fromEntries(LAWS.map(l=>[l.id,l]));
@@ -1489,7 +1775,7 @@ const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
 const HUES=["h1","h2","h3","h4","h5","h6"];
 
 /* ================= BUILDING ================= */
-let curPart="III",curLaw="hofstadter";
+let curPart="II",curLaw="conway";
 function bldRender(){
   const svg=document.getElementById("bld");const X0=36,W=288,FH=58,TOP=80;let g="";
   /* crane */
@@ -1603,14 +1889,24 @@ const QZ=[
  {q:"The feature has been “90% done” for three Fridays in a row.",a:"ninety",o:["ninety","hofstadter","parkinson"],why:"The last 10% (edge cases, errors, polish) takes as long as the first 90%."},
  {q:"Engineers get bonuses for low bug counts, and bugs start being filed as “improvements”.",a:"goodhart",o:["goodhart","gilb","unintended"],why:"The measure became a target, so people moved the number instead of the quality."},
  {q:"The team says developer experience can’t be measured, so nobody knows whether changes help.",a:"gilb",o:["gilb","goodhart","sturgeon"],why:"A rough measure beats none. Pick a proxy and watch the trend."},
- {q:"A developer spends a week hand-tuning config lookups that take 0.5% of the runtime.",a:"knuth",o:["knuth","amdahl","kiss"],why:"Optimising before measuring. The profiler would have pointed elsewhere."}
+ {q:"A developer spends a week hand-tuning config lookups that take 0.5% of the runtime.",a:"knuth",o:["knuth","amdahl","kiss"],why:"Optimising before measuring. The profiler would have pointed elsewhere."},
+ {q:"Teams are split into UI, API and database, and every feature needs all three to coordinate.",a:"conway",o:["conway","brooks","dunbar"],why:"The system mirrors the hand-offs between those teams."},
+ {q:"A project is six weeks late, so five contractors join. It finishes even later.",a:"brooks",o:["brooks","ringelmann","hofstadter"],why:"Ramp-up time and extra communication slowed the original team."},
+ {q:"A 300-person department still runs everything through one all-hands chat, and coordination keeps breaking down.",a:"dunbar",o:["dunbar","conway","ringelmann"],why:"Past about 150, informal coordination stops working; it needs structure."},
+ {q:"A review is assigned to a team of 12, and nobody reviews it.",a:"ringelmann",o:["ringelmann","linus","bus"],why:"Shared by everyone, owned by no one. Name one reviewer."},
+ {q:"In a team of 100, about 10 people produce half of everything that ships.",a:"price",o:["price","sturgeon","ringelmann"],why:"√100 = 10: roughly what Price’s Law predicts."},
+ {q:"A steering committee chooses the database with no engineers in the room.",a:"putt",o:["putt","dilbert","peter"],why:"Those managing don’t understand the work, and those who do aren’t there."},
+ {q:"You want separate services for orders, payments and delivery, so you first form one team for each.",a:"inverse",o:["inverse","conway","gall"],why:"Shape the teams to get the architecture you want."},
+ {q:"Only one person knows how to deploy, and she’s on holiday.",a:"bus",o:["bus","price","murphy"],why:"A bus factor of one: knowledge isn’t spread."},
+ {q:"Your best engineer is promoted to team lead as a reward, and struggles.",a:"peter",o:["peter","dilbert","putt"],why:"Promoted for the last role, not the skills of the next one."},
+ {q:"A struggling engineer is “promoted” into management to get them away from the code.",a:"dilbert",o:["dilbert","peter","putt"],why:"The satirical Dilbert Principle: the problem is moved, not solved."}
 ];
 const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
 const qz={floor:"all",order:[],pos:0,score:0,answered:0,picked:null};
 function qzReset(){const ids=QZ.map((_,i)=>i).filter(i=>qz.floor==="all"||BYID[QZ[i].a].part===qz.floor);Object.assign(qz,{order:shuffle(ids),pos:0,score:0,answered:0,picked:null});QZ.forEach(q=>delete q._o);}
 function qzRender(){
   const box=document.getElementById("quiz"),N=qz.order.length;
-  const filt=`<div class="qf" role="group" aria-label="Choose floor">${[["all","All open floors"],["VI","Ground"],["IV","Floor 1"],["V","Floor 2"],["I","Floor 3"],["III","Floor 4"]].map(([k,l])=>`<button data-f="${k}" aria-pressed="${qz.floor===k}">${l}</button>`).join("")}</div>`;
+  const filt=`<div class="qf" role="group" aria-label="Choose floor">${[["all","All open floors"],["VI","Ground"],["IV","Floor 1"],["V","Floor 2"],["I","Floor 3"],["III","Floor 4"],["II","Floor 5"]].map(([k,l])=>`<button data-f="${k}" aria-pressed="${qz.floor===k}">${l}</button>`).join("")}</div>`;
   if(qz.pos>=N){box.innerHTML=filt+`<div class="q-meta"><span>Done</span><span>${qz.score}/${N}</span></div><p class="q-text">You matched ${qz.score} of ${N} situations.</p><button class="btn primary" id="qr" style="width:100%">Shuffle and play again</button>`;
     document.getElementById("qr").onclick=()=>{qzReset();qzRender();};}
   else{
@@ -1646,7 +1942,12 @@ const PAIRS=[
  {a:["law","cap"],b:["law","fallacies"],t:"Choose your trade-off, or assume the network works?",r:"The fallacies say partitions will happen; CAP says decide in advance what each feature does when they do."},
  {a:["law","gilb"],b:["law","goodhart"],t:"Measure it, or don’t make it a target?",r:"Measure to learn, with several rough signals. Never tie a single number to rewards."},
  {a:["law","parkinson"],b:["law","hofstadter"],t:"Shorter deadlines, or longer estimates?",r:"Time-box the work tightly, but forecast delivery from past actuals and keep one shared buffer."},
- {a:["law","ninety"],b:["law","yagni"],t:"Finish properly, or stop at good enough?",r:"Production code needs the last 10%. Prototypes and experiments can stop at 90%."}
+ {a:["law","ninety"],b:["law","yagni"],t:"Finish properly, or stop at good enough?",r:"Production code needs the last 10%. Prototypes and experiments can stop at 90%."},
+ {a:["law","conway"],b:["law","inverse"],t:"Accept the org’s shape, or change it?",r:"Assume the system will copy the org. If you need a different architecture, change the teams first."},
+ {a:["law","brooks"],b:["law","bus"],t:"Keep the team small, or spread the knowledge?",r:"Add people early and spread knowledge before deadlines, not during the crunch."},
+ {a:["law","price"],b:["law","bus"],t:"Rely on your stars, or reduce dependence on them?",r:"Support the few who do most of the work, and pair them so their knowledge isn’t a single point of failure."},
+ {a:["law","peter"],b:["law","dilbert"],t:"Promote the best, or move the weakest?",r:"Neither: promote for the skills of the next role, and give experts a separate path."},
+ {a:["law","ringelmann"],b:["law","linus"],t:"More reviewers, or clear ownership?",r:"One named owner plus a few expert eyes beats a crowd."}
 ];
 function pairsRender(){
   const side=s=>{if(s[0]==="law"){const l=BYID[s[1]],c=PARTS[l.part].c;return `<a class="side" href="#law-${l.id}" style="--c:var(--${c});text-decoration:none;color:inherit"><span style="color:var(--${c})">${ic(GL[l.gl])}</span><b>${esc(l.name)}</b><small>${esc(l.one)}</small><span class="open">Open page →</span></a>`;}
@@ -1656,7 +1957,7 @@ function pairsRender(){
 
 /* ================= CHEAT SHEET ================= */
 function cheatRender(){
-  const open=["VI","IV","V","I","III"];
+  const open=["VI","IV","V","I","III","II"];
   document.getElementById("cheat").outerHTML=`<div id="cheat">${open.map(k=>{const P=PARTS[k];return `<h3 class="cfloor" style="--c:var(--${P.c})">${floorName(P)} · ${esc(P.name)}</h3><div class="cheat">${LAWS.filter(l=>l.part===k).map(l=>`<div class="cs" style="--c:var(--${P.c})"><div class="top"><span class="gl">${ic(GL[l.gl])}</span><div><b>${esc(l.name)}</b><div style="font-size:11.5px;color:var(--muted);font-weight:700">${esc(l.sub)}</div></div></div>
     <p class="one">${esc(l.one)}</p><dl><dt>Ask</dt><dd>${esc(l.cheat.ask)}</dd><dt>Bend for</dt><dd>${esc(l.cheat.bend)}</dd></dl></div>`).join("")}</div>`;}).join("")}</div>`;
   if(location.protocol==="file:"||/github\.io$/.test(location.hostname)){
